@@ -1,0 +1,8 @@
+<resources>
+    <color name="otr_cream">#121416</color>
+    <color name="otr_ink">#F5F6F7</color>
+    <color name="otr_brown">#DCE0E5</color>
+    <color name="otr_gold">#DCE0E5</color>
+    <color name="otr_panel">#23272B</color>
+    <color name="otr_muted">#B7BDC5</color>
+</resources>

@@ -4,6 +4,8 @@
         <item name="colorPrimaryVariant">@color/otr_ink</item>
         <item name="colorSecondary">@color/otr_gold</item>
         <item name="android:fontFamily">sans</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/otr_cream</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>

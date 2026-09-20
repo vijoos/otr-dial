@@ -5,13 +5,17 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.view.View
+import android.content.res.Configuration
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,7 +30,6 @@ import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.otrdial.databinding.ActivityMainBinding
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -37,13 +40,31 @@ class MainActivity : AppCompatActivity() {
     private var controller: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private var genre = "All genres"
-    private val handler = Handler(Looper.getMainLooper())
-    private var sleepRunnable: Runnable? = null
+    private var playerOpen = false
+    private lateinit var playerBack: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        delegate.localNightMode = if (prefs.getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            val keyboard = insets.getInsets(WindowInsetsCompat.Type.ime())
+            view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, keyboard.bottom))
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
+        val dark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        WindowCompat.getInsetsController(window, binding.root).apply {
+            isAppearanceLightStatusBars = !dark
+            isAppearanceLightNavigationBars = !dark
+        }
+        playerBack = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() = showPlayer(false)
+        }
+        onBackPressedDispatcher.addCallback(this, playerBack)
 
         requestNotificationPermissionIfNeeded()
         stations = StationRepository.load(this)
@@ -51,6 +72,8 @@ class MainActivity : AppCompatActivity() {
         setupList()
         setupFilters()
         setupControls()
+        binding.currentMetadata.text = savedInstanceState?.getString("metadata") ?: "Live radio"
+        showPlayer(savedInstanceState?.getBoolean("player_open") ?: false)
     }
 
     private fun setupPlayerConnection() {
@@ -59,6 +82,13 @@ class MainActivity : AppCompatActivity() {
         controllerFuture!!.addListener({
             runCatching { controllerFuture!!.get() }.onSuccess { c ->
                 controller = c
+                currentStation = stations.find { it.id == c.currentMediaItem?.mediaId }
+                currentStation?.let {
+                    binding.currentStation.text = it.name
+                    binding.openPlayerButton.text = "${it.name}  ›"
+                    binding.openPlayerButton.visibility = View.VISIBLE
+                    updateFavouriteButton()
+                }
                 c.addListener(object : Player.Listener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) = updatePlayButton()
                     @androidx.annotation.OptIn(UnstableApi::class)
@@ -120,7 +150,25 @@ class MainActivity : AppCompatActivity() {
         }
         binding.favouriteButton.setOnClickListener { currentStation?.let { toggleFavourite(it) } }
         binding.recordButton.setOnClickListener { toggleRecording() }
-        binding.sleepButton.setOnClickListener { showSleepTimer() }
+        binding.themeSwitch.isChecked = prefs.getBoolean("dark_mode", false)
+        binding.themeSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.edit().putBoolean("dark_mode", checked).apply()
+            delegate.localNightMode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        }
+        binding.backButton.setOnClickListener { showPlayer(false) }
+        binding.openPlayerButton.setOnClickListener { showPlayer(true) }
+        binding.recordButton.text = if (StreamRecorder.isRecording) "■ STOP" else "● REC"
+    }
+
+    private fun showPlayer(show: Boolean) {
+        playerOpen = show
+        binding.browserPanel.visibility = if (show) View.GONE else View.VISIBLE
+        binding.playerScreen.visibility = if (show) View.VISIBLE else View.GONE
+        playerBack.isEnabled = show
+        if (show) {
+            binding.searchBox.clearFocus()
+            WindowCompat.getInsetsController(window, binding.root).hide(WindowInsetsCompat.Type.ime())
+        }
     }
 
     private fun playStation(station: Station) {
@@ -130,6 +178,13 @@ class MainActivity : AppCompatActivity() {
             return
         }
         currentStation = station
+        binding.openPlayerButton.text = "${station.name}  ›"
+        binding.openPlayerButton.visibility = View.VISIBLE
+        showPlayer(true)
+        if (c.currentMediaItem?.mediaId == station.id) {
+            if (!c.isPlaying) c.play()
+            return
+        }
         binding.currentStation.text = station.name
         binding.currentMetadata.text = "${station.network} • ${station.genre}"
         updateFavouriteButton()
@@ -173,10 +228,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateFavouriteButton() {
         binding.favouriteButton.text = if (currentStation?.let { isFavourite(it) } == true) "♥" else "♡"
+        binding.favouriteButton.contentDescription = if (currentStation?.let { isFavourite(it) } == true) "Remove from favourites" else "Add to favourites"
     }
 
     private fun updatePlayButton() {
-        binding.playPauseButton.text = if (controller?.isPlaying == true) "Pause" else "Play"
+        val playing = controller?.isPlaying == true
+        binding.playPauseButton.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
+        binding.playPauseButton.contentDescription = if (playing) "Pause" else "Play"
     }
 
     private fun toggleRecording() {
@@ -205,26 +263,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showSleepTimer() {
-        val labels = arrayOf("15 minutes", "30 minutes", "60 minutes", "90 minutes", "Cancel timer")
-        val mins = intArrayOf(15, 30, 60, 90, 0)
-        AlertDialog.Builder(this)
-            .setTitle("Sleep timer")
-            .setItems(labels) { _, which ->
-                sleepRunnable?.let { handler.removeCallbacks(it) }
-                val m = mins[which]
-                if (m == 0) {
-                    sleepRunnable = null
-                    Toast.makeText(this, "Sleep timer cancelled", Toast.LENGTH_SHORT).show()
-                } else {
-                    sleepRunnable = Runnable {
-                        controller?.pause()
-                        Toast.makeText(this, "Sleep timer stopped playback", Toast.LENGTH_SHORT).show()
-                    }.also { handler.postDelayed(it, TimeUnit.MINUTES.toMillis(m.toLong())) }
-                    Toast.makeText(this, "Playback will stop in $m minutes", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .show()
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("player_open", playerOpen)
+        outState.putString("metadata", binding.currentMetadata.text.toString())
+        super.onSaveInstanceState(outState)
     }
 
     private fun requestNotificationPermissionIfNeeded() {
@@ -235,7 +277,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        controller?.release()
+        controllerFuture?.let { MediaController.releaseFuture(it) }
         controller = null
         super.onDestroy()
     }
