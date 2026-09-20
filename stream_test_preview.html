@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OTR Dial Stream Test</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#f5efe3;color:#211b16;margin:0}header{padding:22px;text-align:center;background:#fff9f0;position:sticky;top:0}h1{margin:0;letter-spacing:.08em}.controls{display:flex;gap:8px;max-width:900px;margin:12px auto 0}.controls input,.controls select{flex:1;padding:10px;border:1px solid #9b8b80;border-radius:8px;background:white}.grid{max-width:900px;margin:15px auto;padding:0 12px 100px;display:grid;gap:8px}.station{background:#fff9f0;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px}.badge{width:48px;height:48px;background:#6d4c41;color:#fff;display:grid;place-items:center;border-radius:8px;font-weight:700}.name{font-weight:700}.meta{font-size:12px;color:#72665e}.station button{margin-left:auto;padding:10px 14px}.player{position:fixed;left:0;right:0;bottom:0;background:#211b16;color:white;padding:12px;text-align:center}.player small{color:#d5c8bd}.hidden{display:none}</style>
+</head><body>
+<header><h1>OTR DIAL</h1><div>43-station stream test</div><div class="controls"><input id="q" placeholder="Search"><select id="g"><option>All genres</option></select></div></header>
+<div id="list" class="grid"></div>
+<div class="player"><div id="playing">Choose a station</div><small id="status">This browser preview is only for stream testing.</small><br><audio id="audio" controls></audio></div>
+<script>
+const stations = [
+  {
+    "id": "rokit-1940s",
+    "name": "1940s Radio",
+    "network": "Vintage ROKiT",
+    "genre": "Variety",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8256/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-adventure",
+    "name": "Adventure Stories",
+    "network": "Vintage ROKiT",
+    "genre": "Adventure",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8162/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-american-classics",
+    "name": "American Classics",
+    "network": "Vintage ROKiT",
+    "genre": "Variety",
+    "streamUrl": "http://streaming05.liveboxstream.uk:8043/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-american-comedy",
+    "name": "American Comedy",
+    "network": "Vintage ROKiT",
+    "genre": "Comedy",
+    "streamUrl": "http://streaming04.liveboxstream.uk:8162/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-britcom1",
+    "name": "British Comedy 1",
+    "network": "Vintage ROKiT",
+    "genre": "Comedy",
+    "streamUrl": "http://streaming04.liveboxstream.uk:8077/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-britcom2",
+    "name": "British Comedy 2",
+    "network": "Vintage ROKiT",
+    "genre": "Comedy",
+    "streamUrl": "http://streaming05.liveboxstream.uk:8009/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-comedy-gold",
+    "name": "Comedy Gold Radio",
+    "network": "Vintage ROKiT",
+    "genre": "Comedy",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8150/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-crime-extra",
+    "name": "Crime Radio Extra",
+    "network": "Vintage ROKiT",
+    "genre": "Crime / Detective",
+    "streamUrl": "http://streaming05.liveboxstream.uk:8039/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-crime-suspense",
+    "name": "Crime and Suspense",
+    "network": "Vintage ROKiT",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "http://streaming04.liveboxstream.uk:8168/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-drama",
+    "name": "Drama Radio",
+    "network": "Vintage ROKiT",
+    "genre": "Drama",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8174/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-mystery",
+    "name": "Mystery Radio",
+    "network": "Vintage ROKiT",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8168/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-nostalgia",
+    "name": "Nostalgia Lane",
+    "network": "Vintage ROKiT",
+    "genre": "Variety",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8180/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-old-time-gold",
+    "name": "Old Time Gold",
+    "network": "Vintage ROKiT",
+    "genre": "Variety",
+    "streamUrl": "http://streaming04.liveboxstream.uk:8180/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-saturn-x",
+    "name": "Saturn X Radio",
+    "network": "Vintage ROKiT",
+    "genre": "Sci-Fi / Horror",
+    "streamUrl": "http://streaming05.liveboxstream.uk:8122/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "rokit-scifi",
+    "name": "Science Fiction",
+    "network": "Vintage ROKiT",
+    "genre": "Sci-Fi / Horror",
+    "streamUrl": "http://streaming05.liveboxstream.uk:8110/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official ROKiT station URL"
+  },
+  {
+    "id": "pump-britcom1",
+    "name": "BritCom 1",
+    "network": "Pumpkin FM",
+    "genre": "Comedy",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/britcom1/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-britcom2",
+    "name": "BritCom 2",
+    "network": "Pumpkin FM",
+    "genre": "Comedy",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/britcom2/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-britcom3",
+    "name": "BritCom 3",
+    "network": "Pumpkin FM",
+    "genre": "Comedy",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/britcom3/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-britcom4",
+    "name": "BritCom 4",
+    "network": "Pumpkin FM",
+    "genre": "Comedy",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/britcom4/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-american-gold",
+    "name": "American Gold",
+    "network": "Pumpkin FM",
+    "genre": "Comedy",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/americangold/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-crime",
+    "name": "Crime Incorporated",
+    "network": "Pumpkin FM",
+    "genre": "Crime / Detective",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/crimeinc/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-strange",
+    "name": "Strange Radio",
+    "network": "Pumpkin FM",
+    "genre": "Sci-Fi / Horror",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/strangeradio/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/strange-radio-program-schedule/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-venture",
+    "name": "Venture Radio",
+    "network": "Pumpkin FM",
+    "genre": "Adventure / Western",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/ventureradio/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/venture-radio/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-britannia",
+    "name": "Radio Britannia",
+    "network": "Pumpkin FM",
+    "genre": "British Variety",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/radioengland/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM HTTPS stream"
+  },
+  {
+    "id": "pump-1940-home",
+    "name": "1940s Radio - Home Service",
+    "network": "Pumpkin FM",
+    "genre": "1940s / Variety",
+    "streamUrl": "http://65.21.202.84:8392/stream",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Official Pumpkin FM endpoint; HTTP"
+  },
+  {
+    "id": "pump-1940-light",
+    "name": "1940s Radio - Light Programme",
+    "network": "Pumpkin FM",
+    "genre": "1940s / Variety",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/malvernradiojrs/stream/",
+    "homepage": "https://pumpkinfm.com/",
+    "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
+    "recordable": true,
+    "verification": "Endpoint formerly Malvern Radio JRS; network rebranded channel"
+  },
+  {
+    "id": "conyers-main",
+    "name": "Conyers Old Time Radio",
+    "network": "Independent",
+    "genre": "Variety",
+    "streamUrl": "https://s8.yesstreaming.net:17011/stream",
+    "homepage": "https://conyersradio.net/",
+    "scheduleUrl": "https://conyersradio.net/Conyers_OTR_Whats_Playing.html",
+    "recordable": true,
+    "verification": "Official Conyers 2026 stream URL"
+  },
+  {
+    "id": "conyers-holiday",
+    "name": "Conyers Special / Holiday Stream",
+    "network": "Independent",
+    "genre": "Seasonal / Marathons",
+    "streamUrl": "https://s6.yesstreaming.net:17082/stream",
+    "homepage": "https://conyersradio.net/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official Conyers second stream"
+  },
+  {
+    "id": "yusa-red",
+    "name": "Yesterday USA Red",
+    "network": "Yesterday USA",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.radio.co/sf5708c004/listen",
+    "homepage": "https://www.yesterdayusa.com/",
+    "scheduleUrl": "https://www.yesterdayusa.com/cgi-bin/rotation_grid.pl",
+    "recordable": true,
+    "verification": "Official YUSA stream identifier; HTTPS form"
+  },
+  {
+    "id": "yusa-blue",
+    "name": "Yesterday USA Blue",
+    "network": "Yesterday USA",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.radio.co/sa37b728bf/listen",
+    "homepage": "https://www.yesterdayusa.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Official YUSA stream identifier; HTTPS form"
+  },
+  {
+    "id": "wotr-variety",
+    "name": "Old Time Radio USA",
+    "network": "WOTR Radio Network",
+    "genre": "Variety",
+    "streamUrl": "https://listen.openstream.co/4884/audio",
+    "homepage": "https://www.wotrradionetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+  },
+  {
+    "id": "wotr-suspense",
+    "name": "Suspense Radio USA",
+    "network": "WOTR Radio Network",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://listen.openstream.co/4885/audio",
+    "homepage": "https://www.wotrradionetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+  },
+  {
+    "id": "wotr-crime",
+    "name": "Crime Time Radio USA",
+    "network": "WOTR Radio Network",
+    "genre": "Crime / Detective",
+    "streamUrl": "https://listen.openstream.co/4799/audio",
+    "homepage": "https://www.wotrradionetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+  },
+  {
+    "id": "aotr-a81991",
+    "name": "Old Time Radio Variety",
+    "network": "America's OTR",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.live365.com/a81991",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a29044",
+    "name": "Old Time Comedy Radio",
+    "network": "America's OTR",
+    "genre": "Comedy",
+    "streamUrl": "https://streaming.live365.com/a29044",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a19446",
+    "name": "Old Time Crime",
+    "network": "America's OTR",
+    "genre": "Crime / Detective",
+    "streamUrl": "https://streaming.live365.com/a19446",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a23179",
+    "name": "Western Radio",
+    "network": "America's OTR",
+    "genre": "Western",
+    "streamUrl": "https://streaming.live365.com/a23179",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a06481",
+    "name": "The Mystery Channel",
+    "network": "America's OTR",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://streaming.live365.com/a06481",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a07058",
+    "name": "Drama Classics",
+    "network": "America's OTR",
+    "genre": "Drama",
+    "streamUrl": "https://streaming.live365.com/a07058",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a70946",
+    "name": "Dragnet",
+    "network": "America's OTR",
+    "genre": "Crime / Detective",
+    "streamUrl": "https://streaming.live365.com/a70946",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a68303",
+    "name": "Gunsmoke",
+    "network": "America's OTR",
+    "genre": "Western",
+    "streamUrl": "https://streaming.live365.com/a68303",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a46348",
+    "name": "Radio Mystery Theater",
+    "network": "America's OTR",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://streaming.live365.com/a46348",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "aotr-a41126",
+    "name": "Old Time Christmas",
+    "network": "America's OTR",
+    "genre": "Seasonal",
+    "streamUrl": "https://streaming.live365.com/a41126",
+    "homepage": "https://americasotr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  }
+];
+const list=document.getElementById('list'),q=document.getElementById('q'),g=document.getElementById('g'),audio=document.getElementById('audio'),playing=document.getElementById('playing'),status=document.getElementById('status');
+[...new Set(stations.map(s=>s.genre))].sort().forEach(x=>{let o=document.createElement('option');o.textContent=x;g.appendChild(o)});
+function initials(s){return s.split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()}
+function draw(){list.innerHTML='';let query=q.value.toLowerCase();stations.filter(s=>(g.value==='All genres'||s.genre===g.value)&&(!query||(s.name+' '+s.network+' '+s.genre).toLowerCase().includes(query))).forEach(s=>{let d=document.createElement('div');d.className='station';d.innerHTML=`<div class="badge">${initials(s.name)}</div><div><div class="name">${s.name}</div><div class="meta">${s.network} • ${s.genre}</div></div><button>Play</button>`;d.querySelector('button').onclick=()=>{audio.src=s.streamUrl;playing.textContent=s.name;status.textContent='Connecting…';audio.play().then(()=>status.textContent='Playing').catch(e=>status.textContent='Could not start: '+e.message)};list.appendChild(d)})}
+q.oninput=draw;g.onchange=draw;audio.onplaying=()=>status.textContent='Playing';audio.onerror=()=>status.textContent='Stream failed in browser (it may still work natively in Android).';draw();
+</script></body></html>

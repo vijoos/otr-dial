@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/otr_cream">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OTR DIAL"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/otr_ink"
+        android:gravity="center"
+        android:paddingTop="18dp"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OLD TIME RADIO • LIVE"
+        android:textSize="11sp"
+        android:letterSpacing="0.18"
+        android:textColor="@color/otr_muted"
+        android:gravity="center"
+        android:paddingBottom="10dp" />
+
+    <EditText
+        android:id="@+id/searchBox"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="12dp"
+        android:hint="@string/search_hint"
+        android:singleLine="true"
+        android:paddingHorizontal="14dp"
+        android:backgroundTint="@color/otr_brown" />
+
+    <Spinner
+        android:id="@+id/genreSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/stationList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="8dp"
+        android:clipToPadding="false" />
+
+    <LinearLayout
+        android:id="@+id/playerPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/otr_panel"
+        android:elevation="12dp"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/currentStation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nothing_playing"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="@color/otr_ink"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/currentMetadata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/now_playing"
+            android:textSize="13sp"
+            android:textColor="@color/otr_muted"
+            android:maxLines="2"
+            android:paddingTop="2dp"
+            android:paddingBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/playPauseButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Play" />
+
+            <Button
+                android:id="@+id/favouriteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="♡" />
+
+            <Button
+                android:id="@+id/recordButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="● REC" />
+
+            <Button
+                android:id="@+id/sleepButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="☾" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

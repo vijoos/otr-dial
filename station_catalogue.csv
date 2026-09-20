@@ -1,0 +1,44 @@
+﻿id,name,network,genre,streamUrl,homepage,scheduleUrl,recordable,verification
+rokit-1940s,1940s Radio,Vintage ROKiT,Variety,http://streaming06.liveboxstream.uk:8256/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-adventure,Adventure Stories,Vintage ROKiT,Adventure,http://streaming06.liveboxstream.uk:8162/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-american-classics,American Classics,Vintage ROKiT,Variety,http://streaming05.liveboxstream.uk:8043/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-american-comedy,American Comedy,Vintage ROKiT,Comedy,http://streaming04.liveboxstream.uk:8162/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-britcom1,British Comedy 1,Vintage ROKiT,Comedy,http://streaming04.liveboxstream.uk:8077/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-britcom2,British Comedy 2,Vintage ROKiT,Comedy,http://streaming05.liveboxstream.uk:8009/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-comedy-gold,Comedy Gold Radio,Vintage ROKiT,Comedy,http://streaming06.liveboxstream.uk:8150/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-crime-extra,Crime Radio Extra,Vintage ROKiT,Crime / Detective,http://streaming05.liveboxstream.uk:8039/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-crime-suspense,Crime and Suspense,Vintage ROKiT,Mystery / Suspense,http://streaming04.liveboxstream.uk:8168/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-drama,Drama Radio,Vintage ROKiT,Drama,http://streaming06.liveboxstream.uk:8174/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-mystery,Mystery Radio,Vintage ROKiT,Mystery / Suspense,http://streaming06.liveboxstream.uk:8168/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-nostalgia,Nostalgia Lane,Vintage ROKiT,Variety,http://streaming06.liveboxstream.uk:8180/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-old-time-gold,Old Time Gold,Vintage ROKiT,Variety,http://streaming04.liveboxstream.uk:8180/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-saturn-x,Saturn X Radio,Vintage ROKiT,Sci-Fi / Horror,http://streaming05.liveboxstream.uk:8122/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+rokit-scifi,Science Fiction,Vintage ROKiT,Sci-Fi / Horror,http://streaming05.liveboxstream.uk:8110/stream,https://rokitradio.com/,,True,Official ROKiT station URL
+pump-britcom1,BritCom 1,Pumpkin FM,Comedy,https://cast2.asurahosting.com/proxy/britcom1/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-britcom2,BritCom 2,Pumpkin FM,Comedy,https://cast2.asurahosting.com/proxy/britcom2/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-britcom3,BritCom 3,Pumpkin FM,Comedy,https://cast2.asurahosting.com/proxy/britcom3/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-britcom4,BritCom 4,Pumpkin FM,Comedy,https://cast2.asurahosting.com/proxy/britcom4/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-american-gold,American Gold,Pumpkin FM,Comedy,https://cast2.asurahosting.com/proxy/americangold/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-crime,Crime Incorporated,Pumpkin FM,Crime / Detective,https://cast2.asurahosting.com/proxy/crimeinc/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-strange,Strange Radio,Pumpkin FM,Sci-Fi / Horror,https://cast2.asurahosting.com/proxy/strangeradio/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/strange-radio-program-schedule/,True,Official Pumpkin FM HTTPS stream
+pump-venture,Venture Radio,Pumpkin FM,Adventure / Western,https://cast2.asurahosting.com/proxy/ventureradio/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/venture-radio/,True,Official Pumpkin FM HTTPS stream
+pump-britannia,Radio Britannia,Pumpkin FM,British Variety,https://cast2.asurahosting.com/proxy/radioengland/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM HTTPS stream
+pump-1940-home,1940s Radio - Home Service,Pumpkin FM,1940s / Variety,http://65.21.202.84:8392/stream,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Official Pumpkin FM endpoint; HTTP
+pump-1940-light,1940s Radio - Light Programme,Pumpkin FM,1940s / Variety,https://cast2.asurahosting.com/proxy/malvernradiojrs/stream/,https://pumpkinfm.com/,https://pumpkinfm.com/f-a-q/,True,Endpoint formerly Malvern Radio JRS; network rebranded channel
+conyers-main,Conyers Old Time Radio,Independent,Variety,https://s8.yesstreaming.net:17011/stream,https://conyersradio.net/,https://conyersradio.net/Conyers_OTR_Whats_Playing.html,True,Official Conyers 2026 stream URL
+conyers-holiday,Conyers Special / Holiday Stream,Independent,Seasonal / Marathons,https://s6.yesstreaming.net:17082/stream,https://conyersradio.net/,,True,Official Conyers second stream
+yusa-red,Yesterday USA Red,Yesterday USA,Variety,https://streaming.radio.co/sf5708c004/listen,https://www.yesterdayusa.com/,https://www.yesterdayusa.com/cgi-bin/rotation_grid.pl,True,Official YUSA stream identifier; HTTPS form
+yusa-blue,Yesterday USA Blue,Yesterday USA,Variety,https://streaming.radio.co/sa37b728bf/listen,https://www.yesterdayusa.com/,,True,Official YUSA stream identifier; HTTPS form
+wotr-variety,Old Time Radio USA,WOTR Radio Network,Variety,https://listen.openstream.co/4884/audio,https://www.wotrradionetwork.com/,,True,Direct stream listed by radio directory; station confirmed current by WOTR
+wotr-suspense,Suspense Radio USA,WOTR Radio Network,Mystery / Suspense,https://listen.openstream.co/4885/audio,https://www.wotrradionetwork.com/,,True,Direct stream listed by radio directory; station confirmed current by WOTR
+wotr-crime,Crime Time Radio USA,WOTR Radio Network,Crime / Detective,https://listen.openstream.co/4799/audio,https://www.wotrradionetwork.com/,,True,Direct stream listed by radio directory; station confirmed current by WOTR
+aotr-a81991,Old Time Radio Variety,America's OTR,Variety,https://streaming.live365.com/a81991,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a29044,Old Time Comedy Radio,America's OTR,Comedy,https://streaming.live365.com/a29044,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a19446,Old Time Crime,America's OTR,Crime / Detective,https://streaming.live365.com/a19446,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a23179,Western Radio,America's OTR,Western,https://streaming.live365.com/a23179,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a06481,The Mystery Channel,America's OTR,Mystery / Suspense,https://streaming.live365.com/a06481,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a07058,Drama Classics,America's OTR,Drama,https://streaming.live365.com/a07058,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a70946,Dragnet,America's OTR,Crime / Detective,https://streaming.live365.com/a70946,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a68303,Gunsmoke,America's OTR,Western,https://streaming.live365.com/a68303,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a46348,Radio Mystery Theater,America's OTR,Mystery / Suspense,https://streaming.live365.com/a46348,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
+aotr-a41126,Old Time Christmas,America's OTR,Seasonal,https://streaming.live365.com/a41126,https://americasotr.com/,,True,Current Live365 station; direct endpoint follows Live365 station ID
