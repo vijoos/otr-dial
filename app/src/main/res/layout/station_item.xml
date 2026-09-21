@@ -10,13 +10,14 @@
 
     <TextView
         android:id="@+id/stationInitials"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="62dp"
+        android:layout_height="62dp"
         android:gravity="center"
         android:textStyle="bold"
-        android:textSize="14sp"
+        android:textSize="24sp"
         android:textColor="@color/otr_cream"
-        android:background="@color/otr_brown" />
+        android:background="@color/otr_brown"
+        android:contentDescription="Station artwork" />
 
     <LinearLayout
         android:layout_width="0dp"

@@ -1,4 +1,4 @@
-# OTR Dial v0.8
+# OTR Dial v0.9
 
 A small native Android radio app for continuous Old Time Radio and classic-radio streams.
 
@@ -13,6 +13,7 @@ A small native Android radio app for continuous Old Time Radio and classic-radio
 - Share a station's name and stream link through Android's share menu.
 - A clearer Now Playing panel identifies whether programme information came from the live stream or the station schedule, without inventing missing episode details.
 - Home-style quick navigation for All stations, Favourites and Recently played, with a daily OTR discovery heading.
+- Illustrated genre artwork tiles, colourful genre treatment and an ON AIR player identity.
 - Optional recording for direct MP3/Icecast-style streams, saved under `Music/OTR Dial`.
 
 The additional catalogue stations were selected from the supplied APK's extracted stream list and retained only when an audit received a non-empty audio response. A response check is not a guarantee that a broadcaster will remain online or that every Android network will reach it.

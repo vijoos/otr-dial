@@ -33,7 +33,7 @@ class StationAdapter(
         val station = items[position]
         holder.binding.stationName.text = station.name
         holder.binding.stationDetails.text = "${station.network}  •  ${station.genre}  •  LIVE"
-        holder.binding.stationInitials.text = initials(station.name)
+        holder.binding.stationInitials.text = genreIcon(station.genre)
         val accent = genreColour(station.genre)
         holder.binding.stationInitials.setBackgroundColor(Color.parseColor(accent))
         holder.binding.stationInitials.setTextColor(Color.WHITE)
@@ -60,5 +60,16 @@ class StationAdapter(
         genre.contains("Drama", true) -> "#287A73"
         genre.contains("Adventure", true) -> "#3D7B55"
         else -> "#56616B"
+    }
+
+    private fun genreIcon(genre: String): String = when {
+        genre.contains("Comedy", true) -> "🎙"
+        genre.contains("Mystery", true) || genre.contains("Suspense", true) -> "🔍"
+        genre.contains("Crime", true) || genre.contains("Detective", true) -> "🕵"
+        genre.contains("Western", true) -> "🤠"
+        genre.contains("Sci-Fi", true) || genre.contains("Horror", true) -> "🚀"
+        genre.contains("Drama", true) -> "🎭"
+        genre.contains("Adventure", true) -> "🧭"
+        else -> "📻"
     }
 }
