@@ -3,10 +3,20 @@
  android:layout_width="match_parent" android:layout_height="match_parent"
  android:orientation="vertical" android:background="@color/otr_cream">
  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="16dp">
-  <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="OTR DIAL" android:textSize="24sp" android:textStyle="bold" android:textColor="@color/otr_ink" android:paddingVertical="16dp"/>
+  <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingVertical="12dp">
+   <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OTR DIAL" android:textSize="24sp" android:textStyle="bold" android:textColor="@color/otr_ink"/>
+   <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Classic radio • always on" android:textSize="12sp" android:textColor="@color/otr_muted"/>
+  </LinearLayout>
   <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/themeSwitch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Dark mode" android:textColor="@color/otr_ink"/>
  </LinearLayout>
  <LinearLayout android:id="@+id/browserPanel" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Discover old-time radio" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/otr_ink" android:paddingHorizontal="16dp" android:paddingTop="8dp" android:paddingBottom="4dp"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="TODAY'S OTR  •  LIVE CLASSIC RADIO" android:textSize="11sp" android:letterSpacing="0.08" android:textColor="@color/otr_muted" android:paddingHorizontal="16dp" android:paddingBottom="6dp"/>
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingBottom="4dp">
+   <Button android:id="@+id/homeButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="44dp" android:text="All" android:textAllCaps="false"/>
+   <Button android:id="@+id/favouritesButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="44dp" android:text="Favourites" android:textAllCaps="false" android:layout_marginStart="6dp"/>
+   <Button android:id="@+id/recentButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="44dp" android:text="Recent" android:textAllCaps="false" android:layout_marginStart="6dp"/>
+  </LinearLayout>
   <Spinner android:id="@+id/collectionSpinner" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginHorizontal="12dp"/>
   <TextView android:id="@+id/listSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:textColor="@color/otr_muted" android:paddingBottom="4dp"/>
   <EditText android:id="@+id/searchBox" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginHorizontal="16dp" android:hint="@string/search_hint" android:singleLine="true" android:inputType="text" android:paddingHorizontal="12dp" android:textColor="@color/otr_ink" android:textColorHint="@color/otr_muted" android:backgroundTint="@color/otr_brown"/>
@@ -22,8 +32,13 @@
    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LIVE RADIO" android:textSize="12sp" android:letterSpacing="0.15" android:textColor="@color/otr_muted" android:gravity="center"/>
    <TextView android:id="@+id/currentStation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/nothing_playing" android:textStyle="bold" android:textSize="26sp" android:textColor="@color/otr_ink" android:gravity="center" android:paddingTop="12dp"/>
    <TextView android:id="@+id/currentMetadata" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/now_playing" android:textSize="16sp" android:textColor="@color/otr_muted" android:gravity="center" android:paddingVertical="16dp"/>
+   <TextView android:id="@+id/metadataSource" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Programme information will appear when supplied by the station" android:textSize="12sp" android:textColor="@color/otr_muted" android:gravity="center" android:paddingBottom="8dp"/>
    <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/playPauseButton" android:layout_width="88dp" android:layout_height="88dp" android:src="@drawable/ic_play" android:contentDescription="Play" android:padding="20dp" android:background="?attr/selectableItemBackgroundBorderless"/>
    <TextView android:id="@+id/connectionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/otr_muted" android:gravity="center" android:accessibilityLiveRegion="polite" android:text="Choose a station"/>
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal" android:layout_marginTop="8dp">
+    <Button android:id="@+id/scheduleButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Details / schedule" android:textAllCaps="false"/>
+    <Button android:id="@+id/shareButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Share" android:textAllCaps="false" android:layout_marginStart="8dp"/>
+   </LinearLayout>
    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" android:paddingVertical="16dp">
     <Button android:id="@+id/favouriteButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="56dp" android:text="♡" android:textSize="24sp" android:contentDescription="Add to favourites"/>
     <Button android:id="@+id/recordButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="56dp" android:text="● REC" android:layout_marginStart="12dp"/>

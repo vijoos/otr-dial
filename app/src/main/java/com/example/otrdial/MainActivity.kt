@@ -16,6 +16,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import android.content.Intent
+import android.net.Uri
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -74,6 +77,8 @@ class MainActivity : AppCompatActivity() {
         setupFilters()
         setupControls()
         binding.currentMetadata.text = savedInstanceState?.getString("metadata") ?: "Live radio"
+        binding.metadataSource.text = savedInstanceState?.getString("metadata_source")
+            ?: "Programme information will appear when supplied by the station"
         showPlayer(savedInstanceState?.getBoolean("player_open") ?: false)
     }
 
@@ -99,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                             val entry = metadata[i]
                             if (entry is IcyInfo && !entry.title.isNullOrBlank()) {
                                 binding.currentMetadata.text = entry.title!!.trim()
+                                binding.metadataSource.text = "Live programme information from station stream"
                             }
                         }
                     }
@@ -108,6 +114,7 @@ class MainActivity : AppCompatActivity() {
                         val artist = mediaMetadata.artist?.toString()?.trim().orEmpty()
                         val raw = listOf(title, artist).filter { it.isNotBlank() }.distinct().joinToString(" — ")
                         if (raw.isNotBlank() && raw != currentStation?.name) binding.currentMetadata.text = raw
+                        if (raw.isNotBlank() && raw != currentStation?.name) binding.metadataSource.text = "Programme information from station metadata"
                     }
                 })
                 updatePlayButton()
@@ -119,7 +126,8 @@ class MainActivity : AppCompatActivity() {
         adapter = StationAdapter(
             onPlay = { playStation(it) },
             isFavourite = { isFavourite(it) },
-            onFavourite = { toggleFavourite(it) }
+            onFavourite = { toggleFavourite(it) },
+            onInfo = { showStationDetails(it) }
         )
         binding.stationList.layoutManager = LinearLayoutManager(this)
         binding.stationList.adapter = adapter
@@ -154,6 +162,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
+        binding.homeButton.setOnClickListener {
+            binding.collectionSpinner.setSelection(0)
+        }
+        binding.favouritesButton.setOnClickListener {
+            binding.collectionSpinner.setSelection(1)
+        }
+        binding.recentButton.setOnClickListener {
+            binding.collectionSpinner.setSelection(2)
+        }
         binding.playPauseButton.setOnClickListener {
             val c = controller ?: return@setOnClickListener
             if (c.playWhenReady) c.pause() else if (c.currentMediaItem != null) {
@@ -170,6 +187,8 @@ class MainActivity : AppCompatActivity() {
         }
         binding.backButton.setOnClickListener { showPlayer(false) }
         binding.openPlayerButton.setOnClickListener { showPlayer(true) }
+        binding.scheduleButton.setOnClickListener { currentStation?.let { showStationDetails(it) } }
+        binding.shareButton.setOnClickListener { currentStation?.let { shareStation(it) } }
         binding.recordButton.text = if (StreamRecorder.isRecording) "■ STOP" else "● REC"
     }
 
@@ -204,6 +223,11 @@ class MainActivity : AppCompatActivity() {
         }
         binding.currentStation.text = station.name
         binding.currentMetadata.text = "${station.network} • ${station.genre}"
+        binding.metadataSource.text = if (station.scheduleUrl.isNotBlank()) {
+            "Station schedule available · tap Details / schedule"
+        } else {
+            "Live programme information will appear when supplied by the station"
+        }
         updateFavouriteButton()
 
         val metadata = MediaMetadata.Builder()
@@ -219,6 +243,36 @@ class MainActivity : AppCompatActivity() {
         c.setMediaItem(item)
         c.prepare()
         c.play()
+    }
+
+    private fun showStationDetails(station: Station) {
+        val details = buildString {
+            append(station.name)
+            append("\n\nNetwork: ").append(station.network)
+            append("\nGenre: ").append(station.genre)
+            if (station.verification.isNotBlank()) append("\n\nVerification: ").append(station.verification)
+        }
+        val builder = AlertDialog.Builder(this)
+            .setTitle("Station details")
+            .setMessage(details)
+            .setPositiveButton("Listen") { _, _ -> playStation(station) }
+            .setNegativeButton("Close", null)
+        if (station.homepage.isNotBlank() || station.scheduleUrl.isNotBlank()) {
+            builder.setNeutralButton("Open website") { _, _ ->
+                val url = station.scheduleUrl.ifBlank { station.homepage }
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+        }
+        builder.show()
+    }
+
+    private fun shareStation(station: Station) {
+        val text = "Listen to ${station.name} on OTR Dial\n${station.network}\n${station.streamUrl}"
+        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "${station.name} — OTR Dial")
+            putExtra(Intent.EXTRA_TEXT, text)
+        }, "Share station"))
     }
 
     private fun applyFilters() {
@@ -308,6 +362,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("player_open", playerOpen)
         outState.putString("metadata", binding.currentMetadata.text.toString())
+        outState.putString("metadata_source", binding.metadataSource.text.toString())
         super.onSaveInstanceState(outState)
     }
 

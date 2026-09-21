@@ -51,4 +51,14 @@
         android:text="♡"
         android:textSize="24sp"
         android:textColor="@color/otr_gold" />
+
+    <TextView
+        android:id="@+id/infoMark"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:gravity="center"
+        android:text="ⓘ"
+        android:textSize="22sp"
+        android:textColor="@color/otr_muted"
+        android:contentDescription="Station details" />
 </LinearLayout>
