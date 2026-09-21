@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var controller: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private var genre = "All genres"
+    private var collection = 0
     private var playerOpen = false
     private lateinit var playerBack: OnBackPressedCallback
 
@@ -90,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                     updateFavouriteButton()
                 }
                 c.addListener(object : Player.Listener {
+                    override fun onEvents(player: Player, events: Player.Events) = updatePlayButton()
                     override fun onIsPlayingChanged(isPlaying: Boolean) = updatePlayButton()
                     @androidx.annotation.OptIn(UnstableApi::class)
                     override fun onMetadata(metadata: Metadata) {
@@ -125,6 +127,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFilters() {
+        binding.collectionSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("All stations", "Favourites", "Recently played"))
+        binding.collectionSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                collection = position
+                applyFilters()
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
+        }
         val genres = listOf("All genres") + stations.map { it.genre }.distinct().sorted()
         binding.genreSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, genres)
         binding.genreSpinner.setSelection(0)
@@ -146,7 +156,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupControls() {
         binding.playPauseButton.setOnClickListener {
             val c = controller ?: return@setOnClickListener
-            if (c.isPlaying) c.pause() else if (c.currentMediaItem != null) c.play()
+            if (c.playWhenReady) c.pause() else if (c.currentMediaItem != null) {
+                if (c.playbackState == Player.STATE_IDLE) c.prepare()
+                c.play()
+            }
         }
         binding.favouriteButton.setOnClickListener { currentStation?.let { toggleFavourite(it) } }
         binding.recordButton.setOnClickListener { toggleRecording() }
@@ -178,11 +191,15 @@ class MainActivity : AppCompatActivity() {
             return
         }
         currentStation = station
+        val recent = (listOf(station.id) + recentIds().filter { it != station.id }).take(30)
+        prefs.edit().putString("recent", org.json.JSONArray(recent).toString()).apply()
+        applyFilters()
         binding.openPlayerButton.text = "${station.name}  ›"
         binding.openPlayerButton.visibility = View.VISIBLE
         showPlayer(true)
         if (c.currentMediaItem?.mediaId == station.id) {
-            if (!c.isPlaying) c.play()
+            if (c.playbackState == Player.STATE_IDLE) c.prepare()
+            c.play()
             return
         }
         binding.currentStation.text = station.name
@@ -206,12 +223,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyFilters() {
         val q = binding.searchBox.text?.toString()?.trim()?.lowercase().orEmpty()
-        val filtered = stations.filter { s ->
+        val recent = recentIds()
+        val source = if (collection == 2) recent.mapNotNull { id -> stations.find { it.id == id } } else stations
+        val filtered = source.filter { s ->
+            (collection != 1 || isFavourite(s)) &&
             (genre == "All genres" || s.genre == genre) &&
                 (q.isBlank() || listOf(s.name, s.network, s.genre).any { it.lowercase().contains(q) })
         }
         adapter.submit(filtered)
+        binding.listSummary.text = if (filtered.isEmpty()) {
+            when (collection) {
+                1 -> "No favourites match. Tap a station’s heart to save it."
+                2 -> "No recent stations match. Choose a station from All stations."
+                else -> "No stations match your search."
+            }
+        } else "${filtered.size} stations"
     }
+
+    private fun recentIds(): List<String> = runCatching {
+        val array = org.json.JSONArray(prefs.getString("recent", "[]"))
+        (0 until array.length()).map { array.getString(it) }
+    }.getOrDefault(emptyList())
 
     private fun favouriteIds(): MutableSet<String> =
         prefs.getStringSet("favourites", emptySet())?.toMutableSet() ?: mutableSetOf()
@@ -222,7 +254,7 @@ class MainActivity : AppCompatActivity() {
         val ids = favouriteIds()
         if (!ids.add(station.id)) ids.remove(station.id)
         prefs.edit().putStringSet("favourites", ids).apply()
-        adapter.notifyDataSetChanged()
+        applyFilters()
         updateFavouriteButton()
     }
 
@@ -232,9 +264,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePlayButton() {
-        val playing = controller?.isPlaying == true
+        val c = controller
+        val playing = c?.playWhenReady == true
         binding.playPauseButton.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
         binding.playPauseButton.contentDescription = if (playing) "Pause" else "Play"
+        binding.connectionStatus.text = when {
+            c?.currentMediaItem == null -> "Choose a station"
+            c.playerError != null && c.playWhenReady -> "Connection lost · retrying automatically"
+            c.playerError != null -> "Unable to connect · tap play to retry"
+            !c.playWhenReady -> "Paused"
+            c.playbackState == Player.STATE_BUFFERING -> "Connecting…"
+            c.isPlaying -> "Playing live"
+            else -> "Waiting for audio…"
+        }
     }
 
     private fun toggleRecording() {

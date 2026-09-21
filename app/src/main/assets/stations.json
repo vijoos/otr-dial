@@ -471,5 +471,71 @@
     "scheduleUrl": "",
     "recordable": true,
     "verification": "Current Live365 station; direct endpoint follows Live365 station ID"
+  },
+  {
+    "id": "catalogue-amazing-tales",
+    "name": "Amazing Tales",
+    "network": "Independent",
+    "genre": "Drama",
+    "streamUrl": "https://riradtke.radioca.st/;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+  },
+  {
+    "id": "catalogue-mushroom-escape",
+    "name": "Mushroom Escape",
+    "network": "Independent",
+    "genre": "Drama",
+    "streamUrl": "https://cast3.my-control-panel.com/proxy/jonatha1/escape",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+  },
+  {
+    "id": "catalogue-antioch",
+    "name": "Antioch OTR",
+    "network": "Antioch Radio",
+    "genre": "Drama",
+    "streamUrl": "https://s6.yesstreaming.net:18000/listen",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+  },
+  {
+    "id": "catalogue-insomnia",
+    "name": "Insomnia Theater",
+    "network": "Audio Noir",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "http://streams.audionoir.com:8000/insomnia",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+  },
+  {
+    "id": "catalogue-wild-west",
+    "name": "Wild West OTR",
+    "network": "Independent",
+    "genre": "Western",
+    "streamUrl": "https://kea.cdnstream.com/1838_32",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+  },
+  {
+    "id": "catalogue-science-fiction",
+    "name": "ROK Classic Science Fiction",
+    "network": "Vintage ROKiT",
+    "genre": "Sci-Fi / Horror",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/roksta12/stream",
+    "homepage": "https://rokitradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
   }
 ]

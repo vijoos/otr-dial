@@ -36,7 +36,6 @@ class StationAdapter(
         holder.binding.root.setOnClickListener { onPlay(station) }
         holder.binding.favMark.setOnClickListener {
             onFavourite(station)
-            notifyItemChanged(position)
         }
     }
 
