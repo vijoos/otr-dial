@@ -33,9 +33,9 @@ class StationAdapter(
         val station = items[position]
         holder.binding.stationName.text = station.name
         holder.binding.stationDetails.text = "${station.network}  •  ${station.genre}  •  LIVE"
-        holder.binding.stationInitials.text = genreIcon(station.genre)
+        holder.binding.stationInitials.text = ""
         val accent = genreColour(station.genre)
-        holder.binding.stationInitials.setBackgroundColor(Color.parseColor(accent))
+        holder.binding.stationInitials.background = RadioArtwork(station.genre)
         holder.binding.stationInitials.setTextColor(Color.WHITE)
         holder.binding.favMark.text = if (isFavourite(station)) "♥" else "♡"
         holder.binding.root.setOnClickListener { onPlay(station) }

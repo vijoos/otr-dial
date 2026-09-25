@@ -1,27 +1,35 @@
-# OTR Dial v0.9
+# OTR Dial 1.2 preview
 
-A small native Android radio app for continuous Old Time Radio and classic-radio streams.
+This preview adds original offline studio artwork with genre colours, a recording
+library (play in an installed audio app, share, rename and confirmed deletion),
+on-demand stream connectivity checks with timestamps, headphone-disconnect pause
+and audio-focus handling. Light mode remains white, with teal and burgundy accents.
 
-## Included
+Recording now selects MP3/AAC/Ogg filenames from the returned format, keeps partial
+audio after network failures, discards empty files, and prevents a new recording
+from starting before the previous writer has finished.
 
-- 49 stations across Vintage ROKiT, Pumpkin FM, Conyers, Yesterday USA, WOTR, America's OTR and independently verified catalogue feeds.
-- Native Media3/ExoPlayer playback with background playback, lock-screen controls and stream metadata when supplied.
-- Search, genre filtering, Favourites and Recently played collections.
-- Colour-coded station tiles, clearer home-screen branding and a full-screen player with a clear play/pause icon, dark mode, connection status and bounded automatic reconnect.
-- Station detail cards with network, genre, verification notes and links to the broadcaster's website or schedule.
-- Current station information accessible directly from both the station list and full-screen player.
-- Share a station's name and stream link through Android's share menu.
-- A clearer Now Playing panel identifies whether programme information came from the live stream or the station schedule, without inventing missing episode details.
-- Home-style quick navigation for All stations, Favourites and Recently played, with a daily OTR discovery heading.
-- Illustrated genre artwork tiles, colourful genre treatment and an ON AIR player identity.
-- Optional recording for direct MP3/Icecast-style streams, saved under `Music/OTR Dial`.
+Existing features: live playback, favourites, recent stations, search and genre
+filters, full-screen player, dark mode, stream metadata, station website/schedule
+links and station sharing.
 
-The additional catalogue stations were selected from the supplied APK's extracted stream list and retained only when an audit received a non-empty audio response. A response check is not a guarantee that a broadcaster will remain online or that every Android network will reach it.
+## Precisely what is not implemented
 
-## Limitations
+This is not the complete earlier 1.2 roadmap. There is no integrated broadcast
+schedule, automatic episode identification, archive download manager, Android Auto
+browser, Cast integration, home-screen widget, or automatic catalogue update.
+Schedule buttons open broadcaster websites. Artwork is original studio artwork,
+not official station logos. The catalogue is unchanged from 0.9; no fresh station
+audit is claimed. Stream checks test responses, not English-language content or
+programme availability.
 
-Station URLs can change. Some broadcasters publish HTTP feeds, so cleartext traffic remains enabled for compatibility. Artwork and programme-level episode descriptions are not yet bundled. Recording depends on the stream format and the broadcaster's terms.
+Recording still uses an in-process worker, not a dedicated foreground recording
+service. Keep playback running while recording; process termination can interrupt
+a recording. Device testing remains required for recording and audio interruptions.
 
 ## Build
 
-The GitHub Actions workflow builds `assembleDebug` with Gradle 8.9 and publishes the APK as the `OTR-Dial-debug-apk` workflow artifact. Android Studio with JDK 17 can also build the project locally.
+GitHub Actions uses JDK 17 and Gradle 8.9 to run assembleDebug. Download the
+OTR-Dial-debug-apk artifact after a successful run. Install over the previous
+version only if Android accepts the signing certificate; retain the old app and
+recordings if installation reports a signature mismatch.

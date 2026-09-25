@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         setupFilters()
         setupControls()
         binding.currentMetadata.text = savedInstanceState?.getString("metadata") ?: "Live radio"
+        binding.playerArtwork.background = RadioArtwork("Radio theatre")
         binding.metadataSource.text = savedInstanceState?.getString("metadata_source")
             ?: "Programme information will appear when supplied by the station"
         showPlayer(savedInstanceState?.getBoolean("player_open") ?: false)
@@ -90,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                 controller = c
                 currentStation = stations.find { it.id == c.currentMediaItem?.mediaId }
                 currentStation?.let {
+                    binding.playerArtwork.background = RadioArtwork(it.genre)
                     binding.currentStation.text = it.name
                     binding.openPlayerButton.text = "${it.name}  ›"
                     binding.openPlayerButton.visibility = View.VISIBLE
@@ -113,8 +115,10 @@ class MainActivity : AppCompatActivity() {
                         val title = mediaMetadata.title?.toString()?.trim().orEmpty()
                         val artist = mediaMetadata.artist?.toString()?.trim().orEmpty()
                         val raw = listOf(title, artist).filter { it.isNotBlank() }.distinct().joinToString(" — ")
-                        if (raw.isNotBlank() && raw != currentStation?.name) binding.currentMetadata.text = raw
-                        if (raw.isNotBlank() && raw != currentStation?.name) binding.metadataSource.text = "Programme information from station metadata"
+                        if (title.isNotBlank() && title != currentStation?.name) {
+                            binding.currentMetadata.text = raw
+                            binding.metadataSource.text = "Programme information from station metadata"
+                        }
                     }
                 })
                 updatePlayButton()
@@ -162,6 +166,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
+        binding.recordingsButton.setOnClickListener { RecordingLibrary.show(this) }
+        binding.checkStreamButton.setOnClickListener { currentStation?.let { StreamHealth.check(this, it) } }
         binding.homeButton.setOnClickListener {
             binding.collectionSpinner.setSelection(0)
         }
@@ -210,6 +216,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         currentStation = station
+        binding.playerArtwork.background = RadioArtwork(station.genre)
         val recent = (listOf(station.id) + recentIds().filter { it != station.id }).take(30)
         prefs.edit().putString("recent", org.json.JSONArray(recent).toString()).apply()
         applyFilters()
@@ -250,6 +257,7 @@ class MainActivity : AppCompatActivity() {
             append(station.name)
             append("\n\nNetwork: ").append(station.network)
             append("\nGenre: ").append(station.genre)
+            append("\n\nLast connection check:\n").append(prefs.getString("health_${station.id}", "Not checked on this device"))
             if (station.verification.isNotBlank()) append("\n\nVerification: ").append(station.verification)
         }
         val builder = AlertDialog.Builder(this)
@@ -260,7 +268,8 @@ class MainActivity : AppCompatActivity() {
         if (station.homepage.isNotBlank() || station.scheduleUrl.isNotBlank()) {
             builder.setNeutralButton("Open website") { _, _ ->
                 val url = station.scheduleUrl.ifBlank { station.homepage }
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                    .onFailure { Toast.makeText(this, "No browser available", Toast.LENGTH_SHORT).show() }
             }
         }
         builder.show()
@@ -320,6 +329,7 @@ class MainActivity : AppCompatActivity() {
     private fun updatePlayButton() {
         val c = controller
         val playing = c?.playWhenReady == true
+        binding.onAirLabel.text = if (c?.isPlaying == true) "ON AIR · LIVE RADIO" else "OTR DIAL · RADIO THEATRE"
         binding.playPauseButton.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
         binding.playPauseButton.contentDescription = if (playing) "Pause" else "Play"
         binding.connectionStatus.text = when {
@@ -334,6 +344,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toggleRecording() {
+        if (StreamRecorder.isRecording) {
+            StreamRecorder.stop()
+            binding.recordButton.text = "Stopping…"
+            return
+        }
         val station = currentStation
         if (station == null) {
             Toast.makeText(this, "Choose a station first", Toast.LENGTH_SHORT).show()
