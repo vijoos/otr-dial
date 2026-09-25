@@ -18,13 +18,13 @@ object StreamHealth {
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) = finish("Could not verify on this connection. The station may still work on another network.")
             override fun onResponse(call: Call, response: Response) {
-                response.use {
+                try { response.use {
                     val type = it.header("Content-Type").orEmpty()
                     val result = if (it.isSuccessful && type.startsWith("audio/") && (it.body?.byteStream()?.read() ?: -1) >= 0) {
                         "Audio response received ($type). This checks connectivity, not programme content."
                     } else "Not verified: HTTP ${it.code}, ${type.ifBlank { "unknown format" }}. Try normal playback."
                     finish(result)
-                }
+                } } catch (e: IOException) { onFailure(call, e) }
             }
             private fun finish(message: String) {
                 if (call.isCanceled()) return

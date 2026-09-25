@@ -5,6 +5,15 @@ import android.graphics.drawable.Drawable
 
 /** Original, resolution-independent studio artwork, available offline. */
 class RadioArtwork(private val genre: String) : Drawable() {
+    fun pngBytes(): ByteArray {
+        val bitmap = Bitmap.createBitmap(240, 240, Bitmap.Config.ARGB_8888)
+        setBounds(0, 0, 240, 240)
+        draw(Canvas(bitmap))
+        val output = java.io.ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+        bitmap.recycle()
+        return output.toByteArray()
+    }
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     override fun draw(canvas: Canvas) {
         val save = canvas.save()

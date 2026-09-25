@@ -238,6 +238,7 @@ class MainActivity : AppCompatActivity() {
         updateFavouriteButton()
 
         val metadata = MediaMetadata.Builder()
+            .setArtworkData(RadioArtwork(station.genre).pngBytes(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
             .setTitle(station.name)
             .setArtist(station.network)
             .setSubtitle(station.genre)
