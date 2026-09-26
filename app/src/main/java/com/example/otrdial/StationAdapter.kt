@@ -32,12 +32,10 @@ class StationAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val station = items[position]
         holder.binding.stationName.text = station.name
-        holder.binding.stationDetails.text = "${station.network}  •  ${station.genre}  •  LIVE"
-        holder.binding.stationInitials.text = ""
-        val accent = genreColour(station.genre)
-        holder.binding.stationInitials.background = RadioArtwork(station.genre)
-        holder.binding.stationInitials.setTextColor(Color.WHITE)
+        holder.binding.stationDetails.text = "${station.network}  •  ${station.genre}"
+        holder.binding.stationInitials.setImageDrawable(StationArt.drawable(holder.itemView.context, station))
         holder.binding.favMark.text = if (isFavourite(station)) "♥" else "♡"
+        holder.binding.favMark.contentDescription = if (isFavourite(station)) "Remove ${station.name} from favourites" else "Favourite ${station.name}"
         holder.binding.root.setOnClickListener { onPlay(station) }
         holder.binding.favMark.setOnClickListener {
             onFavourite(station)

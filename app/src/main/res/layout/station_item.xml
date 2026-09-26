@@ -8,16 +8,12 @@
     android:layout_marginVertical="3dp"
     android:background="@color/otr_panel">
 
-    <TextView
+    <ImageView
         android:id="@+id/stationInitials"
-        android:layout_width="62dp"
-        android:layout_height="62dp"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textSize="24sp"
-        android:textColor="@color/otr_cream"
-        android:background="@color/otr_brown"
-        android:contentDescription="Station artwork" />
+        android:layout_width="72dp"
+        android:layout_height="88dp"
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -33,7 +29,7 @@
             android:textStyle="bold"
             android:textColor="@color/otr_ink"
             android:textSize="16sp"
-            android:maxLines="1" />
+            android:maxLines="2" />
 
         <TextView
             android:id="@+id/stationDetails"
@@ -41,7 +37,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/otr_muted"
             android:textSize="12sp"
-            android:maxLines="1" />
+            android:maxLines="2" />
     </LinearLayout>
 
     <TextView

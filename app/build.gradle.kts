@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.otrdial"
         minSdk = 29
         targetSdk = 35
-        versionCode = 12
-        versionName = "1.2-preview"
+        versionCode = 13
+        versionName = "1.2.1-artwork"
     }
 
     buildFeatures {

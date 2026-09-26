@@ -29,7 +29,8 @@
   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:gravity="center_horizontal">
    <Button android:id="@+id/backButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_gravity="start" android:text="‹ Stations" android:textAllCaps="false"/>
    <Space android:layout_width="1dp" android:layout_height="0dp" android:layout_weight="1"/>
-   <View android:id="@+id/playerArtwork" android:layout_width="240dp" android:layout_height="240dp" android:layout_marginVertical="20dp" android:importantForAccessibility="no"/>
+   <ImageView android:id="@+id/playerArtwork" android:layout_width="240dp" android:layout_height="280dp" android:scaleType="fitCenter" android:layout_marginVertical="16dp" android:importantForAccessibility="no"/>
+   <Button android:id="@+id/artworkCredits" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Artwork credits" android:textAllCaps="false"/>
    <TextView android:id="@+id/onAirLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OTR DIAL · RADIO THEATRE" android:textSize="12sp" android:letterSpacing="0.15" android:textColor="@color/otr_gold" android:gravity="center"/>
    <TextView android:id="@+id/currentStation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/nothing_playing" android:textStyle="bold" android:textSize="26sp" android:textColor="@color/otr_ink" android:gravity="center" android:paddingTop="12dp"/>
    <TextView android:id="@+id/currentMetadata" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/now_playing" android:textSize="16sp" android:textColor="@color/otr_muted" android:gravity="center" android:paddingVertical="16dp"/>

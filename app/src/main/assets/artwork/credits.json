@@ -1,0 +1,74 @@
+[
+  {
+    "key": "radio",
+    "file": "radio.jpg",
+    "title": "FDR-NBC-Microphone.jpg",
+    "artist": "Daderot",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:FDR-NBC-Microphone.jpg",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "key": "western",
+    "file": "western.png",
+    "title": "Western Story Magazine 1928-05-12 cover.png",
+    "artist": "William Yeakle illustrator",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Western_Story_Magazine_1928-05-12_cover.png",
+    "licenseUrl": ""
+  },
+  {
+    "key": "adventure",
+    "file": "adventure.png",
+    "title": "West 1926-07-05 cover.png",
+    "artist": "UnknownUnknown ",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:West_1926-07-05_cover.png",
+    "licenseUrl": ""
+  },
+  {
+    "key": "scifi",
+    "file": "scifi.jpg",
+    "title": "Amazing Stories October 1926.jpg",
+    "artist": "Piblished by Experimenter Publishing Co.",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Amazing_Stories_October_1926.jpg",
+    "licenseUrl": ""
+  },
+  {
+    "key": "mystery",
+    "file": "mystery.jpg",
+    "title": "True Detective Mysteries (May 1927) cover.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:True_Detective_Mysteries_(May_1927)_cover.jpg",
+    "licenseUrl": ""
+  },
+  {
+    "key": "crime",
+    "file": "crime.jpg",
+    "title": "Detective Story Magazine, April 2, 1927.jpg",
+    "artist": "John A. Coughlin",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Detective_Story_Magazine,_April_2,_1927.jpg",
+    "licenseUrl": ""
+  },
+  {
+    "key": "comedy",
+    "file": "comedy.png",
+    "title": "Radio copyright problem cartoon - Radio News May 1925.png",
+    "artist": "\"PHIL\", a cartoonist.",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Radio_copyright_problem_cartoon_-_Radio_News_May_1925.png",
+    "licenseUrl": ""
+  },
+  {
+    "key": "seasonal",
+    "file": "seasonal.png",
+    "title": "Design for Christmas cards by Frances Mumaugh (1920) 6.png",
+    "artist": "Saturday Evening Post Company",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Design_for_Christmas_cards_by_Frances_Mumaugh_(1920)_6.png",
+    "licenseUrl": ""
+  }
+]

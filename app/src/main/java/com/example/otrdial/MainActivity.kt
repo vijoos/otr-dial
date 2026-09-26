@@ -77,7 +77,13 @@ class MainActivity : AppCompatActivity() {
         setupFilters()
         setupControls()
         binding.currentMetadata.text = savedInstanceState?.getString("metadata") ?: "Live radio"
-        binding.playerArtwork.background = RadioArtwork("Radio theatre")
+        binding.playerArtwork.setImageDrawable(RadioArtwork("Radio theatre"))
+        binding.artworkCredits.setOnClickListener {
+            currentStation?.let { station ->
+                AlertDialog.Builder(this).setTitle("Artwork credits")
+                    .setMessage(StationArt.credits(this, station)).setPositiveButton("Close", null).show()
+            }
+        }
         binding.metadataSource.text = savedInstanceState?.getString("metadata_source")
             ?: "Programme information will appear when supplied by the station"
         showPlayer(savedInstanceState?.getBoolean("player_open") ?: false)
@@ -91,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                 controller = c
                 currentStation = stations.find { it.id == c.currentMediaItem?.mediaId }
                 currentStation?.let {
-                    binding.playerArtwork.background = RadioArtwork(it.genre)
+                    binding.playerArtwork.setImageDrawable(StationArt.drawable(this, it))
                     binding.currentStation.text = it.name
                     binding.openPlayerButton.text = "${it.name}  ›"
                     binding.openPlayerButton.visibility = View.VISIBLE
@@ -216,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         currentStation = station
-        binding.playerArtwork.background = RadioArtwork(station.genre)
+        binding.playerArtwork.setImageDrawable(StationArt.drawable(this, station))
         val recent = (listOf(station.id) + recentIds().filter { it != station.id }).take(30)
         prefs.edit().putString("recent", org.json.JSONArray(recent).toString()).apply()
         applyFilters()
@@ -238,7 +244,7 @@ class MainActivity : AppCompatActivity() {
         updateFavouriteButton()
 
         val metadata = MediaMetadata.Builder()
-            .setArtworkData(RadioArtwork(station.genre).pngBytes(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .setArtworkData(StationArt.bytes(this, station), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
             .setTitle(station.name)
             .setArtist(station.network)
             .setSubtitle(station.genre)
