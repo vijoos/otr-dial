@@ -47,7 +47,7 @@ jobs:
           disable-animations: true
           script: |
             gradle connectedDebugAndroidTest --stacktrace
-            adb pull /sdcard/Android/data/com.example.otrdial/files/ ui-screenshots
+            adb pull /sdcard/Download/ ui-screenshots
 
       - name: Upload UI checks
         if: always()

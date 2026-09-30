@@ -22,8 +22,9 @@ class NavigationTest {
     private fun capture(name: String) {
         instrumentation.waitForIdleSync()
         Thread.sleep(600)
-        val file = File(instrumentation.targetContext.getExternalFilesDir(null), "$name.png")
-        file.outputStream().use { instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG, 100, it) }
+        instrumentation.uiAutomation.executeShellCommand("screencap -p /sdcard/Download/$name.png").use { fd ->
+            java.io.FileInputStream(fd.fileDescriptor).use { it.readBytes() }
+        }
     }
     @Test fun lightAndDarkNavigationAndPlayer() {
         for (dark in listOf(false, true)) {

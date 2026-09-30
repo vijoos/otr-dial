@@ -421,7 +421,7 @@ class MainActivity : AppCompatActivity() {
                         layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                     })
                     layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(0, 0, dp(8), dp(8)) }
-                    minHeight = dp(80)
+                    minimumHeight = dp(80)
                     gravity = Gravity.CENTER_VERTICAL
                     background = ContextCompat.getDrawable(this@MainActivity, R.drawable.glass_panel)
                     isClickable = true
