@@ -4,161 +4,161 @@
     "name": "1940s Radio",
     "network": "Vintage ROKiT",
     "genre": "Variety",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8256/stream",
+    "streamUrl": "http://streaming06.liveboxstream.uk:8256/stream2/;",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-adventure",
     "name": "Adventure Stories",
     "network": "Vintage ROKiT",
     "genre": "Adventure",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8162/stream",
+    "streamUrl": "https://streaming06.liveboxstream.uk/proxy/rokstar7/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-american-classics",
     "name": "American Classics",
     "network": "Vintage ROKiT",
     "genre": "Variety",
-    "streamUrl": "http://streaming05.liveboxstream.uk:8043/stream",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/jondre01/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-american-comedy",
     "name": "American Comedy",
     "network": "Vintage ROKiT",
     "genre": "Comedy",
-    "streamUrl": "http://streaming04.liveboxstream.uk:8162/stream",
+    "streamUrl": "https://streaming04.liveboxstream.uk/proxy/roksta16/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-britcom1",
     "name": "British Comedy 1",
     "network": "Vintage ROKiT",
     "genre": "Comedy",
-    "streamUrl": "http://streaming04.liveboxstream.uk:8077/stream",
+    "streamUrl": "https://streaming04.liveboxstream.uk/proxy/roksta14/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-britcom2",
     "name": "British Comedy 2",
     "network": "Vintage ROKiT",
     "genre": "Comedy",
-    "streamUrl": "http://streaming05.liveboxstream.uk:8009/stream",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/jondreas/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-comedy-gold",
     "name": "Comedy Gold Radio",
     "network": "Vintage ROKiT",
     "genre": "Comedy",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8150/stream",
+    "streamUrl": "https://streaming06.liveboxstream.uk/proxy/rokstar8/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-crime-extra",
     "name": "Crime Radio Extra",
     "network": "Vintage ROKiT",
     "genre": "Crime / Detective",
-    "streamUrl": "http://streaming05.liveboxstream.uk:8039/stream",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/jondre00/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-crime-suspense",
     "name": "Crime and Suspense",
     "network": "Vintage ROKiT",
     "genre": "Mystery / Suspense",
-    "streamUrl": "http://streaming04.liveboxstream.uk:8168/stream",
+    "streamUrl": "https://streaming04.liveboxstream.uk/proxy/roksta17/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-drama",
     "name": "Drama Radio",
     "network": "Vintage ROKiT",
     "genre": "Drama",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8174/stream",
+    "streamUrl": "https://streaming06.liveboxstream.uk/proxy/roksta10/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-mystery",
     "name": "Mystery Radio",
     "network": "Vintage ROKiT",
     "genre": "Mystery / Suspense",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8168/stream",
+    "streamUrl": "https://streaming06.liveboxstream.uk/proxy/rokstar9/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-nostalgia",
     "name": "Nostalgia Lane",
     "network": "Vintage ROKiT",
     "genre": "Variety",
-    "streamUrl": "http://streaming06.liveboxstream.uk:8180/stream",
+    "streamUrl": "https://streaming06.liveboxstream.uk/proxy/roksta11/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-old-time-gold",
     "name": "Old Time Gold",
     "network": "Vintage ROKiT",
     "genre": "Variety",
-    "streamUrl": "http://streaming04.liveboxstream.uk:8180/stream",
+    "streamUrl": "https://streaming04.liveboxstream.uk/proxy/roksta18/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-saturn-x",
     "name": "Saturn X Radio",
     "network": "Vintage ROKiT",
     "genre": "Sci-Fi / Horror",
-    "streamUrl": "http://streaming05.liveboxstream.uk:8122/stream",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/jondre03/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official ROKiT station URL"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "rokit-scifi",
     "name": "Science Fiction",
     "network": "Vintage ROKiT",
     "genre": "Sci-Fi / Horror",
-    "streamUrl": "http://streaming05.liveboxstream.uk:8110/stream",
+    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/roksta12/stream",
     "homepage": "https://rokitradio.com/",
     "scheduleUrl": "",
     "recordable": true,
@@ -268,11 +268,11 @@
     "name": "1940s Radio - Home Service",
     "network": "Pumpkin FM",
     "genre": "1940s / Variety",
-    "streamUrl": "http://65.21.202.84:8392/stream",
+    "streamUrl": "https://cast2.asurahosting.com/proxy/1940sradio/stream",
     "homepage": "https://pumpkinfm.com/",
     "scheduleUrl": "https://pumpkinfm.com/f-a-q/",
     "recordable": true,
-    "verification": "Official Pumpkin FM endpoint; HTTP"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "pump-1940-light",
@@ -309,58 +309,58 @@
   },
   {
     "id": "yusa-red",
-    "name": "Yesterday USA Red",
+    "name": "Classic Radio Network / Yesterday USA Red",
     "network": "Yesterday USA",
     "genre": "Variety",
-    "streamUrl": "https://streaming.radio.co/sf5708c004/listen",
+    "streamUrl": "https://broadcast.classicairwaves.com/listen/classic_radio_network/live.mp3",
     "homepage": "https://www.yesterdayusa.com/",
     "scheduleUrl": "https://www.yesterdayusa.com/cgi-bin/rotation_grid.pl",
     "recordable": true,
-    "verification": "Official YUSA stream identifier; HTTPS form"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "yusa-blue",
     "name": "Yesterday USA Blue",
     "network": "Yesterday USA",
     "genre": "Variety",
-    "streamUrl": "https://streaming.radio.co/sa37b728bf/listen",
+    "streamUrl": "https://broadcast.classicairwaves.com/listen/yusa_blue/live.mp3",
     "homepage": "https://www.yesterdayusa.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Official YUSA stream identifier; HTTPS form"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "wotr-variety",
     "name": "Old Time Radio USA",
     "network": "WOTR Radio Network",
     "genre": "Variety",
-    "streamUrl": "https://listen.openstream.co/4884/audio",
+    "streamUrl": "https://fwd.autopo.st/otrusa",
     "homepage": "https://www.wotrradionetwork.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "wotr-suspense",
     "name": "Suspense Radio USA",
     "network": "WOTR Radio Network",
     "genre": "Mystery / Suspense",
-    "streamUrl": "https://listen.openstream.co/4885/audio",
+    "streamUrl": "https://fwd.autopo.st/suspense",
     "homepage": "https://www.wotrradionetwork.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "wotr-crime",
     "name": "Crime Time Radio USA",
     "network": "WOTR Radio Network",
     "genre": "Crime / Detective",
-    "streamUrl": "https://listen.openstream.co/4799/audio",
+    "streamUrl": "https://fwd.autopo.st/crimetime",
     "homepage": "https://www.wotrradionetwork.com/",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Direct stream listed by radio directory; station confirmed current by WOTR"
+    "verification": "Audio bytes received 2026-09-30; refreshed stream endpoint."
   },
   {
     "id": "aotr-a81991",
@@ -528,14 +528,520 @@
     "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
   },
   {
-    "id": "catalogue-science-fiction",
-    "name": "ROK Classic Science Fiction",
-    "network": "Vintage ROKiT",
-    "genre": "Sci-Fi / Horror",
-    "streamUrl": "https://streaming05.liveboxstream.uk/proxy/roksta12/stream",
-    "homepage": "https://rokitradio.com/",
+    "id": "v13-1640-am-america-variety-game-shows",
+    "name": "1640 AM America — Variety & Game Shows",
+    "network": "1640 AM America",
+    "genre": "Variety",
+    "streamUrl": "https://hemnos.cdnstream.com/1893_128",
+    "homepage": "",
     "scheduleUrl": "",
     "recordable": true,
-    "verification": "Catalogue endpoint returned an audio response during v0.3 audit"
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-1640-am-america-comedy",
+    "name": "1640 AM America — Comedy",
+    "network": "1640 AM America",
+    "genre": "Comedy",
+    "streamUrl": "https://hemnos.cdnstream.com/1666_32",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-acb-treasure-trove",
+    "name": "ACB Treasure Trove",
+    "network": "ACB Media",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.live365.com/a17972",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-american-legend-old-time-radio",
+    "name": "American Legend Old Time Radio",
+    "network": "American Legend",
+    "genre": "Variety",
+    "streamUrl": "https://server10.reliastream.com/proxy/starcrea?mp=/stream",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-sherlock-holmes",
+    "name": "Sherlock Holmes",
+    "network": "America’s OTR",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://streaming.live365.com/a49617",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-old-time-sci-fi",
+    "name": "Old Time Sci-Fi",
+    "network": "America’s OTR",
+    "genre": "Sci-Fi",
+    "streamUrl": "https://streaming.live365.com/a23725",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-audio-noir",
+    "name": "Audio Noir",
+    "network": "Audio Noir",
+    "genre": "Crime / Mystery",
+    "streamUrl": "http://streams.audionoir.com:8000/noir",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-box-old-time-radio",
+    "name": "Box Old Time Radio",
+    "network": "Box Radio",
+    "genre": "Variety",
+    "streamUrl": "https://boxradio-edge-08.streamafrica.net/otr",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-bygolly-old-time-radio",
+    "name": "Bygolly Old Time Radio",
+    "network": "Bygolly",
+    "genre": "Variety",
+    "streamUrl": "https://securestreams5.autopo.st:1854/;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-classic-old-time-radio",
+    "name": "Classic Old Time Radio",
+    "network": "Classic Old Time Radio",
+    "genre": "Variety",
+    "streamUrl": "https://stream.zeno.fm/5s39gu8uhnruv",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-mpir-comedy",
+    "name": "MPIR Comedy",
+    "network": "MPIR",
+    "genre": "Comedy",
+    "streamUrl": "http://s3.voscast.com:8454/stream.mp3",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-creepy-tales",
+    "name": "Creepy Tales",
+    "network": "Theater of the Mind",
+    "genre": "Horror",
+    "streamUrl": "https://mercury.reliastream.com/proxy/jared12?mp=/stream/;",
+    "homepage": "https://theaterofthemind-otr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-crime-fighter-detectives",
+    "name": "Crime Fighter Detectives",
+    "network": "Crime Fighter Detectives",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://hemnos.cdnstream.com/1665_32",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-crimetime-old-time-radio",
+    "name": "Crimetime Old Time Radio",
+    "network": "CrimeTime",
+    "genre": "Crime / Mystery",
+    "streamUrl": "http://46.4.40.246:9195/stream",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-crypt-theater",
+    "name": "Crypt Theater",
+    "network": "Crypt Theater",
+    "genre": "Horror",
+    "streamUrl": "http://streaming.live365.com/a29186",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-dieselpunk-industries-radio",
+    "name": "Dieselpunk Industries Radio",
+    "network": "Dieselpunk Industries",
+    "genre": "Variety",
+    "streamUrl": "http://s7.voscast.com:7730/;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-fibber-mcgee-and-molly",
+    "name": "Fibber McGee and Molly",
+    "network": "Fibber McGee and Molly",
+    "genre": "Comedy",
+    "streamUrl": "http://s6.voscast.com:9920",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-great-old-time",
+    "name": "Great Old Time",
+    "network": "Great Old Time Radio",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.live365.com/a05155",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-hanks-gumshoe-otr",
+    "name": "Hanks Gumshoe OTR",
+    "network": "Hank’s OTR",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://s21.myradiostream.com/:9714/listen.mp3",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-hanks-old-time-radio",
+    "name": "Hanks Old Time Radio",
+    "network": "Hank’s OTR",
+    "genre": "Variety",
+    "streamUrl": "https://s1.myradiostream.com/:4962/listen.mp3/;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-horror-radio-24-7-365",
+    "name": "Horror Radio 24/7/365",
+    "network": "Horror Radio",
+    "genre": "Horror",
+    "streamUrl": "https://eu1.fastcast4u.com/proxy/stevende1/;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-horror-theatre-where-something-terrible-always-happens",
+    "name": "Horror Theatre Where Something Terrible Always Happens!",
+    "network": "Horror Theatre",
+    "genre": "Horror",
+    "streamUrl": "https://ec4.yesstreaming.net:1230/stream",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-radio181-old-time-radio",
+    "name": "Radio181 Old Time Radio",
+    "network": "Radio181",
+    "genre": "Variety",
+    "streamUrl": "https://ec1.yesstreaming.net:4030/;;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-mpir-old-time-radio",
+    "name": "MPIR Old Time Radio",
+    "network": "MPIR",
+    "genre": "Variety",
+    "streamUrl": "http://s4.voscast.com:7080/stream",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-mystery-and-suspense-radio-network",
+    "name": "Mystery and Suspense Radio Network",
+    "network": "Mystery and Suspense Radio Network",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://hemnos.cdnstream.com/1667_32",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-nightmare-radio-usa",
+    "name": "Nightmare Radio USA",
+    "network": "WOTR Radio Network",
+    "genre": "Horror",
+    "streamUrl": "https://c13.radioboss.fm:8661/stream",
+    "homepage": "https://www.wotrradionetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-patriot-old-time-radio",
+    "name": "Patriot Old Time Radio",
+    "network": "Patriot",
+    "genre": "Variety",
+    "streamUrl": "http://s2.voscast.com:9170",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-relic-radio-on-the-air",
+    "name": "Relic Radio On The Air",
+    "network": "Relic Radio",
+    "genre": "Variety",
+    "streamUrl": "http://s8.voscast.com:7372",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-rumsey-retro",
+    "name": "Rumsey Retro",
+    "network": "Rumsey Retro Radio",
+    "genre": "Variety",
+    "streamUrl": "https://jenny.torontocast.com:8042/stream",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-sounds-from-the-ether",
+    "name": "Sounds from the Ether",
+    "network": "Sounds from the Ether",
+    "genre": "Variety",
+    "streamUrl": "https://streaming.live365.com/a44024",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-theater-channel",
+    "name": "Theater Channel",
+    "network": "Theater Channel",
+    "genre": "Drama",
+    "streamUrl": "https://kea.cdnstream.com/1295_128",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-crime-detectives",
+    "name": "Crime & Detectives",
+    "network": "Theater of the Mind",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://mercury.reliastream.com/proxy/jared124?mp=/stream/;",
+    "homepage": "https://theaterofthemind-otr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-gunsmoke-24-7",
+    "name": "Gunsmoke 24/7",
+    "network": "Theater of the Mind",
+    "genre": "Western",
+    "streamUrl": "https://s6.reliastream.com/proxy/jared1?mp=/stream/;",
+    "homepage": "https://theaterofthemind-otr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-suspense-24-7",
+    "name": "Suspense 24/7",
+    "network": "Theater of the Mind",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://s6.reliastream.com/proxy/jared/;",
+    "homepage": "https://theaterofthemind-otr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wild-west-tales",
+    "name": "Wild West Tales",
+    "network": "Theater of the Mind",
+    "genre": "Western",
+    "streamUrl": "https://mercury.reliastream.com/proxy/jared123/stream/;",
+    "homepage": "https://theaterofthemind-otr.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-vintage-broadcast",
+    "name": "Vintage Broadcast",
+    "network": "Vintage Broadcast",
+    "genre": "Variety",
+    "streamUrl": "https://s9.myradiostream.com:8724/;;",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wrcw-comedy-time",
+    "name": "WRCW Comedy Time",
+    "network": "WRCW",
+    "genre": "Comedy",
+    "streamUrl": "https://streaming.live365.com/a67881",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wrcw-dragnet",
+    "name": "WRCW Dragnet",
+    "network": "WRCW",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://streaming.live365.com/a48993",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wrcw-crime-story",
+    "name": "WRCW Crime Story",
+    "network": "WRCW",
+    "genre": "Crime / Mystery",
+    "streamUrl": "https://streaming.live365.com/a60381",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wrcw-gunsmoke",
+    "name": "WRCW Gunsmoke",
+    "network": "WRCW",
+    "genre": "Western",
+    "streamUrl": "https://streaming.live365.com/a64449",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-wrcw-old-time-westerns",
+    "name": "WRCW Old Time Westerns",
+    "network": "WRCW",
+    "genre": "Western",
+    "streamUrl": "https://streaming.live365.com/a75141",
+    "homepage": "",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-50-s-science-fiction-kotr",
+    "name": "50's Science Fiction KOTR",
+    "network": "KOTR",
+    "genre": "Sci-Fi",
+    "streamUrl": "https://stream.kf7k.com/listen/scifi/radio.mp3",
+    "homepage": "https://stream.kf7k.com/public/scifi",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-sci-fi-old-time-radio",
+    "name": "Sci-Fi Old Time Radio",
+    "network": "Sci-Fi Old Time Radio",
+    "genre": "Sci-Fi",
+    "streamUrl": "http://s1.voscast.com:8652/stream",
+    "homepage": "http://scifi-otr.weebly.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-walm-old-time-radio",
+    "name": "WALM Old Time Radio",
+    "network": "WALM",
+    "genre": "Variety",
+    "streamUrl": "https://icecast.walmradio.com:8443/otr",
+    "homepage": "https://walmradio.com/otr",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio bytes received 2026-09-30. Availability and programme metadata depend on the broadcaster."
+  },
+  {
+    "id": "v13-kotr-mystery-and-the-unknown-kotr",
+    "name": "Mystery and the Unknown KOTR",
+    "network": "KOTR",
+    "genre": "Mystery / Suspense",
+    "streamUrl": "https://stream.kf7k.com/listen/mystery/radio.mp3",
+    "homepage": "https://stream.kf7k.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Broadcaster station API; audio bytes received 2026-09-30."
+  },
+  {
+    "id": "v13-kotr-kids-otr-shows-kotr",
+    "name": "Kids OTR Shows KOTR",
+    "network": "KOTR",
+    "genre": "Variety",
+    "streamUrl": "https://stream.kf7k.com/listen/kids/radio.mp3",
+    "homepage": "https://stream.kf7k.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Broadcaster station API; audio bytes received 2026-09-30."
+  },
+  {
+    "id": "v13-kotr-otr-christmas-shows-kotr",
+    "name": "OTR Christmas Shows KOTR",
+    "network": "KOTR",
+    "genre": "Seasonal",
+    "streamUrl": "https://stream.kf7k.com/listen/christmas/radio.mp3",
+    "homepage": "https://stream.kf7k.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Broadcaster station API; audio bytes received 2026-09-30."
   }
 ]

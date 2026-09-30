@@ -1,0 +1,779 @@
+[
+  {
+    "id": "v13-1640-am-america-variety-game-shows",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://hemnos.cdnstream.com/1893_128",
+      "checkedAt": "2026-09-30T23:20:19.391490+00:00",
+      "http": 200,
+      "finalUrl": "https://hemnos.cdnstream.com/1893_128",
+      "contentType": "audio/mpeg",
+      "icyName": "",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-1640-am-america-comedy",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "Previously supplied APK catalogue (historical lead)"
+    ],
+    "probe": {
+      "url": "https://hemnos.cdnstream.com/1666_32",
+      "checkedAt": "2026-09-30T23:20:20.466898+00:00",
+      "http": 200,
+      "finalUrl": "https://hemnos.cdnstream.com/1666_32",
+      "contentType": "audio/mpeg",
+      "icyName": "",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-acb-treasure-trove",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a17972",
+      "checkedAt": "2026-09-30T23:20:23.637455+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge14-live365-dal02.cdnstream.com/a17972",
+      "contentType": "audio/mpeg",
+      "icyName": "ACB Media 3",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-american-legend-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://server10.reliastream.com/proxy/starcrea?mp=/stream",
+      "checkedAt": "2026-09-30T23:20:25.740789+00:00",
+      "http": 200,
+      "finalUrl": "https://server10.reliastream.com/proxy/starcrea?mp=/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "AMERICAN LEGEND - Old Time Radio",
+      "icyGenre": "Old Time Radio History",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-sherlock-holmes",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a49617",
+      "checkedAt": "2026-09-30T23:20:25.849728+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge15-live365-dal02.cdnstream.com/a49617",
+      "contentType": "audio/mpeg",
+      "icyName": "America's OTR - 24/7 Sherlock Holmes",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-old-time-sci-fi",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a23725",
+      "checkedAt": "2026-09-30T23:20:26.225793+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge93-live365-dal05.cdnstream.com/a23725",
+      "contentType": "audio/mpeg",
+      "icyName": "America's OTR - Old Time Sci-Fi",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-audio-noir",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/41e71839-121c-46a2-a441-325abd9104e2"
+    ],
+    "probe": {
+      "url": "http://streams.audionoir.com:8000/noir",
+      "checkedAt": "2026-09-30T23:20:26.614010+00:00",
+      "http": 200,
+      "finalUrl": "http://streams.audionoir.com:8000/noir",
+      "contentType": "audio/mpeg",
+      "icyName": "Audio Noir",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-box-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://boxradio-edge-08.streamafrica.net/otr",
+      "checkedAt": "2026-09-30T23:20:28.737446+00:00",
+      "http": 200,
+      "finalUrl": "https://boxradio-edge-08.streamafrica.net/otr",
+      "contentType": "audio/mpeg",
+      "icyName": "Old Time Radio",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-bygolly-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://securestreams5.autopo.st:1854/;",
+      "checkedAt": "2026-09-30T23:20:28.785948+00:00",
+      "http": 200,
+      "finalUrl": "https://securestreams5.autopo.st:1854/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Bygolly OTR",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-classic-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://stream.zeno.fm/5s39gu8uhnruv",
+      "checkedAt": "2026-09-30T23:20:31.761724+00:00",
+      "http": 200,
+      "finalUrl": "https://stream-281.surfernetwork.com/5s39gu8uhnruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI1czM5Z3U4dWhucnV2IiwiaG9zdCI6InN0cmVhbS0yODEuc3VyZmVybmV0d29yay5jb20iLCJydHRsIjo1LCJqdGkiOiJkWDlpQ2RSdFFMcWxNc2VNNFc3YXpRIiwiaWF0IjoxNzkwODEwNDM3LCJleHAiOjE3OTA4MTA0OTd9.AIjm3-GahmfNGTyveK3_szfkFSRsJiy6201j2syGBtE",
+      "contentType": "audio/mpeg",
+      "icyName": "Classic Old Time Radio",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-mpir-comedy",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/7dc9e615-d213-4e62-bc6e-5a22e7ad1aff"
+    ],
+    "probe": {
+      "url": "http://s3.voscast.com:8454/stream.mp3",
+      "checkedAt": "2026-09-30T23:20:32.049699+00:00",
+      "http": 200,
+      "finalUrl": "http://s3.voscast.com:8454/stream.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "MPIR Comedy OTR",
+      "icyGenre": "Comedy Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-creepy-tales",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://mercury.reliastream.com/proxy/jared12?mp=/stream/;",
+      "checkedAt": "2026-09-30T23:20:35.625726+00:00",
+      "http": 200,
+      "finalUrl": "https://mercury.reliastream.com/proxy/jared12?mp=/stream/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Creepy Tales Radio - Old Time Radio Horror Classics",
+      "icyGenre": "Old Time Radio  Horror Suspense",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-crime-fighter-detectives",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://hemnos.cdnstream.com/1665_32",
+      "checkedAt": "2026-09-30T23:20:35.963690+00:00",
+      "http": 200,
+      "finalUrl": "https://hemnos.cdnstream.com/1665_32",
+      "contentType": "audio/mpeg",
+      "icyName": "",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-crimetime-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://46.4.40.246:9195/stream",
+      "checkedAt": "2026-09-30T23:20:36.923576+00:00",
+      "http": 200,
+      "finalUrl": "http://46.4.40.246:9195/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "*CRIMETIME Old Time Radio*",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-crypt-theater",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://streaming.live365.com/a29186",
+      "checkedAt": "2026-09-30T23:20:36.969733+00:00",
+      "http": 200,
+      "finalUrl": "http://das-edge93-live365-dal05.cdnstream.com/a29186",
+      "contentType": "audio/mpeg",
+      "icyName": "CRYPT THEATER ð- Look Behind You, You Never Know Who, Or What Is Following You!",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-dieselpunk-industries-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://s7.voscast.com:7730/;",
+      "checkedAt": "2026-09-30T23:20:37.945698+00:00",
+      "http": 200,
+      "finalUrl": "http://s7.voscast.com:7730/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Dieselpunk Industries Radio",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-fibber-mcgee-and-molly",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://s6.voscast.com:9920",
+      "checkedAt": "2026-09-30T23:20:38.107546+00:00",
+      "http": 200,
+      "finalUrl": "http://s6.voscast.com:9920",
+      "contentType": "audio/mpeg",
+      "icyName": "Fibber McGee and Molly",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-great-old-time",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a05155",
+      "checkedAt": "2026-09-30T23:20:39.249707+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge12-live365-dal02.cdnstream.com/a05155",
+      "contentType": "audio/mpeg",
+      "icyName": "Great Old Time Radio",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-hanks-gumshoe-otr",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://s21.myradiostream.com/:9714/listen.mp3",
+      "checkedAt": "2026-09-30T23:20:41.809875+00:00",
+      "http": 200,
+      "finalUrl": "https://s21.myradiostream.com/:9714/listen.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "Hank's Gumshoe Old Time Radio",
+      "icyGenre": "Classic Rock",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-hanks-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://s1.myradiostream.com/:4962/listen.mp3/;",
+      "checkedAt": "2026-09-30T23:20:42.905131+00:00",
+      "http": 200,
+      "finalUrl": "https://s1.myradiostream.com/:4962/listen.mp3/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Hank's Old Time Radio",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-horror-radio-24-7-365",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://eu1.fastcast4u.com/proxy/stevende1/;",
+      "checkedAt": "2026-09-30T23:20:45.586165+00:00",
+      "http": 200,
+      "finalUrl": "https://eu1.fastcast4u.com/proxy/stevende1/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Horror Radio 24/7/365 AutoDJ",
+      "icyGenre": "Horror",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-horror-theatre-where-something-terrible-always-happens",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://ec4.yesstreaming.net:1230/stream",
+      "checkedAt": "2026-09-30T23:20:45.821384+00:00",
+      "http": 200,
+      "finalUrl": "https://ec4.yesstreaming.net:1230/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "Horror Theatre",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-radio181-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://ec1.yesstreaming.net:4030/;;",
+      "checkedAt": "2026-09-30T23:20:53.717428+00:00",
+      "http": 200,
+      "finalUrl": "https://ec1.yesstreaming.net:4030/;;",
+      "contentType": "audio/mpeg",
+      "icyName": "Radio181 Old Time Radio - Morganton, North Carolina",
+      "icyGenre": "Old time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-mpir-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/a2467612-281a-4fe3-a956-c242acd5fb41"
+    ],
+    "probe": {
+      "url": "http://s4.voscast.com:7080/stream",
+      "checkedAt": "2026-09-30T23:20:53.828064+00:00",
+      "http": 200,
+      "finalUrl": "http://s4.voscast.com:7080/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "MPIR Old Time Radio",
+      "icyGenre": "old time radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-mystery-and-suspense-radio-network",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/2f433351-d75f-4656-a0ff-48a6e3b7b0af",
+      "https://www.radio-browser.info/history/8681678d-08da-4a97-a51f-a6d011486921",
+      "https://www.radio-browser.info/history/799feffd-e36b-4569-8408-674229cd2252"
+    ],
+    "probe": {
+      "url": "https://hemnos.cdnstream.com/1667_32",
+      "checkedAt": "2026-09-30T23:20:53.829687+00:00",
+      "http": 200,
+      "finalUrl": "https://hemnos.cdnstream.com/1667_32",
+      "contentType": "audio/mpeg",
+      "icyName": "",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-nightmare-radio-usa",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://c13.radioboss.fm:8661/stream",
+      "checkedAt": "2026-09-30T23:20:54.289232+00:00",
+      "http": 200,
+      "finalUrl": "https://c13.radioboss.fm:8661/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "Nightmare Radio USA",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-patriot-old-time-radio",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://s2.voscast.com:9170",
+      "checkedAt": "2026-09-30T23:21:01.516595+00:00",
+      "http": 200,
+      "finalUrl": "http://s2.voscast.com:9170",
+      "contentType": "audio/mpeg",
+      "icyName": "Patriot Old Time Radio",
+      "icyGenre": "Oldies",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-relic-radio-on-the-air",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "http://s8.voscast.com:7372",
+      "checkedAt": "2026-09-30T23:21:07.745238+00:00",
+      "http": 200,
+      "finalUrl": "http://s8.voscast.com:7372",
+      "contentType": "audio/mpeg",
+      "icyName": "Relic Radio On The Air",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-rumsey-retro",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/b19e5d81-de61-443c-902c-15ad3892ffdf"
+    ],
+    "probe": {
+      "url": "https://jenny.torontocast.com:8042/stream",
+      "checkedAt": "2026-09-30T23:21:18.598188+00:00",
+      "http": 200,
+      "finalUrl": "https://jenny.torontocast.com:8042/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "Rumsey Retro Radio",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-sounds-from-the-ether",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a44024",
+      "checkedAt": "2026-09-30T23:21:18.601845+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge15-live365-dal02.cdnstream.com/a44024",
+      "contentType": "audio/mpeg",
+      "icyName": "Sounds from the Ether  - Only the Best of Old Time Radio Programs",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-theater-channel",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://kea.cdnstream.com/1295_128",
+      "checkedAt": "2026-09-30T23:21:19.125211+00:00",
+      "http": 200,
+      "finalUrl": "https://kea.cdnstream.com/1295_128",
+      "contentType": "audio/mpeg",
+      "icyName": "",
+      "icyGenre": "",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-crime-detectives",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://mercury.reliastream.com/proxy/jared124?mp=/stream/;",
+      "checkedAt": "2026-09-30T23:21:19.177241+00:00",
+      "http": 200,
+      "finalUrl": "https://mercury.reliastream.com/proxy/jared124?mp=/stream/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Old Time Radio Crime, Detectives - Theater of the Mind",
+      "icyGenre": "old time radio crime detective",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-gunsmoke-24-7",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://s6.reliastream.com/proxy/jared1?mp=/stream/;",
+      "checkedAt": "2026-09-30T23:21:26.232616+00:00",
+      "http": 200,
+      "finalUrl": "https://s6.reliastream.com/proxy/jared1?mp=/stream/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Gunsmoke 24/7 - Wild West Tales",
+      "icyGenre": "old time radio westerns",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-suspense-24-7",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://s6.reliastream.com/proxy/jared/;",
+      "checkedAt": "2026-09-30T23:21:26.361796+00:00",
+      "http": 200,
+      "finalUrl": "https://s6.reliastream.com/proxy/jared/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Suspense 24/7 - OTR Theater of the Mind",
+      "icyGenre": "Old Time Radio suspense",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wild-west-tales",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://mercury.reliastream.com/proxy/jared123/stream/;",
+      "checkedAt": "2026-09-30T23:21:26.625937+00:00",
+      "http": 200,
+      "finalUrl": "https://mercury.reliastream.com/proxy/jared123/stream/;",
+      "contentType": "audio/mpeg",
+      "icyName": "Wild West Tales - Old Time Radio Western Classics",
+      "icyGenre": "old time radio westerns",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-vintage-broadcast",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://s9.myradiostream.com:8724/;;",
+      "checkedAt": "2026-09-30T23:21:26.773211+00:00",
+      "http": 200,
+      "finalUrl": "https://s9.myradiostream.com:8724/;;",
+      "contentType": "audio/mpeg",
+      "icyName": "Vintage Broadcast",
+      "icyGenre": "Old Time Radio",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wrcw-comedy-time",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a67881",
+      "checkedAt": "2026-09-30T23:21:32.860680+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge12-live365-dal02.cdnstream.com/a67881",
+      "contentType": "audio/mpeg",
+      "icyName": "WRCW Comedy Time",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wrcw-dragnet",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/261a0e97-df52-43cb-8210-7e73974df935"
+    ],
+    "probe": {
+      "url": "https://streaming.live365.com/a48993",
+      "checkedAt": "2026-09-30T23:21:32.869656+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge93-live365-dal05.cdnstream.com/a48993",
+      "contentType": "audio/mpeg",
+      "icyName": "WRCW Presents - DRAGNET ð¨",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wrcw-crime-story",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a60381",
+      "checkedAt": "2026-09-30T23:21:32.893634+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge93-live365-dal05.cdnstream.com/a60381",
+      "contentType": "audio/mpeg",
+      "icyName": "WRCW Crime Story ðµð½",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wrcw-gunsmoke",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [
+      "https://www.radio-browser.info/history/0e76463f-0812-48da-af1f-ad7c3329621a"
+    ],
+    "probe": {
+      "url": "https://streaming.live365.com/a64449",
+      "checkedAt": "2026-09-30T23:21:33.621663+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge93-live365-dal05.cdnstream.com/a64449",
+      "contentType": "audio/mpeg",
+      "icyName": "WRCW Radio - Home Of Gunsmoke",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-wrcw-old-time-westerns",
+    "source": "Previously supplied APK catalogue (historical lead)",
+    "otherSources": [],
+    "probe": {
+      "url": "https://streaming.live365.com/a75141",
+      "checkedAt": "2026-09-30T23:21:33.759787+00:00",
+      "http": 200,
+      "finalUrl": "https://das-edge93-live365-dal05.cdnstream.com/a75141",
+      "contentType": "audio/mpeg",
+      "icyName": "WRCW Radio 2 ðµ Home Of The Old Time Westerns",
+      "icyGenre": "TBD",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-50-s-science-fiction-kotr",
+    "source": "https://www.radio-browser.info/history/3c2da98e-b7b7-4192-8ca4-3a625a301629",
+    "otherSources": [
+      "https://www.radio-browser.info/history/3c2da98e-b7b7-4192-8ca4-3a625a301629"
+    ],
+    "probe": {
+      "url": "https://stream.kf7k.com/listen/scifi/radio.mp3",
+      "checkedAt": "2026-09-30T23:21:34.693111+00:00",
+      "http": 200,
+      "finalUrl": "https://stream.kf7k.com/listen/scifi/radio.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "50's Science Fiction KOTR",
+      "icyGenre": "Old Time Radio OTR",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-sci-fi-old-time-radio",
+    "source": "https://www.radio-browser.info/history/485e7853-adfa-4552-a5ed-82f5af16fdf5",
+    "otherSources": [
+      "https://www.radio-browser.info/history/af37f773-0138-495d-b1a6-6e114ff2ceb7",
+      "https://www.radio-browser.info/history/485e7853-adfa-4552-a5ed-82f5af16fdf5"
+    ],
+    "probe": {
+      "url": "http://s1.voscast.com:8652/stream",
+      "checkedAt": "2026-09-30T23:21:47.741926+00:00",
+      "http": 200,
+      "finalUrl": "http://s1.voscast.com:8652/stream",
+      "contentType": "audio/mpeg",
+      "icyName": "SciFi Old Time Radio",
+      "icyGenre": "Talk",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-walm-old-time-radio",
+    "source": "https://www.radio-browser.info/history/ba48e22c-ea81-4f33-99ed-3e3c5835f307",
+    "otherSources": [
+      "https://www.radio-browser.info/history/1da520b1-0a01-4f4c-aba3-3c2374c3ccc8",
+      "https://www.radio-browser.info/history/d1a99ce9-6750-4f3e-8d32-5542d3ebcee9",
+      "https://www.radio-browser.info/history/313046e3-b203-4b9d-bc3e-393da7d97126",
+      "https://www.radio-browser.info/history/ba48e22c-ea81-4f33-99ed-3e3c5835f307"
+    ],
+    "probe": {
+      "url": "https://icecast.walmradio.com:8443/otr",
+      "checkedAt": "2026-09-30T23:21:48.957095+00:00",
+      "http": 200,
+      "finalUrl": "https://icecast.walmradio.com:8443/otr",
+      "contentType": "audio/mpeg",
+      "icyName": "WALM - Old Time Radio",
+      "icyGenre": "OTR,Old Time Radio,Vintage,Classic,V-Disc,WALM,78,78-RPM,78RPM,Easy Listening,Comedy,Drama,Mystery,Sci-Fi,Musical,WALM",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-kotr-mystery-and-the-unknown-kotr",
+    "source": "https://stream.kf7k.com/api/stations",
+    "probe": {
+      "url": "https://stream.kf7k.com/listen/mystery/radio.mp3",
+      "checkedAt": "2026-09-30T23:26:52.874120+00:00",
+      "http": 200,
+      "finalUrl": "https://stream.kf7k.com/listen/mystery/radio.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "Mystery and the Unknown KOTR",
+      "icyGenre": "Old Time Radio OTR",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-kotr-kids-otr-shows-kotr",
+    "source": "https://stream.kf7k.com/api/stations",
+    "probe": {
+      "url": "https://stream.kf7k.com/listen/kids/radio.mp3",
+      "checkedAt": "2026-09-30T23:26:52.874480+00:00",
+      "http": 200,
+      "finalUrl": "https://stream.kf7k.com/listen/kids/radio.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "Kids OTR Shows KOTR",
+      "icyGenre": "Old Time Radio OTR",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  },
+  {
+    "id": "v13-kotr-otr-christmas-shows-kotr",
+    "source": "https://stream.kf7k.com/api/stations",
+    "probe": {
+      "url": "https://stream.kf7k.com/listen/christmas/radio.mp3",
+      "checkedAt": "2026-09-30T23:26:52.874753+00:00",
+      "http": 200,
+      "finalUrl": "https://stream.kf7k.com/listen/christmas/radio.mp3",
+      "contentType": "audio/mpeg",
+      "icyName": "OTR Christmas Shows KOTR",
+      "icyGenre": "Old Time Radio OTR",
+      "bytesRead": 4096,
+      "status": "Audio received"
+    }
+  }
+]

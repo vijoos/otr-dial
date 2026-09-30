@@ -11,8 +11,9 @@ android {
         applicationId = "com.example.otrdial"
         minSdk = 29
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.2.1-artwork"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionCode = 14
+        versionName = "1.3"
     }
 
     buildFeatures {
@@ -27,6 +28,9 @@ android {
 }
 
 dependencies {
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")

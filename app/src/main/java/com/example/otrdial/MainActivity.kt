@@ -16,6 +16,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.ImageView
+import android.graphics.Typeface
+import android.view.Gravity
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AlertDialog
@@ -44,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private var genre = "All genres"
     private var collection = 0
+    private var network = "All networks"
+    private var homeOpen = true
     private var playerOpen = false
     private lateinit var playerBack: OnBackPressedCallback
 
@@ -72,10 +79,19 @@ class MainActivity : AppCompatActivity() {
 
         requestNotificationPermissionIfNeeded()
         stations = StationRepository.load(this)
+        val oldFavourites = favouriteIds()
+        if (oldFavourites.remove("catalogue-science-fiction")) {
+            oldFavourites.add("rokit-scifi")
+            prefs.edit().putStringSet("favourites", oldFavourites).apply()
+        }
         setupPlayerConnection()
         setupList()
         setupFilters()
         setupControls()
+        homeOpen = savedInstanceState?.getBoolean("home_open") ?: true
+        collection = savedInstanceState?.getInt("collection") ?: 0
+        binding.collectionSpinner.setSelection(collection)
+        renderHome()
         binding.currentMetadata.text = savedInstanceState?.getString("metadata") ?: "Live radio"
         binding.playerArtwork.setImageDrawable(RadioArtwork("Radio theatre"))
         binding.artworkCredits.setOnClickListener {
@@ -101,6 +117,8 @@ class MainActivity : AppCompatActivity() {
                     binding.currentStation.text = it.name
                     binding.openPlayerButton.text = "${it.name}  ›"
                     binding.openPlayerButton.visibility = View.VISIBLE
+                    syncMiniPlayer()
+                    renderHome()
                     updateFavouriteButton()
                 }
                 c.addListener(object : Player.Listener {
@@ -164,6 +182,15 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
         }
 
+        val networks = listOf("All networks") + stations.map { it.network }.distinct().sorted()
+        binding.networkSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, networks)
+        binding.networkSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                network = networks[position]
+                applyFilters()
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
+        }
         binding.searchBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = applyFilters()
@@ -172,16 +199,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        binding.recordingsButton.setOnClickListener { RecordingLibrary.show(this) }
+        binding.settingsButton.setOnClickListener {
+            AlertDialog.Builder(this).setTitle("OTR Dial")
+                .setItems(arrayOf("My recordings", "Switch light / dark mode", "About this catalogue")) { _, which ->
+                    when (which) {
+                        0 -> RecordingLibrary.show(this)
+                        1 -> binding.themeSwitch.isChecked = !binding.themeSwitch.isChecked
+                        2 -> AlertDialog.Builder(this).setTitle("Your radio theatre")
+                            .setMessage("${stations.size} stations • OTR Dial 1.3\n\nArtwork is bundled for quick, offline display. Source credits are available in the player. Episode titles appear only when supplied by the broadcaster. Stream availability may change.")
+                            .setPositiveButton("Close", null).show()
+                    }
+                }.show()
+        }
+        binding.exploreButton.setOnClickListener { browse(0) }
+        binding.navPlayer.setOnClickListener {
+            if (currentStation != null) showPlayer(true) else stations.firstOrNull()?.let { playStation(it) }
+        }
+        binding.miniPlayPause.setOnClickListener { binding.playPauseButton.performClick() }
+        binding.previousStation.setOnClickListener { stepStation(-1) }
+        binding.nextStation.setOnClickListener { stepStation(1) }
         binding.checkStreamButton.setOnClickListener { currentStation?.let { StreamHealth.check(this, it) } }
         binding.homeButton.setOnClickListener {
-            binding.collectionSpinner.setSelection(0)
+            homeOpen = true
+            renderHome()
+            showPlayer(false)
         }
         binding.favouritesButton.setOnClickListener {
-            binding.collectionSpinner.setSelection(1)
+            browse(1)
         }
         binding.recentButton.setOnClickListener {
-            binding.collectionSpinner.setSelection(2)
+            browse(2)
         }
         binding.playPauseButton.setOnClickListener {
             val c = controller ?: return@setOnClickListener
@@ -208,6 +255,11 @@ class MainActivity : AppCompatActivity() {
         playerOpen = show
         binding.browserPanel.visibility = if (show) View.GONE else View.VISIBLE
         binding.playerScreen.visibility = if (show) View.VISIBLE else View.GONE
+        binding.appHeader.visibility = if (show) View.GONE else View.VISIBLE
+        binding.navigationBar.visibility = if (show) View.GONE else View.VISIBLE
+        binding.homeScreen.visibility = if (homeOpen) View.VISIBLE else View.GONE
+        binding.exploreScreen.visibility = if (homeOpen) View.GONE else View.VISIBLE
+        syncMiniPlayer()
         playerBack.isEnabled = show
         if (show) {
             binding.searchBox.clearFocus()
@@ -226,6 +278,7 @@ class MainActivity : AppCompatActivity() {
         val recent = (listOf(station.id) + recentIds().filter { it != station.id }).take(30)
         prefs.edit().putString("recent", org.json.JSONArray(recent).toString()).apply()
         applyFilters()
+        renderHome()
         binding.openPlayerButton.text = "${station.name}  ›"
         binding.openPlayerButton.visibility = View.VISIBLE
         showPlayer(true)
@@ -257,6 +310,108 @@ class MainActivity : AppCompatActivity() {
         c.setMediaItem(item)
         c.prepare()
         c.play()
+    }
+
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
+    private fun syncMiniPlayer() {
+        val station = currentStation
+        binding.miniPlayer.visibility = if (!playerOpen && station != null) View.VISIBLE else View.GONE
+        station?.let {
+            binding.miniArtwork.setImageDrawable(StationArt.drawable(this, it))
+            binding.openPlayerButton.text = "${it.name}  ›"
+            binding.openPlayerButton.contentDescription = "Open player for ${it.name}"
+        }
+    }
+
+    private fun browse(which: Int, selectedGenre: String = "All genres") {
+        homeOpen = false
+        collection = which
+        genre = selectedGenre
+        network = "All networks"
+        binding.searchBox.setText("")
+        binding.collectionSpinner.setSelection(which)
+        val genres = listOf("All genres") + stations.map { it.genre }.distinct().sorted()
+        binding.genreSpinner.setSelection(genres.indexOf(selectedGenre).coerceAtLeast(0))
+        binding.networkSpinner.setSelection(0)
+        applyFilters()
+        showPlayer(false)
+    }
+
+    private fun stepStation(direction: Int) {
+        val index = stations.indexOfFirst { it.id == currentStation?.id }.coerceAtLeast(0)
+        stations.getOrNull((index + direction + stations.size) % stations.size)?.let { playStation(it) }
+    }
+
+    private fun label(text: String, size: Float, bold: Boolean = false) = TextView(this).apply {
+        this.text = text
+        textSize = size
+        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.otr_ink))
+        if (bold) setTypeface(typeface, Typeface.BOLD)
+        setPadding(dp(10), dp(5), dp(10), dp(5))
+    }
+
+    private fun stationCard(station: Station, compact: Boolean): LinearLayout = LinearLayout(this).apply {
+        orientation = if (compact) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_VERTICAL
+        background = ContextCompat.getDrawable(this@MainActivity, R.drawable.glass_panel)
+        setPadding(dp(6), dp(6), dp(6), dp(6))
+        layoutParams = LinearLayout.LayoutParams(if (compact) -1 else dp(158), -2).apply {
+            setMargins(0, 0, dp(12), dp(10))
+        }
+        addView(ImageView(this@MainActivity).apply {
+            setImageDrawable(StationArt.drawable(this@MainActivity, station))
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            layoutParams = LinearLayout.LayoutParams(if (compact) dp(56) else -1, if (compact) dp(62) else dp(128))
+            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.glass_panel)
+            clipToOutline = true
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        })
+        addView(LinearLayout(this@MainActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = if (compact) LinearLayout.LayoutParams(0, -2, 1f) else LinearLayout.LayoutParams(-1, -2)
+            addView(label(station.name, 15f, true))
+            addView(label(station.genre, 12f))
+        })
+        if (compact) addView(label("▶", 20f))
+        isClickable = true
+        isFocusable = true
+        contentDescription = "Play ${station.name}, ${station.genre}"
+        descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS
+        setOnClickListener { playStation(station) }
+    }
+
+    private fun renderHome() {
+        val hero = currentStation ?: stations.firstOrNull { it.genre.contains("Mystery", true) } ?: stations.firstOrNull() ?: return
+        binding.heroTitle.text = if (currentStation == null) "Stories worth tuning in for" else "Your next chapter"
+        binding.heroSubtitle.text = "${hero.name} • ${hero.genre}"
+        binding.heroArt.setImageDrawable(StationArt.drawable(this, hero))
+        binding.heroPlay.text = if (currentStation == null) "▶  Listen live" else "▶  Continue listening"
+        binding.heroPlay.setOnClickListener { playStation(hero) }
+        binding.featuredCards.removeAllViews()
+        val picks = (stations.filter { isFavourite(it) } + stations.distinctBy { it.genre }).distinctBy { it.id }.take(8)
+        picks.forEach { binding.featuredCards.addView(stationCard(it, false)) }
+        binding.genreCards.removeAllViews()
+        val genres = stations.map { it.genre }.distinct().sorted()
+        genres.chunked(2).forEach { pair ->
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+            pair.forEach { genreName ->
+                row.addView(label("${genreName}  ›\n${stations.count { it.genre == genreName }} stations", 15f, true).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(0, 0, dp(8), dp(8)) }
+                    minHeight = dp(80)
+                    gravity = Gravity.CENTER_VERTICAL
+                    background = ContextCompat.getDrawable(this@MainActivity, R.drawable.glass_panel)
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { browse(0, genreName) }
+                })
+            }
+            binding.genreCards.addView(row)
+        }
+        binding.recentCards.removeAllViews()
+        val recent = recentIds().mapNotNull { id -> stations.find { it.id == id } }.take(3)
+        if (recent.isEmpty()) binding.recentCards.addView(label("Your listening history will appear here.", 14f))
+        else recent.forEach { binding.recentCards.addView(stationCard(it, true)) }
     }
 
     private fun showStationDetails(station: Station) {
@@ -298,6 +453,7 @@ class MainActivity : AppCompatActivity() {
         val filtered = source.filter { s ->
             (collection != 1 || isFavourite(s)) &&
             (genre == "All genres" || s.genre == genre) &&
+            (network == "All networks" || s.network == network) &&
                 (q.isBlank() || listOf(s.name, s.network, s.genre).any { it.lowercase().contains(q) })
         }
         adapter.submit(filtered)
@@ -325,6 +481,7 @@ class MainActivity : AppCompatActivity() {
         if (!ids.add(station.id)) ids.remove(station.id)
         prefs.edit().putStringSet("favourites", ids).apply()
         applyFilters()
+        renderHome()
         updateFavouriteButton()
     }
 
@@ -339,6 +496,9 @@ class MainActivity : AppCompatActivity() {
         binding.onAirLabel.text = if (c?.isPlaying == true) "ON AIR · LIVE RADIO" else "OTR DIAL · RADIO THEATRE"
         binding.playPauseButton.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
         binding.playPauseButton.contentDescription = if (playing) "Pause" else "Play"
+        binding.miniPlayPause.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
+        binding.miniPlayPause.contentDescription = if (playing) "Pause" else "Play"
+        syncMiniPlayer()
         binding.connectionStatus.text = when {
             c?.currentMediaItem == null -> "Choose a station"
             c.playerError != null && c.playWhenReady -> "Connection lost · retrying automatically"
@@ -383,6 +543,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("player_open", playerOpen)
+        outState.putBoolean("home_open", homeOpen)
+        outState.putInt("collection", collection)
         outState.putString("metadata", binding.currentMetadata.text.toString())
         outState.putString("metadata_source", binding.metadataSource.text.toString())
         super.onSaveInstanceState(outState)

@@ -1,8 +1,1 @@
-<resources>
-    <color name="otr_cream">#121416</color>
-    <color name="otr_ink">#F5F6F7</color>
-    <color name="otr_brown">#DCE0E5</color>
-    <color name="otr_gold">#DCE0E5</color>
-    <color name="otr_panel">#23272B</color>
-    <color name="otr_muted">#B7BDC5</color>
-</resources>
+<resources><color name="otr_cream">#070E20</color><color name="otr_ink">#F5F6FF</color><color name="otr_brown">#B99AFF</color><color name="otr_gold">#FF79B8</color><color name="otr_panel">#14203A</color><color name="otr_muted">#B2C2E3</color><color name="otr_edge">#34466A</color><color name="aurora_start">#111D3A</color><color name="aurora_end">#261538</color></resources>
