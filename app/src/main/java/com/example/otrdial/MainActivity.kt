@@ -73,7 +73,10 @@ class MainActivity : AppCompatActivity() {
             isAppearanceLightNavigationBars = !dark
         }
         playerBack = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() = showPlayer(false)
+            override fun handleOnBackPressed() {
+                if (!playerOpen) homeOpen = true
+                showPlayer(false)
+            }
         }
         onBackPressedDispatcher.addCallback(this, playerBack)
 
@@ -260,7 +263,13 @@ class MainActivity : AppCompatActivity() {
         binding.homeScreen.visibility = if (homeOpen) View.VISIBLE else View.GONE
         binding.exploreScreen.visibility = if (homeOpen) View.GONE else View.VISIBLE
         syncMiniPlayer()
-        playerBack.isEnabled = show
+        binding.homeButton.isSelected = homeOpen
+        binding.exploreButton.isSelected = !homeOpen && collection == 0
+        binding.favouritesButton.isSelected = !homeOpen && collection == 1
+        listOf(binding.homeButton, binding.exploreButton, binding.favouritesButton).forEach { button ->
+            button.alpha = if (button.isSelected) 1f else 0.7f
+        }
+        playerBack.isEnabled = show || !homeOpen
         if (show) {
             binding.searchBox.clearFocus()
             WindowCompat.getInsetsController(window, binding.root).hide(WindowInsetsCompat.Type.ime())
@@ -396,7 +405,21 @@ class MainActivity : AppCompatActivity() {
         genres.chunked(2).forEach { pair ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             pair.forEach { genreName ->
-                row.addView(label("${genreName}  ›\n${stations.count { it.genre == genreName }} stations", 15f, true).apply {
+                row.addView(LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(dp(8), dp(8), dp(4), dp(8))
+                    addView(ImageView(this@MainActivity).apply {
+                        layoutParams = LinearLayout.LayoutParams(dp(36), dp(52))
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                        setImageDrawable(StationArt.drawable(this@MainActivity, stations.first { it.genre == genreName }))
+                        background = ContextCompat.getDrawable(this@MainActivity, R.drawable.glass_panel)
+                        clipToOutline = true
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    })
+                    addView(label("${genreName}  ›\n${stations.count { it.genre == genreName }} stations", 13f, true).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                    })
                     layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(0, 0, dp(8), dp(8)) }
                     minHeight = dp(80)
                     gravity = Gravity.CENTER_VERTICAL

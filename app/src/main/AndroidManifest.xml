@@ -9,6 +9,7 @@
     <application
         android:allowBackup="true"
         android:label="OTR Dial"
+        android:icon="@drawable/ic_brand"
         android:supportsRtl="true"
         android:theme="@style/Theme.OTRDial"
         android:usesCleartextTraffic="true">
