@@ -2,6 +2,7 @@
  <style name="Theme.OTRDial" parent="Theme.MaterialComponents.DayNight.NoActionBar">
   <item name="colorPrimary">@color/otr_brown</item><item name="colorSecondary">@color/otr_gold</item>
   <item name="android:fontFamily">sans</item><item name="android:windowBackground">@color/otr_cream</item>
+  <item name="android:windowLightStatusBar">@bool/light_system_bars</item><item name="android:windowLightNavigationBar">@bool/light_system_bars</item>
   <item name="android:statusBarColor">@android:color/transparent</item><item name="android:navigationBarColor">@android:color/transparent</item>
  </style>
  <style name="GlassButton" parent="Widget.AppCompat.Button.Borderless">
