@@ -80,19 +80,44 @@ class LibraryTest {
         val buffer = java.nio.ByteBuffer.allocate(44 + bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN)
         buffer.put("RIFF".toByteArray()).putInt(36 + bytes).put("WAVEfmt ".toByteArray()).putInt(16).putShort(1).putShort(1).putInt(8000).putInt(16000).putShort(2).putShort(16).put("data".toByteArray()).putInt(bytes)
         file.writeBytes(buffer.array())
+        val server = java.net.ServerSocket(0, 10, java.net.InetAddress.getByName("127.0.0.1"))
+        val served = java.util.concurrent.atomic.AtomicBoolean(false)
+        Thread {
+            while (!server.isClosed) runCatching {
+                server.accept().use { socket ->
+                    socket.soTimeout = 3000
+                    val reader = socket.getInputStream().bufferedReader()
+                    while (!reader.readLine().isNullOrEmpty()) { }
+                    socket.getOutputStream().use { out ->
+                        out.write("HTTP/1.1 200 OK\r\nContent-Type: audio/wav\r\nContent-Length: ${buffer.array().size}\r\nConnection: close\r\n\r\n".toByteArray())
+                        out.write(buffer.array()); out.flush(); served.set(true)
+                    }
+                }
+            }
+        }.apply { isDaemon = true; start() }
         lateinit var future: com.google.common.util.concurrent.ListenableFuture<MediaController>
         instrumentation.runOnMainSync { future = MediaController.Builder(context, SessionToken(context, ComponentName(context, PlaybackService::class.java))).buildAsync() }
         val c = future.get(15, TimeUnit.SECONDS)
-        val first = "episode:test:first"; val second = "episode:test:second"
+        val first = store.episodes()[0].id; val second = store.episodes()[1].id
         store.setQueue(listOf(first, second)); store.saveProgress(second, 1800, 12000)
-        fun item(id: String) = MediaItem.Builder().setMediaId(id).setUri(android.net.Uri.fromFile(file)).build()
+        fun item(id: String) = MediaItem.Builder().setMediaId(id)
+            .setUri(if (id == first) android.net.Uri.parse("http://127.0.0.1:1/unavailable.wav") else android.net.Uri.fromFile(file))
+            .setMediaMetadata(androidx.media3.common.MediaMetadata.Builder().setTitle(store.find(id)!!.title).setArtist(store.find(id)!!.series)
+                .setExtras(android.os.Bundle().apply { if (id == first) putString("fallback_url", "http://127.0.0.1:${server.localPort}/audio.wav") }).build()).build()
         try {
             instrumentation.runOnMainSync { c.setMediaItems(listOf(item(first), item(second)), 0, 0); c.prepare(); c.play() }
             var ready = false
             repeat(100) { if (!ready) { instrumentation.runOnMainSync { ready = c.playbackState == Player.STATE_READY }; SystemClock.sleep(100) } }
             assertTrue("Local fixture should play", ready)
+            assertTrue("Unavailable primary should use the fallback", served.get())
             instrumentation.runOnMainSync { c.seekTo(4000); c.pause() }; SystemClock.sleep(500)
             assertTrue(store.progress(first) in 3900..4800)
+            for (dark in listOf(false, true)) {
+                context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
+                ActivityScenario.launch<LibraryActivity>(android.content.Intent(context, LibraryActivity::class.java).putExtra("player", true)).use {
+                    SystemClock.sleep(800); capture("library-${if (dark) "dark" else "light"}-player")
+                }
+            }
             instrumentation.runOnMainSync { c.seekTo(11700); c.play() }
             var advanced = false
             repeat(80) { if (!advanced) { instrumentation.runOnMainSync { advanced = c.currentMediaItem?.mediaId == second }; SystemClock.sleep(100) } }
@@ -102,6 +127,6 @@ class LibraryTest {
             instrumentation.runOnMainSync { c.setMediaItem(MediaItem.Builder().setMediaId("radio-test").setUri(android.net.Uri.fromFile(file)).build()); c.prepare() }
             SystemClock.sleep(400)
             assertTrue(store.progress(second) >= 1700)
-        } finally { instrumentation.runOnMainSync { c.stop(); c.clearMediaItems(); MediaController.releaseFuture(future) }; file.delete() }
+        } finally { instrumentation.runOnMainSync { c.stop(); c.clearMediaItems(); MediaController.releaseFuture(future) }; server.close(); file.delete() }
     }
 }

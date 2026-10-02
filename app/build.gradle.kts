@@ -20,6 +20,11 @@ android {
         viewBinding = true
     }
 
+    signingConfigs.getByName("debug") {
+        val previewKey = rootProject.file(".preview-signing/debug.keystore")
+        if (previewKey.exists()) storeFile = previewKey
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

@@ -43,6 +43,7 @@ class LibraryActivity : AppCompatActivity() {
     private var seek: SeekBar? = null
     private var seeking = false
     private var playerEpisode: Episode? = null
+    private val navButtons = mutableMapOf<String, Button>()
     private val tick = object : Runnable { override fun run() { updatePlayer(); handler.postDelayed(this, 1000) } }
     private val exportBackup = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) runCatching { contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(store.export()) } ?: error("Cannot open file") }
@@ -61,13 +62,23 @@ class LibraryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         delegate.localNightMode = if (getSharedPreferences("otr_dial", MODE_PRIVATE).getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when {
+                    tab == "player" -> { tab = "library"; page = 0; render() }
+                    sourceId != null -> { sourceId = null; query = ""; page = 0; render() }
+                    tab != "discover" -> { tab = "discover"; page = 0; render() }
+                    else -> finish()
+                }
+            }
+        })
         tab = savedInstanceState?.getString("tab") ?: if (intent.getBooleanExtra("player", false)) "player" else "discover"
         sourceId = savedInstanceState?.getString("source"); query = savedInstanceState?.getString("query").orEmpty()
         val root = column().apply { setBackgroundResource(R.drawable.aurora) }; setContentView(root)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, i ->
             val bars = i.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom); i
+            v.setPadding(bars.left + dp(8), bars.top, bars.right + dp(8), bars.bottom); i
         }
         WindowCompat.getInsetsController(window, root).apply {
             val light = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK != android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -79,10 +90,11 @@ class LibraryActivity : AppCompatActivity() {
         header.addView(button("⋮") { settings() }.apply { contentDescription = "Library settings" })
         status = label("Podcasts & archive collections", 12); root.addView(status)
         val scroll = ScrollView(this); content = column(); scroll.addView(content); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        mini = button("Choose an episode") { tab = "player"; render() }; root.addView(mini)
+        mini = button("Choose an episode") { tab = "player"; render() }; root.addView(mini, LinearLayout.LayoutParams(-1, -2))
         val nav = row(); root.addView(nav)
         listOf("discover" to "Discover", "library" to "My library", "queue" to "Queue").forEach { (key, title) ->
-            nav.addView(button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }, LinearLayout.LayoutParams(0, -2, 1f))
+            val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }
+            navButtons[key] = b; nav.addView(b, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(2), dp(6), dp(2), dp(6)) })
         }
         future = MediaController.Builder(this, SessionToken(this, ComponentName(this, PlaybackService::class.java))).buildAsync()
         future!!.addListener({ if (!isDestroyed) runCatching { future!!.get() }.onSuccess { c ->
@@ -107,8 +119,13 @@ class LibraryActivity : AppCompatActivity() {
         if (bold) setTypeface(typeface, android.graphics.Typeface.BOLD)
     }
     private fun button(value: String, action: () -> Unit) = androidx.appcompat.widget.AppCompatButton(this).apply {
-        text = value; isAllCaps = false; textSize = 13f; minWidth = 0; minimumWidth = 0; minHeight = dp(48)
-        setTextColor(getColor(R.color.otr_brown)); setOnClickListener { action() }
+        text = value; isAllCaps = false; textSize = 13f; minWidth = dp(48); minimumWidth = dp(48); minHeight = dp(48)
+        setPadding(dp(10), dp(6), dp(10), dp(6)); elevation = 0f
+        setBackgroundResource(if (value.startsWith("▶")) R.drawable.accent_gradient else R.drawable.glass_panel)
+        backgroundTintList = null; supportBackgroundTintList = null
+        setTextColor(if (value.startsWith("▶")) android.graphics.Color.WHITE else getColor(R.color.otr_brown))
+        layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(dp(2), dp(4), dp(2), dp(4)) }
+        setOnClickListener { action() }
     }
     private fun toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     private fun card() = column().apply {
@@ -119,6 +136,7 @@ class LibraryActivity : AppCompatActivity() {
         if (!::content.isInitialized) return
         content.removeAllViews(); playerTitle = null; playerTime = null; seek = null; playerToggle = null; playerEpisode = null
         when (tab) { "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); else -> renderDiscover() }
+        navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); b.setTextColor(if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown)) }
         updatePlayer()
     }
     private fun renderDiscover() {
@@ -169,7 +187,8 @@ class LibraryActivity : AppCompatActivity() {
     }
     private fun episodeCard(e: Episode) {
         val c = card(); c.addView(label(e.title, 18, true)); c.addView(label(e.series, 13))
-        val details = listOf(e.date, if (e.duration > 0) time(e.duration) else "", if (store.completed(e.id)) "✓ Played" else if (store.progress(e.id) > 0) "Resume at ${time(store.progress(e.id))}" else "").filter { it.isNotBlank() }.joinToString(" • ")
+        val date = runCatching { java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.US).parse(e.date)?.let { java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale.UK).format(it) } }.getOrNull() ?: e.date
+        val details = listOf(date, if (e.duration > 0) time(e.duration) else "", if (store.completed(e.id)) "✓ Played" else if (store.progress(e.id) > 0) "Resume at ${time(store.progress(e.id))}" else "").filter { it.isNotBlank() }.joinToString(" • ")
         c.addView(label(details, 12)); val r = row()
         r.addView(button(if (store.progress(e.id) > 0) "▶ Resume" else "▶ Play") { play(e) }, LinearLayout.LayoutParams(0, -2, 1f))
         r.addView(button(if (e.id in store.saved()) "♥ Saved" else "♡ Save") { store.toggle("saved", e.id); render() }, LinearLayout.LayoutParams(0, -2, 1f))
@@ -214,7 +233,7 @@ class LibraryActivity : AppCompatActivity() {
     }
     private fun play(e: Episode, restart: Boolean = false) {
         val c = controller ?: return toast("Player is connecting. Please try again.")
-        if (!restart && c.currentMediaItem?.mediaId == e.id) { if (c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() }
+        if (!restart && c.currentMediaItem?.mediaId == e.id && c.playbackState != Player.STATE_ENDED) { if (c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() }
         else {
             val items = listOf(e) + store.queue().filter { it != e.id }.mapNotNull { store.find(it) }
             c.setMediaItems(items.map { it.media(this) }, 0, if (restart) 0 else store.progress(e.id)); c.prepare(); c.play()
@@ -252,6 +271,7 @@ class LibraryActivity : AppCompatActivity() {
     private fun skip(delta: Long) { val c = controller ?: return; if (c.currentMediaItem?.mediaId != playerEpisode?.id) return; c.seekTo((c.currentPosition + delta).coerceIn(0, if (c.duration > 0) c.duration else Long.MAX_VALUE)) }
     private fun updatePlayer() {
         val c = controller; val episode = c?.currentMediaItem?.mediaId?.startsWith("episode:") == true
+        mini.visibility = if (tab != "player" && (episode || store.last() != null)) View.VISIBLE else View.GONE
         mini.text = if (episode) "${if (c?.isPlaying == true) "Ⅱ" else "▶"}  ${c?.mediaMetadata?.title}  ›" else "Open episode player  ›"
         val e = playerEpisode ?: return
         val active = c?.currentMediaItem?.mediaId == e.id
@@ -259,6 +279,7 @@ class LibraryActivity : AppCompatActivity() {
         val duration = if (active && c!!.duration > 0) c.duration else e.duration
         playerTime?.text = "${time(position)} / ${if (duration > 0) time(duration) else "—"}" + if (active) when {
             c!!.playerError != null -> " • Unable to play. Tap play to retry."
+            c.playbackState == Player.STATE_ENDED -> " • Completed"
             c.playbackState == Player.STATE_BUFFERING -> " • Buffering…"
             c.isPlaying -> " • Playing"
             else -> " • Paused"

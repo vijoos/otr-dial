@@ -44,6 +44,16 @@ class PlaybackService : MediaSessionService() {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 cancelRetry()
                 if (!player.playWhenReady) return
+                val current = player.currentMediaItem
+                val fallback = current?.mediaMetadata?.extras?.getString("fallback_url").orEmpty()
+                if (EpisodeCatalogue.validUrl(fallback) && current?.localConfiguration?.uri.toString() != fallback) {
+                    val position = player.currentPosition
+                    val index = player.currentMediaItemIndex
+                    player.replaceMediaItem(index, current!!.buildUpon().setUri(fallback).build())
+                    player.seekTo(index, position)
+                    player.prepare()
+                    return
+                }
                 if (retries >= 3) {
                     player.pause()
                     return

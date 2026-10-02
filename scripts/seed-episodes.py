@@ -37,6 +37,7 @@ for sid, title, identifier in [('gunsmoke','Gunsmoke','OTRR_Gunsmoke_Singles'), 
         if not name.lower().endswith('.mp3') or f.get('private'): continue
         episodes.append(dict(id=identity(sid,name), source=sid, title=clean(f.get('title')) or name[:-4], series=title,
             url='https://archive.org/download/'+identifier+'/'+urllib.parse.quote(name,safe=''), page='https://archive.org/details/'+identifier,
-            description='Old Time Radio Researchers collection on Internet Archive. File: '+name, date=f.get('album',''),duration=duration(str(f.get('length','')))))
+            description='Old Time Radio Researchers collection on Internet Archive. File: '+name, date=f.get('album',''),duration=duration(str(f.get('length',''))),
+            fallback='https://'+d['d1']+d['dir']+'/'+urllib.parse.quote(name,safe='') if (d:=data).get('d1','').endswith('.archive.org') else ''))
     (ROOT / (sid+'.json')).write_text(json.dumps(episodes, ensure_ascii=False, separators=(',',':')))
     print(sid, len(episodes))

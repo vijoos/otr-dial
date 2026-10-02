@@ -24,19 +24,20 @@ fun java.io.InputStream.readLimited(limit: Int): ByteArray {
 
 data class EpisodeSource(val id: String, val title: String, val kind: String, val url: String, val page: String, val genre: String)
 data class Episode(val id: String, val source: String, val title: String, val series: String,
-    val url: String, val page: String, val description: String = "", val date: String = "", val duration: Long = 0) {
+    val url: String, val page: String, val description: String = "", val date: String = "", val duration: Long = 0, val fallback: String = "") {
     fun json() = JSONObject().put("id", id).put("source", source).put("title", title).put("series", series)
-        .put("url", url).put("page", page).put("description", description).put("date", date).put("duration", duration)
+        .put("url", url).put("page", page).put("description", description).put("date", date).put("duration", duration).put("fallback", fallback)
     fun media(context: Context): MediaItem {
         val art = artStation()
         return MediaItem.Builder().setMediaId(id).setUri(url).setMediaMetadata(MediaMetadata.Builder()
             .setTitle(title).setArtist(series).setAlbumTitle(series)
+            .setExtras(android.os.Bundle().apply { putString("fallback_url", fallback) })
             .setArtworkData(StationArt.bytes(context, art), MediaMetadata.PICTURE_TYPE_FRONT_COVER).build()).build()
     }
     fun artStation() = Station(source, series, series, EpisodeCatalogue.sources.find { it.id == source }?.genre ?: "Drama", url, page, "", false, "")
     companion object {
         fun from(j: JSONObject) = Episode(j.getString("id"), j.getString("source"), j.getString("title"),
-            j.getString("series"), j.getString("url"), j.optString("page"), j.optString("description"), j.optString("date"), j.optLong("duration"))
+            j.getString("series"), j.getString("url"), j.optString("page"), j.optString("description"), j.optString("date"), j.optLong("duration"), j.optString("fallback"))
     }
 }
 
@@ -107,6 +108,8 @@ object EpisodeCatalogue {
         val metadata = data.optJSONObject("metadata") ?: error("Archive item unavailable")
         check(!metadata.optBoolean("is_dark") && !metadata.optBoolean("access-restricted-item")) { "This collection is restricted" }
         val files = data.optJSONArray("files") ?: return emptyList()
+        val server = data.optString("d1").takeIf { it.endsWith(".archive.org") && !it.contains('/') }
+        val directory = data.optString("dir").takeIf { it.startsWith('/') }
         return (0 until files.length()).map { files.getJSONObject(it) }
             .filter { it.optString("name").endsWith(".mp3", true) && !it.optBoolean("private") }
             .sortedBy { it.optString("name") }.map { f ->
@@ -114,7 +117,8 @@ object EpisodeCatalogue {
                 Episode(stableId(source.id, name), source.id, text(f.optString("title")).ifBlank { name.removeSuffix(".mp3") },
                     source.title, "https://archive.org/download/${source.url}/${Uri.encode(name)}", source.page,
                     "${f.optString("album")}\n${text(f.optString("comment"))}\nProvided by the Old Time Radio Researchers collection on Internet Archive.\nFile: $name".trim(),
-                    f.optString("album"), duration(f.optString("length")))
+                    f.optString("album"), duration(f.optString("length")),
+                    if (server != null && directory != null) "https://$server$directory/${Uri.encode(name)}" else "")
             }.distinctBy { it.id }
     }
 }
