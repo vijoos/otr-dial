@@ -10,11 +10,11 @@ import android.util.LruCache
 /** Public-domain genre illustrations, bundled for offline use. */
 object StationArt {
     private fun key(station: Station): String = when {
-        station.genre.contains("Sci-Fi", true) || station.genre.contains("Horror", true) -> "scifi"
+        station.genre.contains("Sci-Fi", true) || station.genre.contains("Science fiction", true) || station.genre.contains("Horror", true) -> "scifi"
         station.genre.contains("Western", true) -> "western"
         station.genre.contains("Adventure", true) -> "adventure"
         station.genre.contains("Mystery", true) || station.genre.contains("Suspense", true) -> "mystery"
-        station.genre.contains("Crime", true) -> "crime"
+        station.genre.contains("Crime", true) || station.genre.contains("Detective", true) -> "crime"
         station.genre.contains("Comedy", true) -> "comedy"
         station.genre.contains("Seasonal", true) -> "seasonal"
         else -> "radio"

@@ -125,6 +125,10 @@ class MainActivity : AppCompatActivity() {
                     updateFavouriteButton()
                 }
                 c.addListener(object : Player.Listener {
+                    override fun onMediaItemTransition(item: MediaItem?, reason: Int) {
+                        currentStation = stations.find { it.id == item?.mediaId }
+                        syncMiniPlayer()
+                    }
                     override fun onEvents(player: Player, events: Player.Events) = updatePlayButton()
                     override fun onIsPlayingChanged(isPlaying: Boolean) = updatePlayButton()
                     @androidx.annotation.OptIn(UnstableApi::class)
@@ -202,6 +206,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
+        binding.episodeLibraryButton.setOnClickListener { openLibrary() }
         binding.settingsButton.setOnClickListener {
             AlertDialog.Builder(this).setTitle("OTR Dial")
                 .setItems(arrayOf("My recordings", "Switch light / dark mode", "About this catalogue")) { _, which ->
@@ -209,14 +214,14 @@ class MainActivity : AppCompatActivity() {
                         0 -> RecordingLibrary.show(this)
                         1 -> binding.themeSwitch.isChecked = !binding.themeSwitch.isChecked
                         2 -> AlertDialog.Builder(this).setTitle("Your radio theatre")
-                            .setMessage("${stations.size} stations • OTR Dial 1.3\n\nArtwork is bundled for quick, offline display. Source credits are available in the player. Episode titles appear only when supplied by the broadcaster. Stream availability may change.")
+                            .setMessage("${stations.size} stations • OTR Dial 2 preview\n\nOpen the listening library for podcasts and archive episodes. Artwork is bundled for quick, offline display. Source credits are available in the player. Live episode titles appear only when supplied by the broadcaster. Stream availability may change.")
                             .setPositiveButton("Close", null).show()
                     }
                 }.show()
         }
         binding.exploreButton.setOnClickListener { browse(0) }
         binding.navPlayer.setOnClickListener {
-            if (currentStation != null) showPlayer(true) else stations.firstOrNull()?.let { playStation(it) }
+            if (isEpisodePlaying()) openLibrary(true) else if (currentStation != null) showPlayer(true) else stations.firstOrNull()?.let { playStation(it) }
         }
         binding.miniPlayPause.setOnClickListener { binding.playPauseButton.performClick() }
         binding.previousStation.setOnClickListener { stepStation(-1) }
@@ -248,7 +253,7 @@ class MainActivity : AppCompatActivity() {
             delegate.localNightMode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         }
         binding.backButton.setOnClickListener { showPlayer(false) }
-        binding.openPlayerButton.setOnClickListener { showPlayer(true) }
+        binding.openPlayerButton.setOnClickListener { if (isEpisodePlaying()) openLibrary(true) else showPlayer(true) }
         binding.scheduleButton.setOnClickListener { currentStation?.let { showStationDetails(it) } }
         binding.shareButton.setOnClickListener { currentStation?.let { shareStation(it) } }
         binding.recordButton.text = if (StreamRecorder.isRecording) "■ STOP" else "● REC"
@@ -324,6 +329,13 @@ class MainActivity : AppCompatActivity() {
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
     private fun syncMiniPlayer() {
+        if (isEpisodePlaying()) {
+            binding.miniPlayer.visibility = if (!playerOpen) View.VISIBLE else View.GONE
+            binding.openPlayerButton.visibility = View.VISIBLE
+            binding.openPlayerButton.text = "${controller?.mediaMetadata?.title}  ›"
+            binding.miniArtwork.setImageDrawable(RadioArtwork("Episode library"))
+            return
+        }
         val station = currentStation
         binding.miniPlayer.visibility = if (!playerOpen && station != null) View.VISIBLE else View.GONE
         station?.let {
@@ -566,6 +578,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val wanted = if (prefs.getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        if (delegate.localNightMode != wanted) delegate.localNightMode = wanted
+        if (isEpisodePlaying() && playerOpen) showPlayer(false)
         val dark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
         WindowCompat.getInsetsController(window, binding.root).apply {
             isAppearanceLightStatusBars = !dark
@@ -587,6 +602,11 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 10)
         }
+    }
+
+    private fun isEpisodePlaying() = controller?.currentMediaItem?.mediaId?.startsWith("episode:") == true
+    private fun openLibrary(player: Boolean = false) {
+        startActivity(Intent(this, LibraryActivity::class.java).putExtra("player", player))
     }
 
     override fun onDestroy() {

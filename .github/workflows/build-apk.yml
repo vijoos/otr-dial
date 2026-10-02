@@ -23,6 +23,12 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Reuse preview signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: otr-dial-library-preview-debug-key-v1
+
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
 
@@ -38,7 +44,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Test light and dark layouts on Android 15
+      - name: Test navigation, library, backup and playback on Android 15
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
