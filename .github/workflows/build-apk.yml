@@ -59,8 +59,7 @@ jobs:
           profile: pixel_2
           disable-animations: true
           script: |
-            gradle connectedDebugAndroidTest --stacktrace
-            adb pull /sdcard/Download/ ui-screenshots
+            bash -c 'gradle connectedDebugAndroidTest --stacktrace; test_result=$?; adb logcat -d -s OTRPlayback TestRunner AndroidRuntime > playback-check.log; adb pull /sdcard/Download/ ui-screenshots; exit "$test_result"'
 
       - name: Upload UI checks
         if: always()
@@ -70,3 +69,4 @@ jobs:
           path: |
             ui-screenshots/
             app/build/reports/androidTests/
+            playback-check.log

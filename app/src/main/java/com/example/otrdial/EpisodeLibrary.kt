@@ -126,11 +126,17 @@ object EpisodeCatalogue {
 class LibraryStore(context: Context) {
     private val prefs = context.getSharedPreferences("episode_library", Context.MODE_PRIVATE)
     private val app = context.applicationContext
+    private var cachedRaw: String? = null
+    private var cachedEpisodes: List<Episode>? = null
+    @Synchronized
     fun episodes(): List<Episode> {
         val raw = prefs.getString("catalogue", null)
-        return if (raw != null) decodeEpisodes(JSONArray(raw)) else EpisodeCatalogue.sources.flatMap { source ->
+        cachedEpisodes?.let { if (raw == cachedRaw) return it }
+        val result = if (raw != null) decodeEpisodes(JSONArray(raw)) else EpisodeCatalogue.sources.flatMap { source ->
             decodeEpisodes(JSONArray(app.assets.open("episodes/${source.id}.json").bufferedReader().use { it.readText() }))
         }
+        cachedRaw = raw; cachedEpisodes = result
+        return result
     }
     fun find(id: String?) = episodes().find { it.id == id }
     fun update(source: EpisodeSource, fresh: List<Episode>) {

@@ -132,12 +132,13 @@ class LibraryActivity : AppCompatActivity() {
         setBackgroundResource(R.drawable.glass_panel)
         layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, dp(6), 0, dp(6)) }
     }
-    private fun render() {
+    private fun render(resetScroll: Boolean = true) {
         if (!::content.isInitialized) return
         content.removeAllViews(); playerTitle = null; playerTime = null; seek = null; playerToggle = null; playerEpisode = null
         when (tab) { "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); else -> renderDiscover() }
         navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); b.setTextColor(if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown)) }
         updatePlayer()
+        if (resetScroll) (content.parent as? ScrollView)?.scrollTo(0, 0)
     }
     private fun renderDiscover() {
         val source = EpisodeCatalogue.sources.find { it.id == sourceId }
@@ -161,7 +162,7 @@ class LibraryActivity : AppCompatActivity() {
             content.addView(button("‹ All sources") { sourceId = null; query = ""; page = 0; render() })
             content.addView(label(source.title, 26, true))
             val controls = row()
-            controls.addView(button(if (source.id in store.follows()) "✓ Following" else "+ Follow") { store.toggle("follows", source.id); render() }, LinearLayout.LayoutParams(0, -2, 1f))
+            controls.addView(button(if (source.id in store.follows()) "✓ Following" else "+ Follow") { store.toggle("follows", source.id); render(false) }, LinearLayout.LayoutParams(0, -2, 1f))
             controls.addView(button("Refresh") { refresh(listOf(source)) }, LinearLayout.LayoutParams(0, -2, 1f))
             controls.addView(button("Source ↗") { openPage(source.page) }, LinearLayout.LayoutParams(0, -2, 1f)); content.addView(controls)
             val updated = store.updated(source.id)
@@ -191,7 +192,7 @@ class LibraryActivity : AppCompatActivity() {
         val details = listOf(date, if (e.duration > 0) time(e.duration) else "", if (store.completed(e.id)) "✓ Played" else if (store.progress(e.id) > 0) "Resume at ${time(store.progress(e.id))}" else "").filter { it.isNotBlank() }.joinToString(" • ")
         c.addView(label(details, 12)); val r = row()
         r.addView(button(if (store.progress(e.id) > 0) "▶ Resume" else "▶ Play") { play(e) }, LinearLayout.LayoutParams(0, -2, 1f))
-        r.addView(button(if (e.id in store.saved()) "♥ Saved" else "♡ Save") { store.toggle("saved", e.id); render() }, LinearLayout.LayoutParams(0, -2, 1f))
+        r.addView(button(if (e.id in store.saved()) "♥ Saved" else "♡ Save") { store.toggle("saved", e.id); render(false) }, LinearLayout.LayoutParams(0, -2, 1f))
         r.addView(button("More") { episodeDetails(e) }, LinearLayout.LayoutParams(0, -2, 1f)); c.addView(r); content.addView(c)
     }
     private fun episodeDetails(e: Episode) {
@@ -260,7 +261,7 @@ class LibraryActivity : AppCompatActivity() {
         r.addView(button("↶ 15 sec") { skip(-15000) })
         playerToggle = ImageButton(this).apply {
             setImageResource(R.drawable.ic_play); setBackgroundResource(R.drawable.accent_gradient); setPadding(dp(22), dp(22), dp(22), dp(22)); imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
-            setOnClickListener { val c = controller; if (c?.currentMediaItem?.mediaId == e.id && c.playWhenReady) c.pause() else play(e) }
+            setOnClickListener { val c = controller; if (c?.currentMediaItem?.mediaId == e.id && c.playWhenReady && c.playbackState != Player.STATE_ENDED) c.pause() else play(e) }
         }.also { r.addView(it, LinearLayout.LayoutParams(dp(76), dp(76))) }
         r.addView(button("30 sec ↷") { skip(30000) }); content.addView(r)
         content.addView(button(if (e.id in store.saved()) "♥ Saved to library" else "♡ Save to library") { store.toggle("saved", e.id); render() })
@@ -286,8 +287,9 @@ class LibraryActivity : AppCompatActivity() {
         } else ""
         if (!seeking) seek?.progress = if (duration > 0) (position * 1000 / duration).toInt().coerceIn(0, 1000) else 0
         seek?.isEnabled = active && c?.isCurrentMediaItemSeekable == true
-        playerToggle?.setImageResource(if (active && c?.playWhenReady == true) R.drawable.ic_pause else R.drawable.ic_play)
-        playerToggle?.contentDescription = if (active && c?.playWhenReady == true) "Pause" else "Play"
+        val canPause = active && c?.playWhenReady == true && c.playbackState != Player.STATE_ENDED
+        playerToggle?.setImageResource(if (canPause) R.drawable.ic_pause else R.drawable.ic_play)
+        playerToggle?.contentDescription = if (canPause) "Pause" else "Play"
     }
     private fun time(ms: Long): String { val s = ms.coerceAtLeast(0) / 1000; return if (s >= 3600) "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) else "%d:%02d".format(s / 60, s % 60) }
     private fun refresh(sources: List<EpisodeSource>) {

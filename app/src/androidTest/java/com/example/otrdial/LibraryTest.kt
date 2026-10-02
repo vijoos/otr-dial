@@ -108,7 +108,9 @@ class LibraryTest {
             instrumentation.runOnMainSync { c.setMediaItems(listOf(item(first), item(second)), 0, 0); c.prepare(); c.play() }
             var ready = false
             repeat(100) { if (!ready) { instrumentation.runOnMainSync { ready = c.playbackState == Player.STATE_READY }; SystemClock.sleep(100) } }
-            assertTrue("Local fixture should play", ready)
+            var failureDetails = ""
+            instrumentation.runOnMainSync { failureDetails = "state=${c.playbackState}, ready=${c.playWhenReady}, error=${c.playerError}, cause=${c.playerError?.cause}, extras=${c.mediaMetadata.extras}, served=${served.get()}" }
+            assertTrue("Local fixture should play: $failureDetails", ready)
             assertTrue("Unavailable primary should use the fallback", served.get())
             instrumentation.runOnMainSync { c.seekTo(4000); c.pause() }; SystemClock.sleep(500)
             assertTrue(store.progress(first) in 3900..4800)

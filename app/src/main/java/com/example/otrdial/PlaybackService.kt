@@ -43,15 +43,23 @@ class PlaybackService : MediaSessionService() {
             }
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 cancelRetry()
+                android.util.Log.w("OTRPlayback", "Playback failed: ${error.errorCodeName}; ${error.cause}")
                 if (!player.playWhenReady) return
                 val current = player.currentMediaItem
                 val fallback = current?.mediaMetadata?.extras?.getString("fallback_url").orEmpty()
                 if (EpisodeCatalogue.validUrl(fallback) && current?.localConfiguration?.uri.toString() != fallback) {
                     val position = player.currentPosition
-                    val index = player.currentMediaItemIndex
-                    player.replaceMediaItem(index, current!!.buildUpon().setUri(fallback).build())
-                    player.seekTo(index, position)
-                    player.prepare()
+                    retry = Runnable {
+                        if (player.currentMediaItem?.mediaId == current!!.mediaId && player.playWhenReady) {
+                            val index = player.currentMediaItemIndex
+                            val items = (0 until player.mediaItemCount).map { i ->
+                                if (i == index) current.buildUpon().setUri(fallback).build() else player.getMediaItemAt(i)
+                            }
+                            android.util.Log.i("OTRPlayback", "Trying source fallback")
+                            player.setMediaItems(items, index, position)
+                            player.prepare()
+                        }
+                    }.also { handler.post(it) }
                     return
                 }
                 if (retries >= 3) {
