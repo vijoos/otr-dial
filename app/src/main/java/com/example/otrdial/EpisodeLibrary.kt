@@ -141,7 +141,7 @@ class LibraryStore(context: Context) {
     fun find(id: String?) = episodes().find { it.id == id }
     fun update(source: EpisodeSource, fresh: List<Episode>) {
         // Keep saved and previously played episodes even when an RSS feed drops older entries.
-        val retained = episodes().filter { it.source != source.id || it.id in saved() || progress(it.id) > 0 || it.id in queue() }
+        val retained = episodes().filter { it.source != source.id || it.id in saved() || played(it.id) > 0 || it.id in queue() }
         putEpisodes((fresh + retained).distinctBy { it.id })
         prefs.edit().putLong("updated_${source.id}", System.currentTimeMillis()).apply()
     }
@@ -163,15 +163,35 @@ class LibraryStore(context: Context) {
     fun last() = prefs.getString("last", null)
     fun queue(): List<String> { val a = JSONArray(prefs.getString("queue", "[]")); return (0 until a.length()).map { a.getString(it) } }
     fun setQueue(ids: List<String>) { prefs.edit().putString("queue", JSONArray(ids.distinct()).toString()).apply() }
+    fun enqueue(id: String, next: Boolean) {
+        val remaining = queue().filter { it != id }
+        setQueue(if (next) listOf(id) + remaining else remaining + id)
+    }
+    fun moveQueue(id: String, delta: Int) {
+        val q = queue().toMutableList(); val index = q.indexOf(id); val target = index + delta
+        if (index >= 0 && target in q.indices) { java.util.Collections.swap(q, index, target); setQueue(q) }
+    }
+    fun markPlayed(id: String, value: Boolean) {
+        prefs.edit().putBoolean("completed_$id", value).putLong("position_$id", 0)
+            .putLong("played_$id", if (value) System.currentTimeMillis() else 0).apply()
+    }
     fun export(): String {
         val state = JSONObject()
         prefs.all.forEach { (k, v) -> if (k != "catalogue") state.put(k, if (v is Set<*>) JSONArray(v.toList()) else v) }
-        return JSONObject().put("format", "otr-dial-library").put("version", 1).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).toString(2)
+        val radio = app.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
+        val radioState = JSONObject().put("favourites", JSONArray(radio.getStringSet("favourites", emptySet()).orEmpty().toList()))
+            .put("recent", JSONArray(radio.getString("recent", "[]"))).put("dark_mode", radio.getBoolean("dark_mode", false))
+        return JSONObject().put("format", "otr-dial-library").put("version", 2).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).put("radio", radioState).toString(2)
     }
     fun restore(raw: String) {
         require(raw.length <= 12 * 1024 * 1024) { "Backup is too large" }
         val root = JSONObject(raw)
-        require(root.getString("format") == "otr-dial-library" && root.getInt("version") == 1) { "Unsupported backup" }
+        require(root.getString("format") == "otr-dial-library" && root.getInt("version") in 1..2) { "Unsupported backup" }
+        val radioState = root.optJSONObject("radio")
+        fun ids(a: JSONArray) = (0 until a.length()).map { a.getString(it) }
+        val radioFavourites = radioState?.let { ids(it.getJSONArray("favourites")).toSet() }
+        val radioRecent = radioState?.let { ids(it.getJSONArray("recent")) }
+        val dark = radioState?.let { require(it.get("dark_mode") is Boolean); it.getBoolean("dark_mode") }
         val incoming = decodeEpisodes(root.getJSONArray("episodes")); require(incoming.size <= 10000)
         val state = root.getJSONObject("state")
         // Validate all fields before touching preferences; malformed backups cannot partially overwrite data.
@@ -195,6 +215,13 @@ class LibraryStore(context: Context) {
             is Boolean -> edit.putBoolean(k, v)
         } }
         edit.apply()
+        if (radioState != null) {
+            val radio = app.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
+            val existing = ids(JSONArray(radio.getString("recent", "[]")))
+            radio.edit().putStringSet("favourites", radio.getStringSet("favourites", emptySet()).orEmpty() + radioFavourites.orEmpty())
+                .putString("recent", JSONArray((radioRecent.orEmpty() + existing).distinct().take(30)).toString())
+                .putBoolean("dark_mode", dark!!).apply()
+        }
     }
     private fun decodeEpisodes(array: JSONArray): List<Episode> = (0 until array.length()).map { Episode.from(array.getJSONObject(it)) }.onEach {
         require(it.id.startsWith("episode:") && EpisodeCatalogue.validUrl(it.url)) { "Invalid episode in catalogue" }

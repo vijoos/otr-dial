@@ -9,6 +9,7 @@ class PlaybackService : MediaSessionService() {
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private var retries = 0
     private var retry: Runnable? = null
+    private var recoveryId: String? = null
     private val library by lazy { LibraryStore(this) }
     private var previousDuration = 0L
     private val progressTick = object : Runnable {
@@ -28,7 +29,10 @@ class PlaybackService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-        val player = ExoPlayer.Builder(this).build()
+        val player = ExoPlayer.Builder(this).setMediaSourceFactory(
+            androidx.media3.exoplayer.source.DefaultMediaSourceFactory(this)
+                .setLoadErrorHandlingPolicy(androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy(1))
+        ).build()
         player.setAudioAttributes(androidx.media3.common.AudioAttributes.Builder()
             .setUsage(androidx.media3.common.C.USAGE_MEDIA)
             .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_SPEECH).build(), true)
@@ -44,10 +48,12 @@ class PlaybackService : MediaSessionService() {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 cancelRetry()
                 android.util.Log.w("OTRPlayback", "Playback failed: ${error.errorCodeName}; ${error.cause}")
-                if (!player.playWhenReady) return
                 val current = player.currentMediaItem
                 val fallback = current?.mediaMetadata?.extras?.getString("fallback_url").orEmpty()
-                if (EpisodeCatalogue.validUrl(fallback) && current?.localConfiguration?.uri.toString() != fallback) {
+                if (!player.playWhenReady) return
+                if (retries >= 2) { player.pause(); return }
+                retries++
+                if (player.playWhenReady && EpisodeCatalogue.validUrl(fallback) && current?.localConfiguration?.uri.toString() != fallback) {
                     val position = player.currentPosition
                     retry = Runnable {
                         if (player.currentMediaItem?.mediaId == current!!.mediaId && player.playWhenReady) {
@@ -62,19 +68,14 @@ class PlaybackService : MediaSessionService() {
                     }.also { handler.post(it) }
                     return
                 }
-                if (retries >= 3) {
-                    player.pause()
-                    return
-                }
                 val id = player.currentMediaItem?.mediaId
-                retries++
                 retry = Runnable {
                     if (player.playWhenReady && player.currentMediaItem?.mediaId == id) player.prepare()
                 }.also { handler.postDelayed(it, retries * 3000L) }
             }
             override fun onMediaItemTransition(item: androidx.media3.common.MediaItem?, reason: Int) {
                 cancelRetry()
-                retries = 0
+                if (recoveryId != item?.mediaId) { retries = 0; recoveryId = item?.mediaId }
                 previousDuration = 0
                 val episode = item?.mediaId?.startsWith("episode:") == true
                 val intent = android.content.Intent(this@PlaybackService, if (episode) LibraryActivity::class.java else MainActivity::class.java)
@@ -89,7 +90,6 @@ class PlaybackService : MediaSessionService() {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == androidx.media3.common.Player.STATE_READY) {
                     cancelRetry()
-                    retries = 0
                     previousDuration = player.duration
                 } else if (state == androidx.media3.common.Player.STATE_ENDED) {
                     library.saveProgress(player.currentMediaItem?.mediaId, player.currentPosition, player.duration, true)
@@ -97,11 +97,12 @@ class PlaybackService : MediaSessionService() {
                 }
             }
             override fun onPlayWhenReadyChanged(ready: Boolean, reason: Int) {
+                android.util.Log.i("OTRPlayback", "Play intent=$ready, reason=$reason")
+                if (ready && reason == androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST) retries = 0
                 if (!ready) {
                     library.saveProgress(player.currentMediaItem?.mediaId, player.currentPosition, player.duration,
                         player.playbackState == androidx.media3.common.Player.STATE_ENDED)
                     cancelRetry()
-                    retries = 0
                 }
             }
         })

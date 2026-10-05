@@ -153,6 +153,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
                 updatePlayButton()
+                val requestedStation = intent.getStringExtra("station_id")
+                intent.removeExtra("station_id")
+                stations.find { it.id == requestedStation }?.let { playStation(it) }
+                if (intent.getBooleanExtra("player", false) && currentStation != null) showPlayer(true)
             }
         }, ContextCompat.getMainExecutor(this))
     }
@@ -606,7 +610,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun isEpisodePlaying() = controller?.currentMediaItem?.mediaId?.startsWith("episode:") == true
     private fun openLibrary(player: Boolean = false) {
-        startActivity(Intent(this, LibraryActivity::class.java).putExtra("player", player))
+        startActivity(Intent(this, LibraryActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra("player", player))
     }
 
     override fun onDestroy() {

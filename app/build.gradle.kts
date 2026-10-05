@@ -8,12 +8,12 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.otrdial.librarypreview"
+        applicationId = "com.example.otrdial.library21preview"
         minSdk = 29
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 20
-        versionName = "2.0-preview"
+        versionCode = 21
+        versionName = "2.1-preview"
     }
 
     buildFeatures {

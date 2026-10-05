@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class LibraryTest {
+    @get:org.junit.Rule val notificationPermission: androidx.test.rule.GrantPermissionRule = androidx.test.rule.GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val context get() = instrumentation.targetContext
     private fun reset() { context.getSharedPreferences("episode_library", Context.MODE_PRIVATE).edit().clear().commit() }
@@ -40,13 +41,25 @@ class LibraryTest {
         assertEquals(1, archive.size); assertTrue(archive.first().url.endsWith("A%20story.mp3")); assertEquals(30500L, archive.first().duration)
         val e = bundled.first(); store.toggle("saved", e.id); store.toggle("follows", e.source)
         store.setQueue(listOf(e.id)); store.saveProgress(e.id, 12000, 300000)
-        val backup = store.export(); reset(); store.restore(backup)
+        val radio = context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
+        radio.edit().putStringSet("favourites", setOf("test-station")).putString("recent", "[\"test-station\"]").putBoolean("dark_mode", true).commit()
+        val backup = store.export(); reset(); radio.edit().clear().commit(); store.restore(backup)
+        assertEquals(setOf("test-station"), radio.getStringSet("favourites", emptySet()))
+        assertTrue(radio.getBoolean("dark_mode", false))
         assertTrue(e.id in store.saved()); assertTrue(e.source in store.follows()); assertEquals(listOf(e.id), store.queue()); assertEquals(12000L, store.progress(e.id))
         val before = store.export()
         val bad = JSONObject(backup); bad.getJSONObject("state").put("position_bad", "not a number")
         assertTrue(runCatching { store.restore(bad.toString()) }.isFailure)
         assertEquals(before, store.export())
         store.restore(backup); assertEquals(1, store.queue().size)
+        val legacy = JSONObject(backup).put("version", 1).apply { remove("radio") }
+        store.restore(legacy.toString()); assertTrue(e.id in store.saved())
+        store.enqueue(bundled[1].id, false); store.enqueue(bundled[2].id, true)
+        assertEquals(listOf(bundled[2].id, e.id, bundled[1].id), store.queue())
+        store.moveQueue(bundled[1].id, -1)
+        assertEquals(listOf(bundled[2].id, bundled[1].id, e.id), store.queue())
+        assertEquals(12000L, LibraryStore(context).progress(e.id))
+        radio.edit().clear().commit()
     }
     private fun descendants(v: View): List<View> = listOf(v) + if (v is ViewGroup) (0 until v.childCount).flatMap { descendants(v.getChildAt(it)) } else emptyList()
     private fun click(activity: LibraryActivity, text: String) {
@@ -62,18 +75,25 @@ class LibraryTest {
         for (dark in listOf(false, true)) {
             context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
             ActivityScenario.launch(LibraryActivity::class.java).use { scenario ->
-                SystemClock.sleep(1500); capture("library-${if (dark) "dark" else "light"}-discover")
+                SystemClock.sleep(1500); capture("library-${if (dark) "dark" else "light"}-home")
+                scenario.onActivity { a -> click(a, "Shows") }
+                capture("library-${if (dark) "dark" else "light"}-shows")
                 scenario.onActivity { a -> click(a, "Browse episodes  ›") }
                 capture("library-${if (dark) "dark" else "light"}-episodes")
-                scenario.onActivity { a -> click(a, "♡ Save"); click(a, "My library") }
+                scenario.onActivity { a -> click(a, "♡ Save"); click(a, "Library") }
                 capture("library-${if (dark) "dark" else "light"}-saved")
                 scenario.recreate(); scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Saved episodes" }); click(a, "Queue") }
+                scenario.onActivity { a -> click(a, "Search"); descendants(a.window.decorView).filterIsInstance<android.widget.EditText>().first().setText("Gunsmoke"); click(a, "Find") }
+                scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Gunsmoke" }) }
+                capture("library-${if (dark) "dark" else "light"}-search")
             }
             reset()
         }
     }
     @Test fun serviceSavesSeekAndPauseAndAdvancesQueue() {
         reset(); val store = LibraryStore(context)
+        val foreground = ActivityScenario.launch(LibraryActivity::class.java)
+        instrumentation.waitForIdleSync()
         // Local PCM makes progress/queue tests independent of public stream availability.
         val file = java.io.File(context.cacheDir, "library-test.wav")
         val bytes = 8000 * 2 * 12
@@ -129,6 +149,20 @@ class LibraryTest {
             instrumentation.runOnMainSync { c.setMediaItem(MediaItem.Builder().setMediaId("radio-test").setUri(android.net.Uri.fromFile(file)).build()); c.prepare() }
             SystemClock.sleep(400)
             assertTrue(store.progress(second) >= 1700)
-        } finally { instrumentation.runOnMainSync { c.stop(); c.clearMediaItems(); MediaController.releaseFuture(future) }; server.close(); file.delete() }
+            // Both primary and fallback fail. Recovery must stop and keep the queue.
+            val failures = java.util.concurrent.atomic.AtomicInteger()
+            instrumentation.runOnMainSync {
+                c.addListener(object : Player.Listener { override fun onPlayerError(error: androidx.media3.common.PlaybackException) { failures.incrementAndGet() } })
+                c.setMediaItems(listOf(MediaItem.Builder().setMediaId("episode:unavailable:test").setUri("http://127.0.0.1:1/missing.wav")
+                    .setMediaMetadata(androidx.media3.common.MediaMetadata.Builder().setExtras(android.os.Bundle().apply { putString("fallback_url", "http://127.0.0.1:2/missing.wav") }).build()).build(), item(second)))
+                c.prepare(); c.play()
+            }
+            var stopped = false
+            repeat(250) { if (!stopped) { instrumentation.runOnMainSync { stopped = c.playerError != null && !c.playWhenReady }; SystemClock.sleep(100) } }
+            assertTrue("Repeated failures must stop", stopped)
+            val count = failures.get(); assertTrue(count in 1..3)
+            SystemClock.sleep(4000); assertEquals("No endless retry loop", count, failures.get())
+            instrumentation.runOnMainSync { assertEquals(2, c.mediaItemCount) }
+        } finally { instrumentation.runOnMainSync { c.stop(); c.clearMediaItems(); MediaController.releaseFuture(future) }; foreground.close(); server.close(); file.delete() }
     }
 }
