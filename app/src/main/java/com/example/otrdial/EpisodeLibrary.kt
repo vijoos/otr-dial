@@ -24,12 +24,12 @@ fun java.io.InputStream.readLimited(limit: Int): ByteArray {
 
 data class EpisodeSource(val id: String, val title: String, val kind: String, val url: String, val page: String, val genre: String)
 data class Episode(val id: String, val source: String, val title: String, val series: String,
-    val url: String, val page: String, val description: String = "", val date: String = "", val duration: Long = 0, val fallback: String = "") {
+    val url: String, val page: String, val description: String = "", val date: String = "", val duration: Long = 0, val fallback: String = "", val image: String = "") {
     fun json() = JSONObject().put("id", id).put("source", source).put("title", title).put("series", series)
-        .put("url", url).put("page", page).put("description", description).put("date", date).put("duration", duration).put("fallback", fallback)
+        .put("url", url).put("page", page).put("description", description).put("date", date).put("duration", duration).put("fallback", fallback).put("image", image)
     fun media(context: Context): MediaItem {
         val art = artStation()
-        return MediaItem.Builder().setMediaId(id).setUri(url).setMediaMetadata(MediaMetadata.Builder()
+        return MediaItem.Builder().setMediaId(id).setUri(OfflineAudio(context).local(id) ?: Uri.parse(url)).setMediaMetadata(MediaMetadata.Builder()
             .setTitle(title).setArtist(series).setAlbumTitle(series)
             .setExtras(android.os.Bundle().apply { putString("fallback_url", fallback) })
             .setArtworkData(StationArt.bytes(context, art), MediaMetadata.PICTURE_TYPE_FRONT_COVER).build()).build()
@@ -37,7 +37,7 @@ data class Episode(val id: String, val source: String, val title: String, val se
     fun artStation() = Station(source, series, series, EpisodeCatalogue.sources.find { it.id == source }?.genre ?: "Drama", url, page, "", false, "")
     companion object {
         fun from(j: JSONObject) = Episode(j.getString("id"), j.getString("source"), j.getString("title"),
-            j.getString("series"), j.getString("url"), j.optString("page"), j.optString("description"), j.optString("date"), j.optLong("duration"), j.optString("fallback"))
+            j.getString("series"), j.getString("url"), j.optString("page"), j.optString("description"), j.optString("date"), j.optLong("duration"), j.optString("fallback"), j.optString("image"))
     }
 }
 
@@ -70,10 +70,13 @@ object EpisodeCatalogue {
     fun parseRss(source: EpisodeSource, xml: String): List<Episode> {
         val p = Xml.newPullParser(); p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true); p.setInput(xml.reader())
         val result = mutableListOf<Episode>(); var fields: MutableMap<String, String>? = null
-        var tag = ""; var fieldDepth = -1
+        var tag = ""; var fieldDepth = -1; var cover = ""
         while (p.eventType != XmlPullParser.END_DOCUMENT) {
             when (p.eventType) {
                 XmlPullParser.START_TAG -> {
+                    if (p.name == "image" && validUrl(p.getAttributeValue(null, "href").orEmpty())) {
+                        if (fields == null) cover = p.getAttributeValue(null, "href") else fields["image"] = p.getAttributeValue(null, "href")
+                    }
                     if (p.name == "item") fields = mutableMapOf()
                     else if (fields != null) {
                         if (p.name == "enclosure") {
@@ -92,7 +95,7 @@ object EpisodeCatalogue {
                         if (validUrl(url)) result += Episode(stableId(source.id, f["guid"]?.trim()?.ifBlank { url } ?: url), source.id,
                             text(f["title"].orEmpty()).ifBlank { "Untitled episode" }, source.title, url,
                             f["link"]?.trim()?.takeIf { validUrl(it) } ?: source.page, text(f["description"].orEmpty()),
-                            f["pubDate"].orEmpty().trim(), duration(f["duration"].orEmpty()))
+                            f["pubDate"].orEmpty().trim(), duration(f["duration"].orEmpty()), image = f["image"] ?: cover)
                         fields = null; tag = ""
                     } else if (p.depth == fieldDepth) tag = ""
                 }
@@ -116,7 +119,7 @@ object EpisodeCatalogue {
                 val name = f.getString("name")
                 Episode(stableId(source.id, name), source.id, text(f.optString("title")).ifBlank { name.removeSuffix(".mp3") },
                     source.title, "https://archive.org/download/${source.url}/${Uri.encode(name)}", source.page,
-                    "${f.optString("album")}\n${text(f.optString("comment"))}\nProvided by the Old Time Radio Researchers collection on Internet Archive.\nFile: $name".trim(),
+                    "${f.optString("album")}\n${text(f.optString("comment"))}\nInternet Archive item: ${source.url}.\nFile: $name".trim(),
                     f.optString("album"), duration(f.optString("length")),
                     if (server != null && directory != null) "https://$server$directory/${Uri.encode(name)}" else "")
             }.distinctBy { it.id }
@@ -141,7 +144,10 @@ class LibraryStore(context: Context) {
     fun find(id: String?) = episodes().find { it.id == id }
     fun update(source: EpisodeSource, fresh: List<Episode>) {
         // Keep saved and previously played episodes even when an RSS feed drops older entries.
-        val retained = episodes().filter { it.source != source.id || it.id in saved() || played(it.id) > 0 || it.id in queue() }
+        val collections = CollectionStore(app)
+        val protected = collections.playlists().flatMap { CollectionStore.strings(it.getJSONArray("episodes")) }.toSet() +
+            collections.bookmarks().map { it.getString("episode") } + OfflineAudio(app).entries().map { it.id }
+        val retained = episodes().filter { it.source != source.id || it.id in saved() || played(it.id) > 0 || it.id in queue() || it.id in protected }
         putEpisodes((fresh + retained).distinctBy { it.id })
         prefs.edit().putLong("updated_${source.id}", System.currentTimeMillis()).apply()
     }
@@ -175,18 +181,25 @@ class LibraryStore(context: Context) {
         prefs.edit().putBoolean("completed_$id", value).putLong("position_$id", 0)
             .putLong("played_$id", if (value) System.currentTimeMillis() else 0).apply()
     }
+    fun clearHistory() {
+        val edit = prefs.edit()
+        prefs.all.keys.filter { it.startsWith("played_") }.forEach { edit.remove(it) }
+        edit.apply()
+    }
     fun export(): String {
         val state = JSONObject()
         prefs.all.forEach { (k, v) -> if (k != "catalogue") state.put(k, if (v is Set<*>) JSONArray(v.toList()) else v) }
         val radio = app.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
         val radioState = JSONObject().put("favourites", JSONArray(radio.getStringSet("favourites", emptySet()).orEmpty().toList()))
             .put("recent", JSONArray(radio.getString("recent", "[]"))).put("dark_mode", radio.getBoolean("dark_mode", false))
-        return JSONObject().put("format", "otr-dial-library").put("version", 2).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).put("radio", radioState).toString(2)
+        return JSONObject().put("format", "otr-dial-library").put("version", 3).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).put("radio", radioState).put("collections", CollectionStore(app).export()).toString(2)
     }
     fun restore(raw: String) {
         require(raw.length <= 12 * 1024 * 1024) { "Backup is too large" }
         val root = JSONObject(raw)
-        require(root.getString("format") == "otr-dial-library" && root.getInt("version") in 1..2) { "Unsupported backup" }
+        require(root.getString("format") == "otr-dial-library" && root.getInt("version") in 1..3) { "Unsupported backup" }
+        val collections = root.optJSONObject("collections")
+        collections?.let { CollectionStore(app).validate(it) }
         val radioState = root.optJSONObject("radio")
         fun ids(a: JSONArray) = (0 until a.length()).map { a.getString(it) }
         val radioFavourites = radioState?.let { ids(it.getJSONArray("favourites")).toSet() }
@@ -215,6 +228,7 @@ class LibraryStore(context: Context) {
             is Boolean -> edit.putBoolean(k, v)
         } }
         edit.apply()
+        collections?.let { CollectionStore(app).restore(it) }
         if (radioState != null) {
             val radio = app.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
             val existing = ids(JSONArray(radio.getString("recent", "[]")))
