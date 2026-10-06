@@ -125,7 +125,7 @@ class LibraryActivity : AppCompatActivity() {
             intent.removeExtra("episode_id")
             store.find(requested)?.let { e ->
                 val position = intent.getLongExtra("episode_position", -1)
-                play(e)
+                play(e, forceReload = true)
                 syncQueue()
                 if(position >= 0) c.seekTo(position)
                 intent.removeExtra("episode_position")
@@ -380,9 +380,9 @@ class LibraryActivity : AppCompatActivity() {
         if (c.mediaItemCount > c.currentMediaItemIndex + 1) c.removeMediaItems(c.currentMediaItemIndex + 1, c.mediaItemCount)
         c.addMediaItems(store.queue().filter { it != current.id }.mapNotNull { store.find(it)?.media(this) })
     }
-    private fun play(e: Episode, restart: Boolean = false) {
+    private fun play(e: Episode, restart: Boolean = false, forceReload: Boolean = false) {
         val c = controller ?: return toast("Player is connecting. Please try again.")
-        if (!restart && c.currentMediaItem?.mediaId == e.id && c.playbackState != Player.STATE_ENDED && c.playerError == null) { if (c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() }
+        if (!restart && !forceReload && c.currentMediaItem?.mediaId == e.id && c.playbackState != Player.STATE_ENDED && c.playerError == null) { if (c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() }
         else {
             val items = listOf(e) + store.queue().filter { it != e.id }.mapNotNull { store.find(it) }
             c.setMediaItems(items.map { it.media(this) }, 0, if (restart) 0 else store.progress(e.id)); c.prepare(); c.play()
