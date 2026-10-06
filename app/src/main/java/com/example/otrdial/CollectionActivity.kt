@@ -24,6 +24,7 @@ class CollectionActivity : AppCompatActivity() {
     private var selected: String? = null
     private var query = ""
     private var sort = "Title"
+    private var mood = "All programmes"
     private var page = 0
     private var busy = false
     private var message = ""
@@ -112,7 +113,15 @@ class CollectionActivity : AppCompatActivity() {
     }
     private fun programmes() {
         search()
-        val all = library.episodes(); val name = selected
+        val catalogue = library.episodes()
+        body.addView(selector(listOf("All programmes", "Something funny", "A mystery tonight", "Science-fiction adventures", "A short listen"), mood) { mood = it; page = 0; selected = null; render() })
+        val all = catalogue.filter { e -> val genre = collections.sources().find { it.id == e.source }?.genre.orEmpty(); when(mood) {
+            "Something funny" -> genre.equals("Comedy", true)
+            "A mystery tonight" -> genre.contains("Detective", true) || genre.contains("Mystery", true)
+            "Science-fiction adventures" -> genre.contains("Science", true)
+            "A short listen" -> e.duration in 1..1200000
+            else -> true
+        } }; val name = selected
         if (name == null) {
             body.addView(text("Programme names are matched from explicit titles or source labels. Mixed podcast recordings remain complete; no chapter times are guessed.", 12))
             val followed = collections.followedProgrammes()

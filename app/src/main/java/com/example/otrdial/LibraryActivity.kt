@@ -109,6 +109,8 @@ class LibraryActivity : AppCompatActivity() {
         val nav = row(); root.addView(nav)
         listOf("home" to "Home", "discover" to "Shows", "search" to "Search", "library" to "Library", "queue" to "Queue").forEach { (key, title) ->
             val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }
+            val icon = ContextCompat.getDrawable(this, when(key) { "home" -> R.drawable.ic_home; "discover" -> R.drawable.ic_explore; "library" -> R.drawable.ic_heart; "queue" -> R.drawable.ic_wave; else -> android.R.drawable.ic_menu_search })?.mutate()
+            icon?.setBounds(0, 0, dp(18), dp(18)); b.setCompoundDrawables(null, icon, null, null); b.compoundDrawablePadding = dp(2)
             navButtons[key] = b; nav.addView(b, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(2), dp(6), dp(2), dp(6)) })
         }
         future = MediaController.Builder(this, SessionToken(this, ComponentName(this, PlaybackService::class.java))).buildAsync()
@@ -170,7 +172,7 @@ class LibraryActivity : AppCompatActivity() {
         if (!::content.isInitialized) return
         content.removeAllViews(); playerTitle = null; playerTime = null; seek = null; playerToggle = null; playerEpisode = null; errorActions = null
         when (tab) { "home" -> renderHome(); "search" -> renderSearch(); "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); else -> renderDiscover() }
-        navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); b.setTextColor(if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown)) }
+        navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); val colour = if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown); b.setTextColor(colour); b.compoundDrawables.filterNotNull().forEach { it.setTint(colour) } }
         updatePlayer()
         if (resetScroll) (content.parent as? ScrollView)?.scrollTo(0, 0)
     }
@@ -494,4 +496,5 @@ class LibraryActivity : AppCompatActivity() {
             if(n == all.size) { val input = EditText(this); AlertDialog.Builder(this).setTitle("Playlist name").setView(input).setPositiveButton("Create") { _, _ -> runCatching { val id = collections.createPlaylist(input.text.toString()); collections.editPlaylist(id, episodes = listOf(e.id)); toast("Added to playlist") }.onFailure { toast("Enter a playlist name") } }.setNegativeButton("Cancel", null).show() }
             else { val id = all[n].getString("id"); collections.editPlaylist(id, episodes = collections.playlistIds(id) + e.id); toast("Added to playlist") }
         }.show()
+    }
 }
