@@ -64,6 +64,13 @@ class CollectionTest {
             assertTrue("Download should finish: ${offline.entry(e.id)}", ready); server.close()
             assertEquals("file", e.media(context).localConfiguration!!.uri.scheme)
             assertArrayEquals(bytes, offline.file(e.id).readBytes())
+            lateinit var player: androidx.media3.exoplayer.ExoPlayer
+            instrumentation.runOnMainSync { player = androidx.media3.exoplayer.ExoPlayer.Builder(context).build(); player.setMediaItem(e.media(context)); player.prepare() }
+            try {
+                var playable = false
+                repeat(100) { if(!playable) { instrumentation.runOnMainSync { playable = player.playbackState == androidx.media3.common.Player.STATE_READY }; SystemClock.sleep(50) } }
+                assertTrue("Downloaded audio must decode after the source server closes", playable)
+            } finally { instrumentation.runOnMainSync { player.release() } }
             offline.remove(e.id); assertNull(offline.local(e.id)); assertFalse(offline.file(e.id).exists())
         } finally { server.close(); offline.remove(e.id); offline.wifiOnly(true) }
     }
