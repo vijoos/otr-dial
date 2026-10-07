@@ -9,7 +9,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="OTR Dial 2.4"
+        android:label="OTR Dial 2.5"
         android:icon="@drawable/ic_brand"
         android:supportsRtl="true"
         android:theme="@style/Theme.OTRDial"
