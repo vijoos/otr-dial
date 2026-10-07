@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
         playerBack = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
+                if (intent.getBooleanExtra("from_platform", false)) { finish(); return }
                 if (!playerOpen) homeOpen = true
                 showPlayer(false)
             }
@@ -256,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putBoolean("dark_mode", checked).apply()
             delegate.localNightMode = if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         }
-        binding.backButton.setOnClickListener { showPlayer(false) }
+        binding.backButton.setOnClickListener { if (intent.getBooleanExtra("from_platform", false)) finish() else showPlayer(false) }
         binding.openPlayerButton.setOnClickListener { if (isEpisodePlaying()) openLibrary(true) else showPlayer(true) }
         binding.scheduleButton.setOnClickListener { currentStation?.let { showStationDetails(it) } }
         binding.shareButton.setOnClickListener { currentStation?.let { shareStation(it) } }

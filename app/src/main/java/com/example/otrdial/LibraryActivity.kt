@@ -35,6 +35,9 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var mini: Button
     private lateinit var miniPause: Button
     private var tab = "home"
+    private var returnTab = "home"
+    private val directory by lazy { SourceDirectory.load(this) }
+    private lateinit var navigation: LinearLayout
     private var libraryView = "Saved"
     private var searchType = "All sources"
     private var searchGenre = "All genres"
@@ -73,20 +76,21 @@ class LibraryActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
-                    tab == "player" -> { tab = "library"; page = 0; render() }
-                    sourceId != null -> { sourceId = null; query = ""; tab = "discover"; page = 0; render() }
+                    tab == "player" -> { tab = returnTab; page = 0; render() }
+                    sourceId != null -> { sourceId = null; query = ""; page = 0; render() }
                     tab != "home" -> { tab = "home"; page = 0; render() }
                     else -> finish()
                 }
             }
         })
         tab = savedInstanceState?.getString("tab") ?: if (intent.getBooleanExtra("player", false)) "player" else "home"
+        returnTab = savedInstanceState?.getString("return_tab") ?: "home"
         libraryView = savedInstanceState?.getString("library_view") ?: "Saved"
         searchType = savedInstanceState?.getString("search_type") ?: "All sources"
         searchGenre = savedInstanceState?.getString("search_genre") ?: "All genres"
         page = savedInstanceState?.getInt("page") ?: 0
         sourceId = savedInstanceState?.getString("source") ?: intent.getStringExtra("source_id"); query = savedInstanceState?.getString("query").orEmpty()
-        if (sourceId != null) tab = "discover"
+        if (sourceId != null && savedInstanceState == null && tab != "player") tab = if (collections.sources().find { it.id == sourceId }?.kind == "rss") "podcasts" else "discover"
         val root = column().apply { setBackgroundResource(R.drawable.aurora) }; setContentView(root)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, i ->
@@ -99,17 +103,18 @@ class LibraryActivity : AppCompatActivity() {
         }
         val header = row(); root.addView(header)
         header.addView(label("OTR Dial", 22, true), LinearLayout.LayoutParams(0, -2, 1f))
-        header.addView(button("Live radio") { openRadio() })
+        header.addView(button("Search") { tab = "search"; sourceId = null; page = 0; render() })
+        header.addView(button("◐") { radioPrefs.edit().putBoolean("dark_mode", !radioPrefs.getBoolean("dark_mode", false)).apply(); recreate() }.apply { contentDescription = "Switch light / dark mode" })
         header.addView(button("⋮") { settings() }.apply { contentDescription = "Library settings" })
         status = label("LIVE RADIO  •  PODCASTS  •  THE ARCHIVES", 11); root.addView(status)
         val scroll = ScrollView(this); content = column(); scroll.addView(content); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         val miniRow = row(); root.addView(miniRow)
-        mini = button("Choose an episode") { tab = "player"; render() }.apply { maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }; miniRow.addView(mini, LinearLayout.LayoutParams(0, -2, 1f))
+        mini = button("Choose an episode") { if (tab != "player") returnTab = tab; tab = "player"; render() }.apply { maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }; miniRow.addView(mini, LinearLayout.LayoutParams(0, -2, 1f))
         miniPause = button("▶") { val c = controller; if(c?.playWhenReady == true) c.pause() else if(c?.currentMediaItem != null) { if(c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() } else store.find(store.last())?.let { play(it) } }; miniRow.addView(miniPause)
-        val nav = row(); root.addView(nav)
-        listOf("home" to "Home", "discover" to "Shows", "search" to "Search", "library" to "Library", "queue" to "Queue").forEach { (key, title) ->
-            val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }
-            val icon = ContextCompat.getDrawable(this, when(key) { "home" -> R.drawable.ic_home; "discover" -> R.drawable.ic_explore; "library" -> R.drawable.ic_heart; "queue" -> R.drawable.ic_wave; else -> android.R.drawable.ic_menu_search })?.mutate()
+        val nav = row(); navigation = nav; root.addView(nav)
+        listOf("home" to "Radio", "discover" to "Repo", "podcasts" to "Podcasts", "youtube" to "YouTube", "library" to "Favourites").forEach { (key, title) ->
+            val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }.apply { textSize = 10f; setPadding(0, dp(6), 0, dp(6)); maxLines = 1; minimumWidth = 0; minWidth = 0; contentDescription = title }
+            val icon = ContextCompat.getDrawable(this, when(key) { "home" -> R.drawable.ic_wave; "discover" -> R.drawable.ic_explore; "library" -> R.drawable.ic_heart; "podcasts" -> R.drawable.ic_podcast; else -> R.drawable.ic_video })?.mutate()
             icon?.setBounds(0, 0, dp(18), dp(18)); b.setCompoundDrawables(null, icon, null, null); b.compoundDrawablePadding = dp(2)
             navButtons[key] = b; nav.addView(b, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(2), dp(6), dp(2), dp(6)) })
         }
@@ -140,11 +145,12 @@ class LibraryActivity : AppCompatActivity() {
         super.onResume()
         val wanted = if (radioPrefs.getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         if (delegate.localNightMode != wanted) delegate.localNightMode = wanted
+        else if (::content.isInitialized && tab in listOf("home", "library")) render(false)
     }
     override fun onStop() { handler.removeCallbacks(tick); super.onStop() }
     override fun onDestroy() { future?.let { MediaController.releaseFuture(it) }; work.shutdownNow(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString("tab", tab); outState.putString("source", sourceId); outState.putString("query", query)
+        outState.putString("return_tab", returnTab); outState.putString("tab", tab); outState.putString("source", sourceId); outState.putString("query", query)
         outState.putString("library_view", libraryView); outState.putString("search_type", searchType); outState.putString("search_genre", searchGenre); outState.putInt("page", page)
         super.onSaveInstanceState(outState)
     }
@@ -172,22 +178,73 @@ class LibraryActivity : AppCompatActivity() {
     private fun render(resetScroll: Boolean = true) {
         if (!::content.isInitialized) return
         content.removeAllViews(); playerTitle = null; playerTime = null; seek = null; playerToggle = null; playerEpisode = null; errorActions = null
-        when (tab) { "home" -> renderHome(); "search" -> renderSearch(); "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); else -> renderDiscover() }
+        when (tab) { "home" -> renderRadio(); "podcasts" -> renderDiscover(); "youtube" -> renderYouTube(); "radio-directory" -> renderRadioDirectory(); "search" -> renderSearch(); "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); "picks" -> renderHome(); else -> renderDiscover() }
+        navigation.visibility = if (tab == "player") View.GONE else View.VISIBLE
         navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); val colour = if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown); b.setTextColor(colour); b.compoundDrawables.filterNotNull().forEach { it.setTint(colour) } }
         updatePlayer()
         if (resetScroll) (content.parent as? ScrollView)?.scrollTo(0, 0)
     }
     private fun openRadio(id: String? = null) {
-        startActivity(Intent(this, MainActivity::class.java).putExtra("station_id", id))
+        startActivity(Intent(this, MainActivity::class.java).putExtra("station_id", id).putExtra("from_platform", true).putExtra("player", id == null))
     }
     private fun collection(screen: String) { startActivity(Intent(this, CollectionActivity::class.java).putExtra("screen", screen)) }
-    private fun showSource(id: String) { sourceId = id; tab = "discover"; query = ""; page = 0; render() }
+    private fun showSource(id: String) { sourceId = id; tab = if (collections.sources().find { it.id == id }?.kind == "rss") "podcasts" else "discover"; query = ""; page = 0; render() }
     private fun artwork(e: Episode, height: Int) = ImageView(this).apply {
         setImageDrawable(StationArt.drawable(this@LibraryActivity, e.artStation()))
         FeedArtwork.load(applicationContext, this, e.image)
         scaleType = ImageView.ScaleType.CENTER_CROP; setBackgroundResource(R.drawable.glass_panel); clipToOutline = true
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         layoutParams = LinearLayout.LayoutParams(-1, dp(height)).apply { bottomMargin = dp(8) }
+    }
+    private fun banner(title: String, detail: String) {
+        val hero = card().apply { setBackgroundResource(R.drawable.hero_gradient) }
+        hero.addView(label(title, 27, true).apply { setTextColor(android.graphics.Color.WHITE) })
+        hero.addView(label(detail, 14).apply { setTextColor(android.graphics.Color.WHITE) })
+        content.addView(hero)
+    }
+    private fun renderRadio() {
+        banner("Turn on a little wonder.", "English-language radio • stories around the clock")
+        content.addView(button("Browse source directory") { tab = "radio-directory"; page = 0; query = ""; render() })
+        content.addView(button("Queue") { tab = "queue"; render() })
+        searchControls("Find a station or genre")
+        val found = stations.filter { query.isBlank() || "${it.name} ${it.network} ${it.genre}".contains(query, true) }
+        content.addView(label("${found.size} stations • availability depends on the broadcaster", 12))
+        page = page.coerceAtMost((found.size - 1).coerceAtLeast(0) / 20)
+        found.drop(page * 20).take(20).forEach { stationCard(it) }
+        if (found.size > 20) pager(found.size, 20)
+    }
+    private fun renderRadioDirectory() {
+        banner("More ways to tune in", "Original source directory • some players open on the web")
+        searchControls("Search the radio directory")
+        directory.filter { it.category == "radio" && (query.isBlank() || "${it.title} ${it.genre}".contains(query, true)) }.forEach { directoryCard(it) }
+    }
+    private fun renderYouTube() {
+        banner("Watch. Listen. Rediscover.", "Classic radio channels on YouTube")
+        content.addView(label("Opens YouTube or your browser. Video playback and background listening are controlled by YouTube.", 14))
+        directory.filter { it.category == "youtube" }.forEach { directoryCard(it) }
+    }
+    private fun directoryCard(d: DirectorySource) {
+        val c = card()
+        val art = Station(d.id, d.title, d.title, d.genre, "", d.page, "", false, "")
+        val heading = row()
+        heading.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity, art)); scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(64), dp(74)))
+        heading.addView(label(d.title, 18, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(heading)
+        c.addView(label(d.notes, 13))
+        if (d.warning.isNotBlank()) c.addView(label(d.warning, 12).apply { setTextColor(getColor(R.color.otr_gold)) })
+        val source = collections.sources().find { it.id == d.sourceId }
+            ?: d.episodeSource()?.let { suggested -> collections.sources().find { it.kind == suggested.kind && it.url == suggested.url } ?: suggested }
+        val station = stations.find { it.id == d.stationId }
+        if (station != null) c.addView(button("▶ Listen in app") { openRadio(station.id) })
+        else if (source != null) c.addView(button("Browse episodes  ›") {
+            if (collections.sources().none { it.id == source.id }) collections.addSource(source)
+            showSource(source.id)
+            if (store.episodes().none { it.source == source.id }) refresh(listOf(source))
+        })
+        else c.addView(label("Listen or browse on the provider’s website", 12))
+        val actions = row()
+        actions.addView(button(if (d.category == "youtube" && d.page.contains("youtube.com")) "Open YouTube ↗" else "Open website ↗") { openPage(d.page) }, LinearLayout.LayoutParams(0, -2, 1f))
+        actions.addView(button(if (d.id in store.directorySaved()) "♥ Saved" else "♡ Save source") { store.toggle("directory_saved", d.id); render(false) }, LinearLayout.LayoutParams(0, -2, 1f))
+        c.addView(actions); content.addView(c)
     }
     private fun renderHome() {
         val hero = card().apply { setBackgroundResource(R.drawable.hero_gradient) }
@@ -228,7 +285,7 @@ class LibraryActivity : AppCompatActivity() {
         val c = card(); val r = row()
         r.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity, s)); scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(52), dp(64)))
         r.addView(label(s.name, 18, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(r)
-        c.addView(label("Live radio • ${s.genre} • ${s.network}", 12)); c.addView(button("▶ Listen live") { openRadio(s.id) }); content.addView(c)
+        c.addView(label("Live radio • ${s.genre} • ${s.network}", 12)); c.addView(button("▶ Listen live") { openRadio(s.id) }); c.addView(button(if (s.id in radioPrefs.getStringSet("favourites", emptySet()).orEmpty()) "♥ Favourite" else "♡ Favourite") { val ids = radioPrefs.getStringSet("favourites", emptySet()).orEmpty().toMutableSet(); if (!ids.add(s.id)) ids.remove(s.id); radioPrefs.edit().putStringSet("favourites", ids).apply(); render(false) }); content.addView(c)
     }
     private fun selector(options: List<String>, selected: String, change: (String) -> Unit): Spinner {
         return Spinner(this).apply {
@@ -276,12 +333,12 @@ class LibraryActivity : AppCompatActivity() {
     private fun renderDiscover() {
         val source = collections.sources().find { it.id == sourceId }
         if (source == null) {
-            content.addView(label("Stories, on your terms.", 29, true))
+            content.addView(label(if (tab == "podcasts") "Podcasts" else "The repositories", 29, true))
             content.addView(button("Programme pages & daily picks") { collection("Programmes") })
             content.addView(button("Manage / add sources") { collection("Sources") })
             content.addView(label("Choose a programme, save an episode and pick up where you left off. English-language selections.", 15))
             content.addView(button(if (busy) "Refreshing…" else "Refresh followed podcasts") { refresh(collections.sources().filter { it.kind == "rss" && it.id in store.follows() }) })
-            for (kind in listOf("rss", "archive")) {
+            for (kind in listOf(if (tab == "podcasts") "rss" else "archive")) {
                 content.addView(label(if (kind == "rss") "Podcasts" else "The archive shelves", 22, true))
                 collections.sources().filter { it.kind == kind }.forEach { s ->
                     val c = card(); val row = row()
@@ -292,6 +349,9 @@ class LibraryActivity : AppCompatActivity() {
                     c.addView(button("Browse episodes  ›") { showSource(s.id) }); content.addView(c)
                 }
             }
+            content.addView(label("Explore more sources", 22, true))
+            directory.filter { it.category == (if (tab == "podcasts") "podcast" else "archive") && it.sourceId.isBlank() }.forEach { directoryCard(it) }
+            if (tab != "podcasts") { content.addView(label("Other resources", 22, true)); directory.filter { it.category == "other" }.forEach { directoryCard(it) } }
             content.addView(label("Audio streams from the original provider. Catalogue entries are bundled for browsing; availability can change. Illustrative artwork uses the app’s existing credited collection.", 12))
         } else {
             content.addView(button("‹ All sources") { sourceId = null; query = ""; page = 0; render() })
@@ -351,12 +411,18 @@ class LibraryActivity : AppCompatActivity() {
         } }.show()
     }
     private fun renderLibrary() {
-        content.addView(label("My library", 29, true))
+        content.addView(label("Your favourites", 29, true))
+        content.addView(button("Queue") { tab = "queue"; render() })
+        content.addView(button("Daily picks & continue listening") { tab = "picks"; render() })
+        content.addView(label("Favourite stations", 21, true))
+        stations.filter { it.id in radioPrefs.getStringSet("favourites", emptySet()).orEmpty() }.forEach { stationCard(it) }
+        content.addView(label("Saved sources & channels", 21, true))
+        directory.filter { it.id in store.directorySaved() }.forEach { directoryCard(it) }
         val tools = HorizontalScrollView(this); val r = row(); listOf("Playlists", "Bookmarks", "Downloads", "History").forEach { s -> r.addView(button(s) { collection(s) }) }; tools.addView(r); content.addView(tools)
         val list = store.episodes()
         content.addView(label("Following", 21, true))
-        collections.sources().filter { it.id in store.follows() }.forEach { s -> content.addView(button("${s.title}  ›") { sourceId = s.id; tab = "discover"; page = 0; render() }) }
-        if (store.follows().isEmpty()) content.addView(label("Follow a source from Discover to keep it close."))
+        collections.sources().filter { it.id in store.follows() }.forEach { s -> content.addView(button("${s.title}  ›") { showSource(s.id) }) }
+        if (store.follows().isEmpty()) content.addView(label("Follow a source from Repo or Podcasts to keep it close."))
         content.addView(label("Save keeps an episode in your library. Download audio separately for offline listening.", 13))
         content.addView(selector(listOf("Saved", "In progress", "Played", "Unplayed", "All episodes"), libraryView) { libraryView = it; page = 0; render() })
         content.addView(label(if (libraryView == "Saved") "Saved episodes" else libraryView, 21, true)); searchControls()
@@ -387,12 +453,14 @@ class LibraryActivity : AppCompatActivity() {
             val items = listOf(e) + store.queue().filter { it != e.id }.mapNotNull { store.find(it) }
             c.setMediaItems(items.map { it.media(this) }, 0, if (restart) 0 else store.progress(e.id)); c.prepare(); c.play()
         }
+        if (tab != "player") returnTab = tab
         tab = "player"; render()
     }
     private fun renderPlayer() {
         val e = store.find(controller?.currentMediaItem?.mediaId) ?: store.find(store.last())
-        if (e == null) { content.addView(label("Choose an episode from Discover", 24, true)); return }
+        if (e == null) { content.addView(label("Choose an episode from Repo or Podcasts", 24, true)); return }
         playerEpisode = e
+        content.addView(button("‹ Back") { tab = returnTab; render() })
         content.addView(label("NOW LISTENING", 12, true))
         content.addView(artwork(e, 240).apply { scaleType = ImageView.ScaleType.FIT_CENTER })
         playerTitle = label(e.title, 26, true).also { content.addView(it) }; content.addView(label(e.series, 16))
@@ -441,7 +509,7 @@ class LibraryActivity : AppCompatActivity() {
         mini.visibility = if (tab != "player" && (c?.currentMediaItem != null || store.last() != null)) View.VISIBLE else View.GONE
         miniPause.visibility = mini.visibility; miniPause.text = if(c?.playWhenReady == true) "Ⅱ" else "▶"; miniPause.contentDescription = if(c?.playWhenReady == true) "Pause" else "Play"
         mini.text = if (c?.currentMediaItem != null) "${if (c.isPlaying) "Ⅱ" else "▶"}  ${c.mediaMetadata.title}  ›" else "Resume your last episode  ›"
-        mini.setOnClickListener { if (c?.currentMediaItem != null && !episode) openRadio() else { tab = "player"; render() } }
+        mini.setOnClickListener { if (c?.currentMediaItem != null && !episode) openRadio() else { if (tab != "player") returnTab = tab; tab = "player"; render() } }
         val e = playerEpisode ?: return
         val active = c?.currentMediaItem?.mediaId == e.id
         errorActions?.visibility = if (active && c?.playerError != null && !c.playWhenReady) View.VISIBLE else View.GONE
@@ -483,7 +551,7 @@ class LibraryActivity : AppCompatActivity() {
             0 -> { val p = getSharedPreferences("otr_dial", MODE_PRIVATE); p.edit().putBoolean("dark_mode", !p.getBoolean("dark_mode", false)).apply(); recreate() }
             1 -> exportBackup.launch("OTR-Dial-library-backup.json")
             2 -> AlertDialog.Builder(this).setTitle("Merge app backup?").setMessage("Saved episodes, followed shows, queue and radio favourites will merge. Imported listening progress and theme replace matching settings. Audio and recordings are not included. Backups from the earlier preview are also supported.").setPositiveButton("Choose backup") { _, _ -> importBackup.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }.setNegativeButton("Cancel", null).show()
-            3 -> AlertDialog.Builder(this).setTitle("OTR Dial 2.4 preview").setMessage("Live radio, podcasts, archives, offline episodes and your personal collection. Backups include playlists, bookmarks and custom sources, but not downloaded audio. Original providers control availability. OTRCAT and RadioEchoes open as websites; YouTube is not integrated. Artwork remains credited illustrations unless supplied by a podcast feed.").setPositiveButton("Close", null).show()
+            3 -> AlertDialog.Builder(this).setTitle("OTR Dial 2.5 preview").setMessage("Live radio, podcasts, archives, offline episodes and your personal collection. Backups include playlists, bookmarks and custom sources, but not downloaded audio. Original providers control availability. The source directory includes website-only resources. YouTube channels open in YouTube or your browser. OTRCAT and RadioEchoes open as websites. Artwork remains credited illustrations unless supplied by a podcast feed.").setPositiveButton("Close", null).show()
             4 -> collection("Sources")
             5 -> collection("Downloads")
             6 -> collection("Playlists")

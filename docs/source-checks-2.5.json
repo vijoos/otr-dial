@@ -1,0 +1,74 @@
+[
+  {
+    "id": "podcast-02",
+    "url": "https://feeds.feedburner.com/horror",
+    "http": 200,
+    "audioEntries": 125
+  },
+  {
+    "id": "podcast-03",
+    "url": "https://feeds.feedburner.com/relicradiostrangetales",
+    "http": 200,
+    "audioEntries": 125
+  },
+  {
+    "id": "podcast-06",
+    "url": "https://feeds.feedburner.com/relicradiothrillers",
+    "http": 200,
+    "audioEntries": 125
+  },
+  {
+    "id": "podcast-08",
+    "url": "https://feeds.feedburner.com/orsonwelles",
+    "http": 200,
+    "audioEntries": 125
+  },
+  {
+    "id": "podcast-10",
+    "url": "https://feed.podbean.com/choiceclassicradio/feed.xml",
+    "http": 200,
+    "audioEntries": 999
+  },
+  {
+    "id": "archive-12",
+    "url": "https://archive.org/metadata/OTRR_Suspense_Singles",
+    "http": 200,
+    "audioEntries": 1822
+  },
+  {
+    "id": "archive-13",
+    "url": "https://archive.org/metadata/OTRR_All_Star_Western_Theatre_Singles",
+    "http": 200,
+    "audioEntries": 92
+  },
+  {
+    "id": "archive-14",
+    "url": "https://archive.org/metadata/OTRR_Hopalong_Singles",
+    "http": 200,
+    "audioEntries": 216
+  },
+  {
+    "id": "archive-15",
+    "url": "https://archive.org/metadata/OTRR_Certified_Frank_Race",
+    "http": 200,
+    "audioEntries": 0
+  },
+  {
+    "id": "archive-16",
+    "url": "https://archive.org/metadata/The_Sealed_Book_OTR",
+    "http": 200,
+    "audioEntries": 52
+  },
+  {
+    "id": "archive-17",
+    "url": "https://archive.org/metadata/inheritance-1954-11-21-33-what-is-america",
+    "http": 200,
+    "audioEntries": 49
+  },
+  {
+    "id": "archive-18",
+    "url": "https://archive.org/metadata/OTRR_Broadway_Is_My_Beat_Singles",
+    "http": 200,
+    "audioEntries": 306
+  }
+]

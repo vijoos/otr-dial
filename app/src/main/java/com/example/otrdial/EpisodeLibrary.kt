@@ -102,7 +102,7 @@ object EpisodeCatalogue {
             }
             p.next()
         }
-        return result.distinctBy { it.id }.take(125)
+        return result.distinctBy { it.id }.take(5000)
     }
     private fun duration(value: String): Long = runCatching {
         (value.trim().split(":").fold(0.0) { sum, part -> sum * 60 + part.toDouble() } * 1000).toLong().coerceAtLeast(0)
@@ -114,7 +114,9 @@ object EpisodeCatalogue {
         val server = data.optString("d1").takeIf { it.endsWith(".archive.org") && !it.contains('/') }
         val directory = data.optString("dir").takeIf { it.startsWith('/') }
         return (0 until files.length()).map { files.getJSONObject(it) }
-            .filter { it.optString("name").endsWith(".mp3", true) && !it.optBoolean("private") }
+            .filter { it.optString("name").substringAfterLast('.').lowercase() in listOf("mp3", "flac", "m4a", "ogg") && !it.optBoolean("private") }
+            .groupBy { it.optString("original").ifBlank { it.optString("name") }.substringBeforeLast('.') }
+            .values.map { versions -> versions.minBy { listOf("mp3", "m4a", "ogg", "flac").indexOf(it.optString("name").substringAfterLast('.').lowercase()) } }
             .sortedBy { it.optString("name") }.map { f ->
                 val name = f.getString("name")
                 Episode(stableId(source.id, name), source.id, text(f.optString("title")).ifBlank { name.removeSuffix(".mp3") },
@@ -155,6 +157,7 @@ class LibraryStore(context: Context) {
     private fun putEpisodes(values: List<Episode>) { prefs.edit().putString("catalogue", JSONArray(values.map { it.json() }).toString()).apply() }
     private fun set(key: String) = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
     fun saved() = set("saved")
+    fun directorySaved() = set("directory_saved")
     fun follows() = set("follows")
     fun toggle(key: String, id: String) { val s = set(key); if (!s.add(id)) s.remove(id); prefs.edit().putStringSet(key, s).apply() }
     fun progress(id: String) = prefs.getLong("position_$id", 0)
@@ -212,7 +215,7 @@ class LibraryStore(context: Context) {
         state.keys().forEach { k ->
             val v = state.get(k)
             when {
-                k in listOf("saved", "follows") -> { require(v is JSONArray); validated[k] = (0 until v.length()).map { v.getString(it) }.toSet() }
+                k in listOf("saved", "follows", "directory_saved") -> { require(v is JSONArray); validated[k] = (0 until v.length()).map { v.getString(it) }.toSet() }
                 k == "queue" -> { require(v is String); val a = JSONArray(v); (0 until a.length()).forEach { a.getString(it) }; validated[k] = v }
                 k == "last" -> { require(v is String); validated[k] = v }
                 k.startsWith("position_") || k.startsWith("played_") || k.startsWith("updated_") -> { require(v is Number && v.toLong() >= 0); validated[k] = v.toLong() }

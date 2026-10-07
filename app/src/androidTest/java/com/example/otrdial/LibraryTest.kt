@@ -76,11 +76,11 @@ class LibraryTest {
             context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
             ActivityScenario.launch(LibraryActivity::class.java).use { scenario ->
                 SystemClock.sleep(1500); capture("library-${if (dark) "dark" else "light"}-home")
-                scenario.onActivity { a -> click(a, "Shows") }
+                scenario.onActivity { a -> click(a, "Repo") }
                 capture("library-${if (dark) "dark" else "light"}-shows")
                 scenario.onActivity { a -> click(a, "Browse episodes  ›") }
                 capture("library-${if (dark) "dark" else "light"}-episodes")
-                scenario.onActivity { a -> click(a, "♡ Save"); click(a, "Library") }
+                scenario.onActivity { a -> click(a, "♡ Save"); click(a, "Favourites") }
                 capture("library-${if (dark) "dark" else "light"}-saved")
                 scenario.recreate(); scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Saved episodes" }); click(a, "Queue") }
                 scenario.onActivity { a -> click(a, "Search"); descendants(a.window.decorView).filterIsInstance<android.widget.EditText>().first().setText("Gunsmoke"); click(a, "Find") }
