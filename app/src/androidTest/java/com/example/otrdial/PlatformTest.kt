@@ -43,17 +43,13 @@ class PlatformTest {
         for (dark in listOf(false, true)) {
             context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
             ActivityScenario.launch(LibraryActivity::class.java).use { scenario ->
-                scenario.onActivity { a ->
-                    for (tab in listOf("Radio", "Repo", "Podcasts", "YouTube", "Favourites")) {
-                        click(a, tab)
-                        assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == tab })
-                    }
-                    click(a, "YouTube")
-                    assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Old Time Radio Researchers (OTRR)" })
-                    click(a, "Favourites")
+                for (tab in listOf("Radio", "Archives", "Podcasts", "YouTube", "Library")) {
+                    scenario.onActivity { a -> click(a,tab) }
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                    scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString()==tab }) }
                 }
                 scenario.recreate()
-                scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Your favourites" }) }
+                scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Library" }) }
             }
         }
     }

@@ -28,13 +28,13 @@ data class Episode(val id: String, val source: String, val title: String, val se
     fun json() = JSONObject().put("id", id).put("source", source).put("title", title).put("series", series)
         .put("url", url).put("page", page).put("description", description).put("date", date).put("duration", duration).put("fallback", fallback).put("image", image)
     fun media(context: Context): MediaItem {
-        val art = artStation()
+        val art = artStation(context)
         return MediaItem.Builder().setMediaId(id).setUri(OfflineAudio(context).local(id) ?: Uri.parse(url)).setMediaMetadata(MediaMetadata.Builder()
             .setTitle(title).setArtist(series).setAlbumTitle(series)
             .setExtras(android.os.Bundle().apply { putString("fallback_url", fallback) })
             .setArtworkData(StationArt.bytes(context, art), MediaMetadata.PICTURE_TYPE_FRONT_COVER).build()).build()
     }
-    fun artStation() = Station(source, series, series, EpisodeCatalogue.sources.find { it.id == source }?.genre ?: "Drama", url, page, "", false, "")
+    fun artStation(context: Context? = null) = Station(source, series, series, (context?.let { CollectionStore(it).sources() } ?: EpisodeCatalogue.sources).find { it.id == source }?.genre ?: "Drama", url, page, "", false, "")
     companion object {
         fun from(j: JSONObject) = Episode(j.getString("id"), j.getString("source"), j.getString("title"),
             j.getString("series"), j.getString("url"), j.optString("page"), j.optString("description"), j.optString("date"), j.optLong("duration"), j.optString("fallback"), j.optString("image"))
@@ -131,34 +131,22 @@ object EpisodeCatalogue {
 class LibraryStore(context: Context) {
     private val prefs = context.getSharedPreferences("episode_library", Context.MODE_PRIVATE)
     private val app = context.applicationContext
-    private var cachedRaw: String? = null
-    private var cachedEpisodes: List<Episode>? = null
-    @Synchronized
-    fun episodes(): List<Episode> {
-        val raw = prefs.getString("catalogue", null)
-        cachedEpisodes?.let { if (raw == cachedRaw) return it }
-        val result = if (raw != null) decodeEpisodes(JSONArray(raw)) else EpisodeCatalogue.sources.flatMap { source ->
-            // Optional native sources are added through the directory and downloaded on demand;
-            // a missing bundled snapshot must not prevent the baseline catalogue from opening.
-            runCatching {
-                decodeEpisodes(JSONArray(app.assets.open("episodes/${source.id}.json").bufferedReader().use { it.readText() }))
-            }.getOrDefault(emptyList())
-        }
-        cachedRaw = raw; cachedEpisodes = result
-        return result
-    }
-    fun find(id: String?) = episodes().find { it.id == id }
+    private val database = CatalogueDatabase.get(app)
+    fun episodes(): List<Episode> = database.all()
+    fun page(source: String? = null, query: String = "", offset: Int = 0, limit: Int = 25) = database.page(source, query, offset, limit)
+    fun count(source: String? = null) = database.count(source)
+    fun find(id: String?) = database.find(id)
     fun update(source: EpisodeSource, fresh: List<Episode>) {
-        // Keep saved and previously played episodes even when an RSS feed drops older entries.
+        require(fresh.all { it.source == source.id })
         val collections = CollectionStore(app)
         val protected = collections.playlists().flatMap { CollectionStore.strings(it.getJSONArray("episodes")) }.toSet() +
-            collections.bookmarks().map { it.getString("episode") } + OfflineAudio(app).entries().map { it.id }
-        val retained = episodes().filter { it.source != source.id || it.id in saved() || played(it.id) > 0 || it.id in queue() || it.id in protected }
-        putEpisodes((fresh + retained).distinctBy { it.id })
+            collections.bookmarks().map { it.getString("episode") } + OfflineAudio(app).entries().map { it.id } + saved() + queue() +
+            prefs.all.filter { it.key.startsWith("played_") && (it.value as? Long ?: 0) > 0 }.keys.map { it.removePrefix("played_") }
+        database.refresh(source.id, fresh, protected)
         prefs.edit().putLong("updated_${source.id}", System.currentTimeMillis()).apply()
     }
     fun updated(id: String) = prefs.getLong("updated_$id", 0)
-    private fun putEpisodes(values: List<Episode>) { prefs.edit().putString("catalogue", JSONArray(values.map { it.json() }).toString()).apply() }
+    private fun putEpisodes(values: List<Episode>) { database.merge(values) }
     private fun set(key: String) = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
     fun saved() = set("saved")
     fun directorySaved() = set("directory_saved")
@@ -199,12 +187,12 @@ class LibraryStore(context: Context) {
         val radio = app.getSharedPreferences("otr_dial", Context.MODE_PRIVATE)
         val radioState = JSONObject().put("favourites", JSONArray(radio.getStringSet("favourites", emptySet()).orEmpty().toList()))
             .put("recent", JSONArray(radio.getString("recent", "[]"))).put("dark_mode", radio.getBoolean("dark_mode", false))
-        return JSONObject().put("format", "otr-dial-library").put("version", 3).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).put("radio", radioState).put("collections", CollectionStore(app).export()).toString(2)
+        return JSONObject().put("audio_included", false).put("format", "otr-dial-library").put("version", 4).put("episodes", JSONArray(episodes().map { it.json() })).put("state", state).put("radio", radioState).put("collections", CollectionStore(app).export()).toString().also { require(it.toByteArray(Charsets.UTF_8).size <= BACKUP_LIMIT) { "Library exceeds the 256 MB backup limit; no backup was exported" } }
     }
     fun restore(raw: String) {
-        require(raw.length <= 12 * 1024 * 1024) { "Backup is too large" }
+        require(raw.toByteArray(Charsets.UTF_8).size <= BACKUP_LIMIT) { "Backup is too large" }
         val root = JSONObject(raw)
-        require(root.getString("format") == "otr-dial-library" && root.getInt("version") in 1..3) { "Unsupported backup" }
+        require(root.getString("format") == "otr-dial-library" && root.getInt("version") in 1..4) { "Unsupported backup" }
         val collections = root.optJSONObject("collections")
         collections?.let { CollectionStore(app).validate(it) }
         val radioState = root.optJSONObject("radio")
@@ -212,7 +200,7 @@ class LibraryStore(context: Context) {
         val radioFavourites = radioState?.let { ids(it.getJSONArray("favourites")).toSet() }
         val radioRecent = radioState?.let { ids(it.getJSONArray("recent")) }
         val dark = radioState?.let { require(it.get("dark_mode") is Boolean); it.getBoolean("dark_mode") }
-        val incoming = decodeEpisodes(root.getJSONArray("episodes")); require(incoming.size <= 10000)
+        val incoming = decodeEpisodes(root.getJSONArray("episodes"))
         val state = root.getJSONObject("state")
         // Validate all fields before touching preferences; malformed backups cannot partially overwrite data.
         val validated = mutableMapOf<String, Any>()
@@ -226,8 +214,8 @@ class LibraryStore(context: Context) {
                 k.startsWith("completed_") -> { require(v is Boolean); validated[k] = v }
             }
         }
-        val merged = (incoming + episodes()).distinctBy { it.id }
-        val edit = prefs.edit().putString("catalogue", JSONArray(merged.map { it.json() }).toString())
+        database.merge(incoming)
+        val edit = prefs.edit()
         validated.forEach { (k, v) -> when (v) {
             is Set<*> -> edit.putStringSet(k, set(k) + v.filterIsInstance<String>())
             is String -> edit.putString(k, if (k == "queue") JSONArray((queue() + JSONArray(v).let { a -> (0 until a.length()).map { a.getString(it) } }).distinct()).toString() else v)
@@ -244,6 +232,7 @@ class LibraryStore(context: Context) {
                 .putBoolean("dark_mode", dark!!).apply()
         }
     }
+    companion object { const val BACKUP_LIMIT = 256 * 1024 * 1024 }
     private fun decodeEpisodes(array: JSONArray): List<Episode> = (0 until array.length()).map { Episode.from(array.getJSONObject(it)) }.onEach {
         require(it.id.startsWith("episode:") && EpisodeCatalogue.validUrl(it.url)) { "Invalid episode in catalogue" }
     }

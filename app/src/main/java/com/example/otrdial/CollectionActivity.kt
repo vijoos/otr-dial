@@ -28,6 +28,10 @@ class CollectionActivity : AppCompatActivity() {
     private var page = 0
     private var busy = false
     private var message = ""
+    private var listScroll=0
+    private var listQuery=""
+    private var listPage=0
+    private var lastSelected: String?=null
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val labels = mutableMapOf<String, TextView>()
     private val poll = object : Runnable { override fun run() { labels.forEach { (id, view) -> offline.entry(id)?.let { view.text = offline.status(it) } }; handler.postDelayed(this, 1500) } }
@@ -35,21 +39,21 @@ class CollectionActivity : AppCompatActivity() {
         delegate.localNightMode = if (getSharedPreferences("otr_dial", MODE_PRIVATE).getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         super.onCreate(state)
         screen = state?.getString("screen") ?: intent.getStringExtra("screen") ?: "Programmes"
-        selected = state?.getString("selected"); query = state?.getString("query").orEmpty(); page = state?.getInt("page") ?: 0
+        selected = state?.getString("selected") ?: intent.getStringExtra("programme"); query = state?.getString("query").orEmpty(); page = state?.getInt("page") ?: 0
         sort = state?.getString("sort") ?: "Title"
         val root = column(); root.setBackgroundResource(R.drawable.aurora); setContentView(root)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, i -> val b = i.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()); v.setPadding(b.left + dp(10), b.top, b.right + dp(10), b.bottom); i }
         WindowCompat.getInsetsController(window, root).apply { val light = delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES; isAppearanceLightStatusBars = light; isAppearanceLightNavigationBars = light }
-        val top = row(); top.addView(button("‹ Home") { finish() }); top.addView(text("Your OTR collection", 21, true)); root.addView(top)
+        val top = row(); top.addView(button("‹ Back") { finish() }); top.addView(text("Your OTR collection", 21, true)); root.addView(top)
         val tabs = HorizontalScrollView(this); val nav = row()
         listOf("Programmes", "Playlists", "Bookmarks", "Downloads", "History", "Sources").forEach { s -> nav.addView(button(s) { screen = s; selected = null; query = ""; page = 0; render() }) }
         tabs.addView(nav); root.addView(tabs)
-        val scroll = ScrollView(this); body = column(); scroll.addView(body); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() { if (selected != null) { selected = null; page = 0; render() } else finish() } })
-        render()
+        val scroll = ScrollView(this); body = column(); scroll.addView(body); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f)); root.addView(PlaybackMiniBar(this))
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() { if (selected != null) { selected = null; page = listPage; query=listQuery; render(); (body.parent as? ScrollView)?.post { (body.parent as? ScrollView)?.scrollTo(0,listScroll) } } else finish() } })
+        render(); scroll.post { scroll.scrollTo(0,state?.getInt("scroll") ?: 0) }
     }
-    override fun onSaveInstanceState(out: Bundle) { out.putString("screen", screen); out.putString("selected", selected); out.putString("query", query); out.putString("sort", sort); out.putInt("page", page); super.onSaveInstanceState(out) }
+    override fun onSaveInstanceState(out: Bundle) { out.putString("screen", screen); out.putString("selected", selected); out.putString("query", query); out.putString("sort", sort); out.putInt("page", page); out.putInt("scroll",(body.parent as? ScrollView)?.scrollY ?: 0); super.onSaveInstanceState(out) }
     override fun onStart() { super.onStart(); handler.post(poll) }
     override fun onStop() { handler.removeCallbacks(poll); super.onStop() }
     override fun onDestroy() { work.shutdownNow(); super.onDestroy() }
@@ -59,7 +63,7 @@ class CollectionActivity : AppCompatActivity() {
     private fun text(s: String, size: Int = 14, bold: Boolean = false) = TextView(this).apply { text = s; textSize = size.toFloat(); setTextColor(getColor(R.color.otr_ink)); setPadding(dp(4), dp(7), dp(4), dp(7)); if (bold) setTypeface(typeface, 1) }
     private fun button(s: String, action: () -> Unit) = androidx.appcompat.widget.AppCompatButton(this).apply {
         text = s; isAllCaps = false; textSize = 13f; minHeight = dp(48); setPadding(dp(12), dp(5), dp(12), dp(5))
-        setBackgroundResource(R.drawable.glass_panel); supportBackgroundTintList = null; setTextColor(getColor(R.color.otr_brown))
+        setBackgroundColor(android.graphics.Color.TRANSPARENT); supportBackgroundTintList = null; setTextColor(getColor(R.color.otr_brown))
         layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(dp(3), dp(4), dp(3), dp(4)) }; setOnClickListener { action() }
     }
     private fun card() = column().apply { setBackgroundResource(R.drawable.glass_panel); layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, dp(6), 0, dp(6)) } }
@@ -71,11 +75,12 @@ class CollectionActivity : AppCompatActivity() {
     private fun confirm(title: String, action: () -> Unit) { AlertDialog.Builder(this).setTitle(title).setPositiveButton("Confirm") { _, _ -> action() }.setNegativeButton("Cancel", null).show() }
     private fun open(url: String) { if (EpisodeCatalogue.validUrl(url)) runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))) }.onFailure { toast("No browser available") } }
     private fun play(e: Episode, position: Long? = null) {
-        val i = Intent(this, LibraryActivity::class.java).putExtra("episode_id", e.id).putExtra("player", true).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        position?.let { i.putExtra("episode_position", it) }; startActivity(i); finish()
+        val i = Intent(this, LibraryActivity::class.java).putExtra("episode_id", e.id).putExtra("player", true).putExtra("from_collection",true)
+        position?.let { i.putExtra("episode_position", it) }; startActivity(i)
     }
     private fun render() {
         if (isDestroyed) return
+        if(lastSelected==null && selected!=null) { listScroll=(body.parent as? ScrollView)?.scrollY ?: 0; listQuery=query; listPage=page }; lastSelected=selected
         labels.clear(); body.removeAllViews(); body.addView(text(selected ?: screen, 25, true))
         if (message.isNotBlank()) body.addView(text(message))
         when(screen) { "Programmes" -> programmes(); "Playlists" -> playlists(); "Bookmarks" -> bookmarks(); "Downloads" -> downloads(); "History" -> history(); else -> sources() }
@@ -94,7 +99,7 @@ class CollectionActivity : AppCompatActivity() {
         body.addView(text("${filtered.size} episodes"))
         filtered.drop(page * 20).take(20).forEach { e ->
             val c = card(); val head = row()
-            head.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation())); scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(56), dp(68)))
+            head.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation(this@CollectionActivity))); scaleType = ImageView.ScaleType.FIT_CENTER; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(56), dp(68)))
             head.addView(text(e.title, 17, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(head)
             c.addView(text("${e.series} • ${collections.sources().find { it.id == e.source }?.title ?: e.source}", 12))
             c.addView(text(if (library.completed(e.id)) "✓ Played" else if (library.progress(e.id) > 0) "Resume at ${clock(library.progress(e.id))}" else if (e.duration > 0) "Duration ${clock(e.duration)}" else "Duration not supplied", 12))
@@ -125,16 +130,30 @@ class CollectionActivity : AppCompatActivity() {
         if (name == null) {
             body.addView(text("Programme names are matched from explicit titles or source labels. Mixed podcast recordings remain complete; no chapter times are guessed.", 12))
             val followed = collections.followedProgrammes()
-            all.flatMap { ProgrammeIndex.names(it) }.distinct().filter { it.contains(query, true) }.sortedWith(compareBy<String> { it !in followed }.thenBy { it }).forEach { p ->
+            (all.flatMap { ProgrammeIndex.names(it) } + ProgrammeDirectory.entries.map { it.name }).distinct().filter { it.contains(query, true) }.sortedWith(compareBy<String> { it !in followed }.thenBy { it }).forEach { p ->
                 val count = all.count { p in ProgrammeIndex.names(it) }
                 body.addView(button("${if(p in followed) "♥ " else ""}$p · $count") { selected = p; query = ""; page = 0; render() })
             }
             body.addView(text("Daily listening picks", 21, true)); body.addView(text(if (followed.isEmpty()) "App selections from the catalogue; not newly released recordings." else "App selections based on your programme follows.", 12))
             episodes(ProgrammeIndex.daily(all, followed))
         } else {
+            val mapped=ProgrammeDirectory.entries.find { it.name==name }
+            val sourceDirectory=SourceDirectory.load(this)
+            val related=sourceDirectory.filter { it.id in mapped?.directoryIds.orEmpty() }
+            val sourceIds=mapped?.sourceIds.orEmpty() + related.mapNotNull { it.episodeSource()?.id }
+            val recordings=all.filter { it.source in sourceIds || name in ProgrammeIndex.names(it) }
+            recordings.firstOrNull()?.let { first -> body.addView(button(if(library.progress(first.id)>0) "▶ Resume" else "▶ Play") { play(first) }) }
+            if(mapped!=null) {
+                body.addView(text("Listening sources",18,true))
+                collections.sources().filter { it.id in mapped.sourceIds }.forEach { source -> body.addView(button("${source.title} • Browse episodes") { startActivity(Intent(this,LibraryActivity::class.java).putExtra("source_id",source.id).putExtra("from_collection",true)) }) }
+                related.forEach { d -> val source=d.episodeSource(); body.addView(button("${d.title} • ${if(source!=null) "Browse episodes" else "Opens website"}") {
+                    if(source==null) open(d.page) else { if(collections.sources().none { it.kind==source.kind && it.url==source.url }) collections.addSource(source); startActivity(Intent(this,LibraryActivity::class.java).putExtra("source_id",source.id).putExtra("from_collection",true)) }
+                }) }
+                StationRepository.load(this).filter { it.id in mapped.stationIds }.forEach { station -> body.addView(button("${station.name} • Play in app") { startActivity(Intent(this,LibraryActivity::class.java).putExtra("station_id",station.id).putExtra("from_collection",true)) }) }
+            }
             body.addView(button(if (name in collections.followedProgrammes()) "♥ Following programme" else "Follow programme") { collections.followProgramme(name); render() })
-            val list = all.filter { name in ProgrammeIndex.names(it) }
-            list.firstOrNull()?.let { e -> body.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation())); scaleType = ImageView.ScaleType.FIT_CENTER }, LinearLayout.LayoutParams(-1, dp(160))) }
+            val list = recordings
+            list.firstOrNull()?.let { e -> body.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation(this@CollectionActivity))); scaleType = ImageView.ScaleType.FIT_CENTER }, LinearLayout.LayoutParams(-1, dp(72))) }
             body.addView(text("${list.count { library.completed(it.id) }} of ${list.size} recordings played • illustrative cover", 12))
             body.addView(selector(listOf("Title", "Publication date", "Duration", "Unplayed first"), sort) { sort = it; page = 0; render() })
             body.addView(button("Possible alternative recordings") {

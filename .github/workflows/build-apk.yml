@@ -45,12 +45,22 @@ jobs:
           fi
 
       - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleDebug assembleDebugAndroidTest --stacktrace
 
       - name: Check installable APK packaging and signature
         run: |
           python3 scripts/check-apk.py app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Fetch tested 2.7 for update validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/vijoos/otr-dial/actions/artifacts/11602164526/zip > upgrade-2.7.zip
+          unzip -p upgrade-2.7.zip app-debug.apk > upgrade-2.7.apk
+          old_cert=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs upgrade-2.7.apk | grep 'certificate SHA-256 digest')
+          new_cert=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk | grep 'certificate SHA-256 digest')
+          test "$old_cert" = "$new_cert"
 
       - name: Enable emulator acceleration
         run: |
@@ -66,12 +76,13 @@ jobs:
           profile: pixel_2
           disable-animations: true
           script: |
-            bash -c 'gradle connectedDebugAndroidTest --stacktrace; test_result=$?; adb logcat -d -s OTRPlayback TestRunner AndroidRuntime > playback-check.log; adb pull /sdcard/Download/ ui-screenshots; exit "$test_result"'
+            python3 scripts/prepare-upgrade.py
+            bash -c 'gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.example.otrdial.Upgrade28Test --stacktrace; test_result=$?; adb logcat -d -s OTRPlayback OTR28_PERF TestRunner AndroidRuntime > playback-check.log; adb pull /sdcard/Download/ ui-screenshots; exit "$test_result"'
 
       - name: Upload tested APK
         uses: actions/upload-artifact@v4
         with:
-          name: OTR-Dial-2.7-debug-apk
+          name: OTR-Dial-2.8-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload UI checks
