@@ -219,8 +219,10 @@ class LibraryActivity : AppCompatActivity() {
     }
     private fun renderRadio() {
         banner("Turn on a little wonder.", "English-language radio • stories around the clock")
-        content.addView(button("Browse source directory") { tab = "radio-directory"; page = 0; query = ""; render() })
-        content.addView(button("Queue") { tab = "queue"; render() })
+        val shortcuts = row()
+        shortcuts.addView(button("Source directory") { tab = "radio-directory"; page = 0; query = ""; render() }, LinearLayout.LayoutParams(0, -2, 1f))
+        shortcuts.addView(button("Queue") { tab = "queue"; render() })
+        content.addView(shortcuts)
         searchControls("Find a station or genre")
         val found = stations.filter { query.isBlank() || "${it.name} ${it.network} ${it.genre}".contains(query, true) }
         content.addView(label("${found.size} stations • availability depends on the broadcaster", 12))
@@ -300,7 +302,7 @@ class LibraryActivity : AppCompatActivity() {
         val c = card(); val r = row()
         r.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity, s)); scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(52), dp(64)))
         r.addView(label(s.name, 18, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(r)
-        c.addView(label("Live radio • ${s.genre} • ${s.network}", 12)); c.addView(button("▶ Listen live") { openRadio(s.id) }); c.addView(button(if (s.id in radioPrefs.getStringSet("favourites", emptySet()).orEmpty()) "♥ Favourite" else "♡ Favourite") { val ids = radioPrefs.getStringSet("favourites", emptySet()).orEmpty().toMutableSet(); if (!ids.add(s.id)) ids.remove(s.id); radioPrefs.edit().putStringSet("favourites", ids).apply(); render(false) }); content.addView(c)
+        c.addView(label("Live radio • ${s.genre} • ${s.network}", 12)); val controls = row(); controls.addView(button("▶ Listen live") { openRadio(s.id) }, LinearLayout.LayoutParams(0, -2, 1f)); controls.addView(button(if (s.id in radioPrefs.getStringSet("favourites", emptySet()).orEmpty()) "♥ Favourite" else "♡ Favourite") { val ids = radioPrefs.getStringSet("favourites", emptySet()).orEmpty().toMutableSet(); if (!ids.add(s.id)) ids.remove(s.id); radioPrefs.edit().putStringSet("favourites", ids).apply(); render(false) }); c.addView(controls); content.addView(c)
     }
     private fun selector(options: List<String>, selected: String, change: (String) -> Unit): Spinner {
         return Spinner(this).apply {
