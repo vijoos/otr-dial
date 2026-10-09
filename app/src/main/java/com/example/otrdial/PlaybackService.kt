@@ -78,7 +78,7 @@ class PlaybackService : MediaSessionService() {
                 if (recoveryId != item?.mediaId) { retries = 0; recoveryId = item?.mediaId }
                 previousDuration = 0
                 val episode = item?.mediaId?.startsWith("episode:") == true
-                val intent = android.content.Intent(this@PlaybackService, if (episode) LibraryActivity::class.java else MainActivity::class.java)
+                val intent = android.content.Intent(this@PlaybackService, LibraryActivity::class.java)
                     .putExtra("player", true)
                 mediaSession?.setSessionActivity(android.app.PendingIntent.getActivity(this@PlaybackService, if (episode) 2 else 1, intent,
                     android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE))

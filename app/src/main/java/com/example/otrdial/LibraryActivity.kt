@@ -58,6 +58,13 @@ class LibraryActivity : AppCompatActivity() {
     private var seeking = false
     private var playerEpisode: Episode? = null
     private val navButtons = mutableMapOf<String, Button>()
+    private val tabRoutes=hashMapOf<String,Bundle>()
+    private fun switchTab(key: String) {
+        if(tab in listOf("home","discover","podcasts","youtube","library")) tabRoutes[tab]=route().apply { putParcelable("scroll",content.state()) }
+        val saved=tabRoutes[key]
+        tab=key; sourceId=saved?.getString("source"); query=saved?.getString("query").orEmpty(); page=saved?.getInt("page") ?: 0
+        saved?.getString("filter")?.let { libraryView=it }; restoredScroll=saved?.getParcelable("scroll"); render()
+    }
     private var renderedRoute: Bundle? = null
     private val backRoutes = arrayListOf<Bundle>()
     private var restoringRoute = false
@@ -96,7 +103,7 @@ class LibraryActivity : AppCompatActivity() {
             }
         })
         tab = savedInstanceState?.getString("tab") ?: if (intent.getBooleanExtra("player", false)) "player" else "home"
-        savedInstanceState?.getParcelableArrayList<Bundle>("routes")?.let { backRoutes.addAll(it) }; restoredScroll=savedInstanceState?.getParcelable("scroll")
+        savedInstanceState?.getBundle("tabs")?.let { tabs -> tabs.keySet().forEach { key -> tabs.getBundle(key)?.let { tabRoutes[key]=it } } }; savedInstanceState?.getParcelableArrayList<Bundle>("routes")?.let { backRoutes.addAll(it) }; restoredScroll=savedInstanceState?.getParcelable("scroll")
         returnTab = savedInstanceState?.getString("return_tab") ?: "home"
         libraryView = savedInstanceState?.getString("library_view") ?: "Saved"
         searchType = savedInstanceState?.getString("search_type") ?: "All sources"
@@ -128,7 +135,7 @@ class LibraryActivity : AppCompatActivity() {
         miniPause = iconButton(R.drawable.ic_play, "Play") { val c = controller; if(c?.playWhenReady == true) c.pause() else if(c?.currentMediaItem != null) { if(c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() } else store.find(store.last())?.let { play(it) } }; miniRow.addView(miniPause)
         val nav = row(); navigation = nav; root.addView(nav)
         listOf("home" to "Radio", "discover" to "Archives", "podcasts" to "Podcasts", "youtube" to "YouTube", "library" to "Library").forEach { (key, title) ->
-            val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }.apply { textSize = 10f; setPadding(0, dp(6), 0, dp(6)); maxLines = 1; minimumWidth = 0; minWidth = 0; contentDescription = title }
+            val b = button(title) { switchTab(key) }.apply { textSize = 10f; setPadding(0, dp(6), 0, dp(6)); maxLines = 1; minimumWidth = 0; minWidth = 0; contentDescription = title }
             val icon = ContextCompat.getDrawable(this, when(key) { "home" -> R.drawable.ic_wave; "discover" -> R.drawable.ic_explore; "library" -> R.drawable.ic_heart; "podcasts" -> R.drawable.ic_podcast; else -> R.drawable.ic_video })?.mutate()
             icon?.setBounds(0, 0, dp(18), dp(18)); b.setCompoundDrawables(null, icon, null, null); b.compoundDrawablePadding = dp(2)
             navButtons[key] = b; nav.addView(b, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(2), dp(6), dp(2), dp(6)) })
@@ -140,7 +147,7 @@ class LibraryActivity : AppCompatActivity() {
                 override fun onEvents(player: Player, events: Player.Events) { updatePlayer() }
                 override fun onMediaItemTransition(item: androidx.media3.common.MediaItem?, reason: Int) { if (tab == "player" || tab == "queue") render() }
             })
-            render()
+            render(false)
             intent.getStringExtra("station_id")?.let { id -> intent.removeExtra("station_id"); openRadio(id) }
             val requested = intent.getStringExtra("episode_id")
             intent.removeExtra("episode_id")
@@ -168,7 +175,7 @@ class LibraryActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("return_tab", returnTab); outState.putString("tab", tab); outState.putString("source", sourceId); outState.putString("query", query)
         outState.putString("library_view", libraryView); outState.putString("search_type", searchType); outState.putString("search_genre", searchGenre); outState.putInt("page", page)
-        renderedRoute?.putParcelable("scroll",content.state()); outState.putParcelable("scroll",content.state()); outState.putParcelableArrayList("routes",backRoutes)
+        renderedRoute?.putParcelable("scroll",content.state()); outState.putParcelable("scroll",content.state()); outState.putParcelableArrayList("routes",backRoutes); outState.putBundle("tabs",Bundle().apply { tabRoutes.forEach { (key,value) -> putBundle(key,value) } })
         super.onSaveInstanceState(outState)
     }
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
@@ -190,8 +197,8 @@ class LibraryActivity : AppCompatActivity() {
     private fun iconButton(icon: Int, description: String, action: () -> Unit) = ImageButton(this).apply {
         setImageResource(icon); contentDescription = description
         setPadding(dp(13), dp(13), dp(13), dp(13))
-        setBackgroundResource(R.drawable.glass_panel)
-        imageTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.otr_brown))
+        setBackgroundResource(if(icon==R.drawable.ic_play) R.drawable.accent_gradient else R.drawable.glass_panel)
+        imageTintList = android.content.res.ColorStateList.valueOf(if(icon==R.drawable.ic_play) android.graphics.Color.WHITE else getColor(R.color.otr_brown))
         layoutParams = LinearLayout.LayoutParams(dp(48), dp(48)).apply { setMargins(dp(4), dp(4), dp(4), dp(4)) }
         setOnClickListener { action() }
     }
@@ -230,7 +237,7 @@ class LibraryActivity : AppCompatActivity() {
     private fun renderLivePlayer(station: Station) {
         content.add(button("‹ Back") { goBack() })
         content.add(label("LIVE RADIO • NOW LISTENING",12,true).apply { gravity=Gravity.CENTER })
-        content.add(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity,station)); scaleType=ImageView.ScaleType.FIT_CENTER; minimumHeight=dp(220); maxHeight=dp(260); adjustViewBounds=true; contentDescription="Illustrative station artwork" })
+        content.add(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity,station)); scaleType=ImageView.ScaleType.FIT_CENTER; minimumHeight=dp(140); maxHeight=dp(180); adjustViewBounds=true; contentDescription="Illustrative station artwork" })
         content.add(label(station.name,24,true).apply { gravity=Gravity.CENTER })
         playerTitle=label(station.network,15).apply { gravity=Gravity.CENTER }.also { content.add(it) }
         playerTime=label("",13).apply { gravity=Gravity.CENTER }.also { content.add(it) }
@@ -296,7 +303,7 @@ class LibraryActivity : AppCompatActivity() {
         val heading = row()
         heading.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@LibraryActivity, art)); scaleType = ImageView.ScaleType.FIT_CENTER; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(64), dp(74)))
         heading.addView(label(d.title, 18, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(heading)
-        c.addView(label(d.notes, 13))
+        if(d.notes.isNotBlank()) c.addView(label(d.notes, 12).apply { maxLines=2; ellipsize=android.text.TextUtils.TruncateAt.END })
         if (d.warning.isNotBlank()) c.addView(label(d.warning, 12).apply { setTextColor(getColor(R.color.otr_gold)) })
         val source = collections.sources().find { it.id == d.sourceId }
             ?: d.episodeSource()?.let { suggested -> collections.sources().find { it.kind == suggested.kind && it.url == suggested.url } ?: suggested }
@@ -517,22 +524,34 @@ class LibraryActivity : AppCompatActivity() {
         } }.show()
     }
     private fun renderLibrary() {
-        content.add(label("Library", 24, true))
-        content.add(button("Queue") { tab = "queue"; render() })
-        content.add(button("Daily picks & continue listening") { tab = "picks"; render() })
-        content.add(label("Favourite stations", 21, true))
-        stations.filter { it.id in radioPrefs.getStringSet("favourites", emptySet()).orEmpty() }.forEach { stationCard(it) }
-        content.add(label("Saved sources & channels", 21, true))
-        directory.filter { it.id in store.directorySaved() }.forEach { directoryCard(it) }
-        val tools = HorizontalScrollView(this); val r = row(); listOf("Programmes", "Playlists", "Bookmarks", "Downloads", "History").forEach { s -> r.addView(button(s) { collection(s) }) }; tools.addView(r); content.add(tools)
-        val list = store.episodes()
-        content.add(label("Following", 21, true))
-        collections.sources().filter { it.id in store.follows() }.forEach { s -> content.add(button("${s.title}  ›") { showSource(s.id) }) }
-        if (store.follows().isEmpty()) content.add(label("Follow a source from Archives or Podcasts to keep it close."))
-        
-        content.add(selector(listOf("Saved", "In progress", "Played", "Unplayed", "All episodes"), libraryView) { libraryView = it; page = 0; render() })
-        content.add(label(if (libraryView == "Saved") "Saved episodes" else libraryView, 21, true)); searchControls()
-        episodeList(list.filter { e -> matches(e) && when (libraryView) { "Saved" -> e.id in store.saved(); "In progress" -> store.progress(e.id) > 0; "Played" -> store.completed(e.id); "Unplayed" -> !store.completed(e.id); else -> true } }.let { if (libraryView in listOf("In progress", "Played")) it.sortedByDescending { e -> store.played(e.id) } else it })
+        content.add(label("Library",24,true))
+        val tools=HorizontalScrollView(this); val actions=row()
+        actions.addView(button("Queue") { tab="queue"; render() })
+        listOf("Programmes","Playlists","Bookmarks","Downloads","History").forEach { screen -> actions.addView(button(screen) { collection(screen) }) }
+        tools.addView(actions); content.add(tools)
+        content.add(selector(listOf("Saved","Favourite stations","Followed shows","Saved sources","In progress","Played","Unplayed","All episodes"),libraryView) { libraryView=it; page=0; render() })
+        when(libraryView) {
+            "Favourite stations" -> {
+                val favourites=stations.filter { it.id in radioPrefs.getStringSet("favourites",emptySet()).orEmpty() }
+                if(favourites.isEmpty()) content.add(label("No favourite stations yet. Use a station’s options to add one."))
+                favourites.forEach { stationCard(it) }
+            }
+            "Followed shows" -> {
+                collections.followedProgrammes().sorted().forEach { name -> content.add(button(name) { startActivity(Intent(this,CollectionActivity::class.java).putExtra("screen","Programmes").putExtra("programme",name)) }) }
+                collections.sources().filter { it.id in store.follows() }.forEach { source -> content.add(button("${source.title} • Browse episodes") { showSource(source.id) }) }
+                if(store.follows().isEmpty() && collections.followedProgrammes().isEmpty()) content.add(label("Follow a programme or source to keep it here."))
+            }
+            "Saved sources" -> { val saved=directory.filter { it.id in store.directorySaved() }; if(saved.isEmpty()) content.add(label("No saved sources yet.")); saved.forEach { directoryCard(it) } }
+            else -> {
+                content.add(label(if(libraryView=="Saved") "Saved episodes" else libraryView,18,true)); searchControls()
+                if(libraryView=="All episodes") databaseEpisodeList()
+                else {
+                    val ids=when(libraryView) { "Saved" -> store.saved().toList(); "In progress","Played" -> getSharedPreferences("episode_library",MODE_PRIVATE).all.keys.filter { it.startsWith("played_") }.map { it.removePrefix("played_") }; else -> emptyList() }
+                    val list=if(libraryView=="Unplayed") store.page(query=query,limit=store.count()).filter { !store.completed(it.id) } else ids.mapNotNull { store.find(it) }.filter { matches(it) && when(libraryView) { "In progress" -> store.progress(it.id)>0; "Played" -> store.completed(it.id); else -> true } }
+                    episodeList(if(libraryView in listOf("In progress","Played")) list.sortedByDescending { store.played(it.id) } else list)
+                }
+            }
+        }
     }
     private fun renderQueue() {
         content.add(label("Your queue", 29, true)); content.add(label("Episodes play in this order. Live radio remains a separate choice."))
@@ -569,7 +588,7 @@ class LibraryActivity : AppCompatActivity() {
         playerEpisode = e
         content.add(button("‹ Back") { goBack() })
         content.add(label("EPISODE  •  NOW LISTENING", 12, true).apply { gravity = Gravity.CENTER })
-        content.add(artwork(e, 280).apply { scaleType = ImageView.ScaleType.FIT_CENTER })
+        content.add(artwork(e, ((resources.displayMetrics.heightPixels / resources.displayMetrics.density).toInt()-440).coerceIn(100,180)).apply { scaleType = ImageView.ScaleType.FIT_CENTER })
         playerTitle = label(e.title, 24, true).apply { gravity = Gravity.CENTER }.also { content.add(it) }; content.add(label(e.series, 15).apply { gravity = Gravity.CENTER; setTextColor(getColor(R.color.otr_muted)) })
         playerTime = label("", 13).apply { gravity = Gravity.CENTER; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE }.also { content.add(it) }
         errorActions = column().apply {

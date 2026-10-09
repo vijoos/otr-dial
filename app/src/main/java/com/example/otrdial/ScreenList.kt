@@ -16,7 +16,7 @@ class ScreenList(context: Context) : RecyclerView(context) {
         override fun onBindViewHolder(holder: Holder, position: Int) {
             holder.box.removeAllViews()
             val view = rows[position](); (view.parent as? ViewGroup)?.removeView(view)
-            holder.box.addView(view, FrameLayout.LayoutParams(-1,-2))
+            holder.box.addView(view, FrameLayout.LayoutParams(-1,view.layoutParams?.height ?: -2).apply { val old=view.layoutParams as? ViewGroup.MarginLayoutParams; if(old!=null) setMargins(old.leftMargin,old.topMargin,old.rightMargin,old.bottomMargin) })
         }
         override fun onViewRecycled(holder: Holder) { holder.box.removeAllViews() }
     }
@@ -24,6 +24,7 @@ class ScreenList(context: Context) : RecyclerView(context) {
     init { layoutManager = LinearLayoutManager(context); adapter = rowAdapter; itemAnimator = null; setItemViewCacheSize(2) }
     fun clearRows() { val count=rows.size; rows.clear(); rowAdapter.notifyItemRangeRemoved(0,count) }
     fun add(view: View) { addLazy { view } }
+    fun add(view: View, params: ViewGroup.LayoutParams) { view.layoutParams=params; add(view) }
     fun addLazy(factory: () -> View) { rows.add(factory); rowAdapter.notifyItemInserted(rows.lastIndex) }
     fun state() = layoutManager?.onSaveInstanceState()
     fun restore(state: android.os.Parcelable?) { if(state != null) layoutManager?.onRestoreInstanceState(state) }
