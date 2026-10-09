@@ -40,7 +40,7 @@ class NavigationTest {
                 capture("$mode-explore")
                 scenario.onActivity { activity ->
                     assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.exploreScreen).visibility)
-                    assertTrue(activity.findViewById<TextView>(R.id.listSummary).text.contains("95"))
+                    assertTrue(activity.findViewById<TextView>(R.id.listSummary).text.contains(StationRepository.load(activity).size.toString()))
                     activity.findViewById<View>(R.id.favouritesButton).performClick()
                     assertTrue(activity.findViewById<TextView>(R.id.listSummary).text.startsWith("No favourites"))
                     activity.findViewById<View>(R.id.homeButton).performClick()
