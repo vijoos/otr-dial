@@ -70,5 +70,35 @@
     "license": "Public domain",
     "source": "https://commons.wikimedia.org/wiki/File:Design_for_Christmas_cards_by_Frances_Mumaugh_(1920)_6.png",
     "licenseUrl": ""
+  },
+  {
+    "key": "benny",
+    "file": "benny.jpg",
+    "title": "Cast of Jack Benny's radio show, 1946",
+    "artist": "Lucky Strike publicity photograph",
+    "license": "Public domain in the United States (advertisement without copyright notice)",
+    "source": "https://commons.wikimedia.org/wiki/File:Benny_show_1946.JPG",
+    "licenseUrl": "",
+    "kind": "Historical programme photograph; not the current episode cover"
+  },
+  {
+    "key": "gunsmoke",
+    "file": "gunsmoke.jpg",
+    "title": "William Conrad, 1952",
+    "artist": "Publicity photograph; photographer not identified",
+    "license": "Public domain in the United States (published without copyright notice)",
+    "source": "https://commons.wikimedia.org/wiki/File:William_Conrad_1952.JPG",
+    "licenseUrl": "",
+    "kind": "Historical cast portrait; not the current episode cover"
+  },
+  {
+    "key": "studio",
+    "file": "studio.jpg",
+    "title": "CBS microphone, 1930s, National Museum of American History",
+    "artist": "Daderot; crop by WFinch",
+    "license": "CC0 1.0",
+    "source": "https://commons.wikimedia.org/wiki/File:CBS_microphone,_1930s,_used_by_Franklin_Roosevelt_for_his_Fireside_Chat_radio_programs_-_National_Museum_of_American_History_-_DSC06235.JPG",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "kind": "Historical studio illustration; not an official station logo"
   }
 ]

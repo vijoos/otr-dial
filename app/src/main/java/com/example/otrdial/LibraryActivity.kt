@@ -33,7 +33,10 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var content: LinearLayout
     private lateinit var status: TextView
     private lateinit var mini: Button
-    private lateinit var miniPause: Button
+    private lateinit var miniPause: ImageButton
+    private lateinit var miniArtwork: ImageView
+    private var miniArtworkId: String? = null
+    private lateinit var screenHeader: LinearLayout
     private var tab = "home"
     private var returnTab = "home"
     private val directory by lazy { SourceDirectory.load(this) }
@@ -101,7 +104,7 @@ class LibraryActivity : AppCompatActivity() {
             val light = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK != android.content.res.Configuration.UI_MODE_NIGHT_YES
             isAppearanceLightStatusBars = light; isAppearanceLightNavigationBars = light
         }
-        val header = row(); root.addView(header)
+        val header = row(); screenHeader = header; root.addView(header)
         header.addView(label("OTR Dial", 22, true), LinearLayout.LayoutParams(0, -2, 1f))
         header.addView(button("Search") { tab = "search"; sourceId = null; page = 0; render() })
         header.addView(button("◐") { radioPrefs.edit().putBoolean("dark_mode", !radioPrefs.getBoolean("dark_mode", false)).apply(); recreate() }.apply { contentDescription = "Switch light / dark mode" })
@@ -109,8 +112,10 @@ class LibraryActivity : AppCompatActivity() {
         status = label("LIVE RADIO  •  PODCASTS  •  THE ARCHIVES", 11); root.addView(status)
         val scroll = ScrollView(this); content = column(); scroll.addView(content); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         val miniRow = row(); root.addView(miniRow)
+        miniArtwork = ImageView(this).apply { scaleType = ImageView.ScaleType.CENTER_CROP; setBackgroundResource(R.drawable.glass_panel); clipToOutline = true; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
+        miniRow.addView(miniArtwork, LinearLayout.LayoutParams(dp(48), dp(48)))
         mini = button("Choose an episode") { if (tab != "player") returnTab = tab; tab = "player"; render() }.apply { maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }; miniRow.addView(mini, LinearLayout.LayoutParams(0, -2, 1f))
-        miniPause = button("▶") { val c = controller; if(c?.playWhenReady == true) c.pause() else if(c?.currentMediaItem != null) { if(c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() } else store.find(store.last())?.let { play(it) } }; miniRow.addView(miniPause)
+        miniPause = iconButton(R.drawable.ic_play, "Play") { val c = controller; if(c?.playWhenReady == true) c.pause() else if(c?.currentMediaItem != null) { if(c.playbackState == Player.STATE_IDLE) c.prepare(); c.play() } else store.find(store.last())?.let { play(it) } }; miniRow.addView(miniPause)
         val nav = row(); navigation = nav; root.addView(nav)
         listOf("home" to "Radio", "discover" to "Repo", "podcasts" to "Podcasts", "youtube" to "YouTube", "library" to "Favourites").forEach { (key, title) ->
             val b = button(title) { tab = key; sourceId = null; query = ""; page = 0; render() }.apply { textSize = 10f; setPadding(0, dp(6), 0, dp(6)); maxLines = 1; minimumWidth = 0; minWidth = 0; contentDescription = title }
@@ -170,6 +175,14 @@ class LibraryActivity : AppCompatActivity() {
         layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(dp(2), dp(4), dp(2), dp(4)) }
         setOnClickListener { action() }
     }
+    private fun iconButton(icon: Int, description: String, action: () -> Unit) = ImageButton(this).apply {
+        setImageResource(icon); contentDescription = description
+        setPadding(dp(13), dp(13), dp(13), dp(13))
+        setBackgroundResource(R.drawable.glass_panel)
+        imageTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.otr_brown))
+        layoutParams = LinearLayout.LayoutParams(dp(48), dp(48)).apply { setMargins(dp(4), dp(4), dp(4), dp(4)) }
+        setOnClickListener { action() }
+    }
     private fun toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     private fun card() = column().apply {
         setBackgroundResource(R.drawable.glass_panel)
@@ -180,6 +193,8 @@ class LibraryActivity : AppCompatActivity() {
         content.removeAllViews(); playerTitle = null; playerTime = null; seek = null; playerToggle = null; playerEpisode = null; errorActions = null
         when (tab) { "home" -> renderRadio(); "podcasts" -> renderDiscover(); "youtube" -> renderYouTube(); "radio-directory" -> renderRadioDirectory(); "search" -> renderSearch(); "library" -> renderLibrary(); "queue" -> renderQueue(); "player" -> renderPlayer(); "picks" -> renderHome(); else -> renderDiscover() }
         navigation.visibility = if (tab == "player") View.GONE else View.VISIBLE
+        screenHeader.visibility = navigation.visibility
+        status.visibility = navigation.visibility
         navButtons.forEach { (key, b) -> b.setBackgroundResource(if (key == tab) R.drawable.accent_gradient else R.drawable.glass_panel); val colour = if (key == tab) android.graphics.Color.WHITE else getColor(R.color.otr_brown); b.setTextColor(colour); b.compoundDrawables.filterNotNull().forEach { it.setTint(colour) } }
         updatePlayer()
         if (resetScroll) (content.parent as? ScrollView)?.scrollTo(0, 0)
@@ -461,10 +476,10 @@ class LibraryActivity : AppCompatActivity() {
         if (e == null) { content.addView(label("Choose an episode from Repo or Podcasts", 24, true)); return }
         playerEpisode = e
         content.addView(button("‹ Back") { tab = returnTab; render() })
-        content.addView(label("NOW LISTENING", 12, true))
-        content.addView(artwork(e, 240).apply { scaleType = ImageView.ScaleType.FIT_CENTER })
-        playerTitle = label(e.title, 26, true).also { content.addView(it) }; content.addView(label(e.series, 16))
-        playerTime = label("", 13).also { content.addView(it) }
+        content.addView(label("EPISODE  •  NOW LISTENING", 12, true).apply { gravity = Gravity.CENTER })
+        content.addView(artwork(e, 280).apply { scaleType = ImageView.ScaleType.FIT_CENTER })
+        playerTitle = label(e.title, 24, true).apply { gravity = Gravity.CENTER }.also { content.addView(it) }; content.addView(label(e.series, 15).apply { gravity = Gravity.CENTER; setTextColor(getColor(R.color.otr_muted)) })
+        playerTime = label("", 13).apply { gravity = Gravity.CENTER; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE }.also { content.addView(it) }
         errorActions = column().apply {
             setBackgroundResource(R.drawable.glass_panel)
             addView(label("The source could not be reached. You can retry, move on, or check its original page.", 14))
@@ -489,13 +504,28 @@ class LibraryActivity : AppCompatActivity() {
             setOnClickListener { val c = controller; if (c?.currentMediaItem?.mediaId == e.id && c.playWhenReady && c.playbackState != Player.STATE_ENDED) c.pause() else play(e) }
         }.also { r.addView(it, LinearLayout.LayoutParams(dp(76), dp(76))) }
         r.addView(button("30 sec ↷") { skip(30000) }); content.addView(r)
-        content.addView(button("Next queued episode  ›") { nextEpisode() })
-        content.addView(button(if (e.id in store.saved()) "♥ Saved to library" else "♡ Save to library") { store.toggle("saved", e.id); render() })
-        content.addView(button("Queue & episode options") { episodeDetails(e) })
-        content.addView(button("Bookmark this moment") { val input = EditText(this).apply { hint = "Optional note" }; val position = if(controller?.currentMediaItem?.mediaId == e.id) controller!!.currentPosition else store.progress(e.id); AlertDialog.Builder(this).setTitle("Bookmark ${time(position)}").setView(input).setPositiveButton("Save") { _, _ -> collections.bookmark(e.id, position, input.text.toString()); toast("Bookmark saved") }.setNegativeButton("Cancel", null).show() })
-        content.addView(button("Episode details") { AlertDialog.Builder(this).setTitle(e.title).setMessage(e.description.ifBlank { "No description supplied." } + "\n\nProvider date: ${e.date.ifBlank { "Not supplied" }}\nSource: ${e.page}").setPositiveButton("Close", null).show() }); content.addView(button("Original source ↗") { openPage(e.page) })
-        content.addView(button("Artwork credits") { AlertDialog.Builder(this).setTitle("Artwork").setMessage(if(e.image.isNotBlank()) "Feed-supplied image: ${e.image}\nPublisher: ${e.page}\nIf unavailable, the credited illustration below is used.\n\n" + StationArt.credits(this, e.artStation()) else StationArt.credits(this, e.artStation())).setPositiveButton("Close", null).show() })
+        val actions = row().apply { gravity = Gravity.CENTER }
+        actions.addView(iconButton(R.drawable.ic_heart, if (e.id in store.saved()) "Remove from favourites" else "Add to favourites") {
+            store.toggle("saved", e.id); render(false)
+        }.apply { alpha = if (e.id in store.saved()) 1f else 0.55f })
+        actions.addView(button("Queue") { tab = "queue"; render() })
+        actions.addView(iconButton(R.drawable.ic_next, "Next queued episode") { nextEpisode() })
+        actions.addView(button("More ⋯") { episodePlayerOptions(e) })
+        content.addView(actions)
     }
+    private fun episodePlayerOptions(e: Episode) {
+        AlertDialog.Builder(this).setTitle(e.series)
+            .setItems(arrayOf("Bookmark this moment", "Episode details", "Queue & download options", "Original source", "Artwork credits")) { _, which ->
+                when (which) {
+                    0 -> { val input = EditText(this).apply { hint = "Optional note" }; val position = if(controller?.currentMediaItem?.mediaId == e.id) controller!!.currentPosition else store.progress(e.id); AlertDialog.Builder(this).setTitle("Bookmark ${time(position)}").setView(input).setPositiveButton("Save") { _, _ -> collections.bookmark(e.id, position, input.text.toString()); toast("Bookmark saved") }.setNegativeButton("Cancel", null).show() }
+                    1 -> AlertDialog.Builder(this).setTitle(e.title).setMessage(e.description.ifBlank { "No description supplied." } + "\n\nProvider date: ${e.date.ifBlank { "Not supplied" }}\nSource: ${e.page}").setPositiveButton("Close", null).show()
+                    2 -> episodeDetails(e)
+                    3 -> openPage(e.page)
+                    4 -> AlertDialog.Builder(this).setTitle("Artwork credits").setMessage((if (e.image.isNotBlank()) "Publisher-supplied image: ${e.image}\nSource: ${e.page}\nFallback artwork:\n\n" else "") + StationArt.credits(this, e.artStation())).setPositiveButton("Close", null).show()
+                }
+            }.show()
+    }
+
     private fun skip(delta: Long) { val c = controller ?: return; if (c.currentMediaItem?.mediaId != playerEpisode?.id) return; c.seekTo((c.currentPosition + delta).coerceIn(0, if (c.duration > 0) c.duration else Long.MAX_VALUE)) }
     private fun nextEpisode() {
         val c = controller ?: return
@@ -507,8 +537,19 @@ class LibraryActivity : AppCompatActivity() {
     private fun updatePlayer() {
         val c = controller; val episode = c?.currentMediaItem?.mediaId?.startsWith("episode:") == true
         mini.visibility = if (tab != "player" && (c?.currentMediaItem != null || store.last() != null)) View.VISIBLE else View.GONE
-        miniPause.visibility = mini.visibility; miniPause.text = if(c?.playWhenReady == true) "Ⅱ" else "▶"; miniPause.contentDescription = if(c?.playWhenReady == true) "Pause" else "Play"
-        mini.text = if (c?.currentMediaItem != null) "${if (c.isPlaying) "Ⅱ" else "▶"}  ${c.mediaMetadata.title}  ›" else "Resume your last episode  ›"
+        miniPause.visibility = mini.visibility; miniArtwork.visibility = mini.visibility
+        val canPauseMini = c?.playWhenReady == true && c.playbackState != Player.STATE_ENDED
+        miniPause.setImageResource(if (canPauseMini) R.drawable.ic_pause else R.drawable.ic_play)
+        miniPause.contentDescription = if (canPauseMini) "Pause" else "Play"
+        val artId = c?.currentMediaItem?.mediaId ?: store.last()
+        if (artId != miniArtworkId) {
+            miniArtworkId = artId; miniArtwork.tag = null
+            val item = store.find(artId)
+            val station = item?.artStation() ?: stations.find { it.id == artId }
+            if (station != null) miniArtwork.setImageDrawable(StationArt.drawable(this, station)) else miniArtwork.setImageResource(R.drawable.ic_wave)
+            item?.let { FeedArtwork.load(applicationContext, miniArtwork, it.image) }
+        }
+        mini.text = if (c?.currentMediaItem != null) "${c.mediaMetadata.title ?: "Open player"}  ›" else "Resume your last episode  ›"
         mini.setOnClickListener { if (c?.currentMediaItem != null && !episode) openRadio() else { if (tab != "player") returnTab = tab; tab = "player"; render() } }
         val e = playerEpisode ?: return
         val active = c?.currentMediaItem?.mediaId == e.id
@@ -551,7 +592,7 @@ class LibraryActivity : AppCompatActivity() {
             0 -> { val p = getSharedPreferences("otr_dial", MODE_PRIVATE); p.edit().putBoolean("dark_mode", !p.getBoolean("dark_mode", false)).apply(); recreate() }
             1 -> exportBackup.launch("OTR-Dial-library-backup.json")
             2 -> AlertDialog.Builder(this).setTitle("Merge app backup?").setMessage("Saved episodes, followed shows, queue and radio favourites will merge. Imported listening progress and theme replace matching settings. Audio and recordings are not included. Backups from the earlier preview are also supported.").setPositiveButton("Choose backup") { _, _ -> importBackup.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }.setNegativeButton("Cancel", null).show()
-            3 -> AlertDialog.Builder(this).setTitle("OTR Dial 2.5 preview").setMessage("Live radio, podcasts, archives, offline episodes and your personal collection. Backups include playlists, bookmarks and custom sources, but not downloaded audio. Original providers control availability. The source directory includes website-only resources. YouTube channels open in YouTube or your browser. OTRCAT and RadioEchoes open as websites. Artwork remains credited illustrations unless supplied by a podcast feed.").setPositiveButton("Close", null).show()
+            3 -> AlertDialog.Builder(this).setTitle("OTR Dial 2.7 preview").setMessage("Live radio, podcasts, archives, offline episodes and your personal collection. This release adds checked English-language streams, publisher RSS feeds and on-demand Internet Archive collections. Backups include playlists, bookmarks and custom sources, but not downloaded audio. Original providers control availability. YouTube channels and daily OTRCAT selections open on their original websites.").setPositiveButton("Close", null).show()
             4 -> collection("Sources")
             5 -> collection("Downloads")
             6 -> collection("Playlists")

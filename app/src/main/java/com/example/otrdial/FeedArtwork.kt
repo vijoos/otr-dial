@@ -13,8 +13,8 @@ object FeedArtwork {
     private val executor = Executors.newFixedThreadPool(2)
     private val http = OkHttpClient.Builder().connectTimeout(8, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).callTimeout(15, TimeUnit.SECONDS).build()
     fun load(context: Context, view: ImageView, url: String) {
-        if(!EpisodeCatalogue.validUrl(url)) return
         view.tag = url
+        if(!EpisodeCatalogue.validUrl(url)) return
         executor.execute {
             val bitmap = runCatching {
                 val dir = File(context.cacheDir, "feed-art").apply { mkdirs() }
