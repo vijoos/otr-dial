@@ -1,1 +1,11 @@
-<resources><color name="otr_cream">#F8FAFF</color><color name="otr_ink">#131E49</color><color name="otr_brown">#6739DB</color><color name="otr_gold">#BC246B</color><color name="otr_panel">#FFFFFF</color><color name="otr_muted">#53658C</color><color name="otr_edge">#DEE3F6</color><color name="aurora_start">#E2EDFF</color><color name="aurora_end">#FCE9F4</color></resources>
+<resources>
+    <color name="otr_cream">#FFFFFF</color>
+    <color name="otr_ink">#182C3A</color>
+    <color name="otr_brown">#006B68</color>
+    <color name="otr_gold">#A4421D</color>
+    <color name="otr_panel">#FFFFFF</color>
+    <color name="otr_muted">#526976</color>
+    <color name="otr_edge">#D9E7E7</color>
+    <color name="aurora_start">#E6F5F1</color>
+    <color name="aurora_end">#FFF3EB</color>
+</resources>

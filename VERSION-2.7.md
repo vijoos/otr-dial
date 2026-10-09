@@ -3,6 +3,7 @@
 ## Changes
 - Cleaner episode player with larger artwork, centred titles, a compact action row and secondary actions under More.
 - Mini-player thumbnail and accessible play/pause icons; hide duplicate app headers during full-screen playback.
+- Fresh teal and blue accents with warm highlights, white light surfaces and navy dark surfaces.
 - Existing five platform tabs and light/dark modes retained.
 - Larger radio artwork, with smaller control margins for narrow phones.
 - Three additional small historical photographs: Jack Benny radio cast, William Conrad for Gunsmoke, and a CBS studio microphone. Individual source and licence details are in artwork/credits.json and the app credits. The first two are listed by Wikimedia Commons as public domain in the US; the studio photo is CC0.
