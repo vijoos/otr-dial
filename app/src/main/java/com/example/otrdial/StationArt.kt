@@ -10,6 +10,8 @@ import android.util.LruCache
 /** Public-domain genre illustrations, bundled for offline use. */
 object StationArt {
     private fun key(station: Station): String = when {
+        station.name.contains("Jack Benny", true) -> "benny"
+        station.name.contains("Gunsmoke", true) -> "gunsmoke"
         station.genre.contains("Sci-Fi", true) || station.genre.contains("Science fiction", true) || station.genre.contains("Horror", true) -> "scifi"
         station.genre.contains("Western", true) -> "western"
         station.genre.contains("Adventure", true) -> "adventure"
@@ -17,7 +19,7 @@ object StationArt {
         station.genre.contains("Crime", true) || station.genre.contains("Detective", true) -> "crime"
         station.genre.contains("Comedy", true) -> "comedy"
         station.genre.contains("Seasonal", true) -> "seasonal"
-        else -> "radio"
+        else -> "studio"
     }
     private fun credit(context: Context, station: Station): org.json.JSONObject {
         val entries = org.json.JSONArray(context.assets.open("artwork/credits.json").bufferedReader().use { it.readText() })
@@ -26,7 +28,7 @@ object StationArt {
     private fun path(context: Context, station: Station) = "artwork/" + credit(context, station).getString("file")
     fun credits(context: Context, station: Station): String = runCatching {
         val item = credit(context, station)
-        "Genre illustration (not an official station logo or current episode cover).\n\n${item.getString("title")}\n${item.getString("artist")}\n${item.getString("license")}\n\n${item.getString("source")}"
+        "${item.optString("kind", "Genre illustration; not an official station logo or current episode cover")}\n\n${item.getString("title")}\n${item.getString("artist")}\n${item.getString("license")}\n\n${item.getString("source")}"
     }.getOrDefault("OTR Dial fallback illustration")
     private val cache = object : LruCache<String, Bitmap>(12 * 1024 * 1024) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount

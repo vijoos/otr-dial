@@ -19,9 +19,9 @@ class PlatformTest {
     private fun click(a: LibraryActivity, text: String) { all(a.window.decorView).filterIsInstance<TextView>().first { it.text.toString() == text }.performClick() }
     @Test fun directoryLinksAndSavedSourcesSurviveBackup() {
         val directory = SourceDirectory.load(context)
-        assertEquals(101, directory.size)
-        assertEquals(101, directory.map { it.id }.distinct().size)
-        assertEquals(5, directory.count { it.category == "youtube" })
+        assertTrue(directory.size >= 180)
+        assertEquals(directory.size, directory.map { it.id }.distinct().size)
+        assertTrue(directory.count { it.category == "youtube" } >= 8)
         assertTrue(directory.all { EpisodeCatalogue.validUrl(it.page) })
         val stationIds = StationRepository.load(context).map { it.id }
         assertTrue(directory.all { it.stationId.isBlank() || it.stationId in stationIds })

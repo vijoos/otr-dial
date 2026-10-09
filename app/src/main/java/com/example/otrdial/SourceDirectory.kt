@@ -15,12 +15,20 @@ data class DirectorySource(val id: String, val title: String, val category: Stri
 }
 
 object SourceDirectory {
-    fun load(context: Context): List<DirectorySource> {
-        val a = JSONArray(context.assets.open("source-directory.json").bufferedReader().use { it.readText() })
-        return (0 until a.length()).map { i -> val j = a.getJSONObject(i)
+    private fun read(context: Context, file: String): List<DirectorySource> = runCatching {
+        val a = JSONArray(context.assets.open(file).bufferedReader().use { it.readText() })
+        (0 until a.length()).map { i ->
+            val j = a.getJSONObject(i)
             DirectorySource(j.getString("id"), j.getString("title"), j.getString("category"),
                 j.getString("page"), j.optString("genre"), j.optString("notes"), j.optString("warning"),
                 j.optString("stationId"), j.optString("sourceId"), j.optString("feed"), j.optString("archive"))
         }
+    }.getOrDefault(emptyList())
+
+    fun load(context: Context): List<DirectorySource> {
+        // Keep the original directory intact and layer the release's checked additions on top.
+        // This also lets an older APK open if the optional additions asset is absent.
+        return (read(context, "source-directory.json") + read(context, "source-directory-2.6.json"))
+            .distinctBy { it.id }
     }
 }

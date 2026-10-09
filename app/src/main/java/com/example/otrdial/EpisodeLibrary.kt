@@ -138,7 +138,11 @@ class LibraryStore(context: Context) {
         val raw = prefs.getString("catalogue", null)
         cachedEpisodes?.let { if (raw == cachedRaw) return it }
         val result = if (raw != null) decodeEpisodes(JSONArray(raw)) else EpisodeCatalogue.sources.flatMap { source ->
-            decodeEpisodes(JSONArray(app.assets.open("episodes/${source.id}.json").bufferedReader().use { it.readText() }))
+            // Optional native sources are added through the directory and downloaded on demand;
+            // a missing bundled snapshot must not prevent the baseline catalogue from opening.
+            runCatching {
+                decodeEpisodes(JSONArray(app.assets.open("episodes/${source.id}.json").bufferedReader().use { it.readText() }))
+            }.getOrDefault(emptyList())
         }
         cachedRaw = raw; cachedEpisodes = result
         return result

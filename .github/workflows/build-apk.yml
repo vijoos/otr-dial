@@ -1,6 +1,8 @@
 name: Build OTR Dial APK
 
 on:
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
   push:
     branches: [ "main" ]
@@ -29,21 +31,26 @@ jobs:
           path: .preview-signing/debug.keystore
           key: otr-dial-library-preview-debug-key-v1
 
-      - name: Create preview key if needed
+      - name: Require the existing preview signing key
+        env:
+          SIGNING_KEY_BASE64: ${{ secrets.OTR_PREVIEW_KEY_BASE64 }}
         run: |
           mkdir -p .preview-signing
-          if [ ! -f .preview-signing/debug.keystore ]; then
-            keytool -genkeypair -keystore .preview-signing/debug.keystore -storepass android -keypass android -alias androiddebugkey -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -validity 10000
+          if [ -n "$SIGNING_KEY_BASE64" ]; then
+            printf '%s' "$SIGNING_KEY_BASE64" | base64 --decode > .preview-signing/debug.keystore
+          fi
+          if [ ! -s .preview-signing/debug.keystore ]; then
+            echo 'Existing signing key unavailable. Restore OTR_PREVIEW_KEY_BASE64 or the preview key cache; do not generate a replacement.'
+            exit 1
           fi
 
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: OTR-Dial-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Check installable APK packaging and signature
+        run: |
+          python3 scripts/check-apk.py app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
 
       - name: Enable emulator acceleration
         run: |
@@ -60,6 +67,12 @@ jobs:
           disable-animations: true
           script: |
             bash -c 'gradle connectedDebugAndroidTest --stacktrace; test_result=$?; adb logcat -d -s OTRPlayback TestRunner AndroidRuntime > playback-check.log; adb pull /sdcard/Download/ ui-screenshots; exit "$test_result"'
+
+      - name: Upload tested APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OTR-Dial-2.7-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload UI checks
         if: always()
