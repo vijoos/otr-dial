@@ -495,7 +495,7 @@ class LibraryActivity : AppCompatActivity() {
         items.drop(page * 25).take(25).forEach { episodeCard(it) }
         if (items.size > 25) pager(items.size, 25)
     }
-    private fun episodeCard(e: Episode) { content.addLazy {
+    private fun episodeCard(e: Episode) { content.addLazy(e.id) {
         val c = card(); val heading = row()
         heading.addView(artwork(e, 56), LinearLayout.LayoutParams(dp(52),dp(64)))
         val titles = column(); titles.addView(label(e.title, 16, true))
@@ -520,7 +520,7 @@ class LibraryActivity : AppCompatActivity() {
             7 -> showSource(e.source)
             8 -> AlertDialog.Builder(this).setTitle("Download for personal listening?").setMessage("Audio comes from the original provider. Manage network preferences and files in Downloads.").setPositiveButton("Download") { _, _ -> runCatching { OfflineAudio(this).start(e); toast("Download queued") }.onFailure { toast(it.message.orEmpty()) } }.setNegativeButton("Cancel", null).show()
             9 -> addToPlaylist(e)
-            10 -> { store.toggle("saved", e.id); toast(if(e.id in store.saved()) "Episode saved" else "Episode removed from saved") }
+            10 -> { store.toggle("saved", e.id); content.refresh(e.id); toast(if(e.id in store.saved()) "Episode saved" else "Episode removed from saved") }
         } }.show()
     }
     private fun renderLibrary() {
