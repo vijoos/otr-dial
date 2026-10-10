@@ -19,7 +19,8 @@ class CollectionActivity : AppCompatActivity() {
     private val collections by lazy { CollectionStore(this) }
     private val offline by lazy { OfflineAudio(this) }
     private val work = Executors.newSingleThreadExecutor()
-    private lateinit var body: LinearLayout
+    private lateinit var body: ScreenList
+    private lateinit var pageHeading: TextView
     private var screen = "Programmes"
     private var selected: String? = null
     private var query = ""
@@ -28,6 +29,12 @@ class CollectionActivity : AppCompatActivity() {
     private var page = 0
     private var busy = false
     private var message = ""
+    private var listScroll: android.os.Parcelable?=null
+    private var listQuery=""
+    private var listPage=0
+    private var lastSelected: String?=null
+    private var lastQuery=""
+    private var lastPage=0
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val labels = mutableMapOf<String, TextView>()
     private val poll = object : Runnable { override fun run() { labels.forEach { (id, view) -> offline.entry(id)?.let { view.text = offline.status(it) } }; handler.postDelayed(this, 1500) } }
@@ -35,21 +42,21 @@ class CollectionActivity : AppCompatActivity() {
         delegate.localNightMode = if (getSharedPreferences("otr_dial", MODE_PRIVATE).getBoolean("dark_mode", false)) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         super.onCreate(state)
         screen = state?.getString("screen") ?: intent.getStringExtra("screen") ?: "Programmes"
-        selected = state?.getString("selected"); query = state?.getString("query").orEmpty(); page = state?.getInt("page") ?: 0
+        selected = state?.getString("selected") ?: intent.getStringExtra("programme"); query = state?.getString("query").orEmpty(); page = state?.getInt("page") ?: 0
         sort = state?.getString("sort") ?: "Title"
         val root = column(); root.setBackgroundResource(R.drawable.aurora); setContentView(root)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, i -> val b = i.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()); v.setPadding(b.left + dp(10), b.top, b.right + dp(10), b.bottom); i }
         WindowCompat.getInsetsController(window, root).apply { val light = delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES; isAppearanceLightStatusBars = light; isAppearanceLightNavigationBars = light }
-        val top = row(); top.addView(button("‹ Home") { finish() }); top.addView(text("Your OTR collection", 21, true)); root.addView(top)
+        val top = row(); top.addView(button("‹ Back") { finish() }); top.addView(text("Your OTR collection", 21, true)); root.addView(top)
         val tabs = HorizontalScrollView(this); val nav = row()
         listOf("Programmes", "Playlists", "Bookmarks", "Downloads", "History", "Sources").forEach { s -> nav.addView(button(s) { screen = s; selected = null; query = ""; page = 0; render() }) }
         tabs.addView(nav); root.addView(tabs)
-        val scroll = ScrollView(this); body = column(); scroll.addView(body); root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() { if (selected != null) { selected = null; page = 0; render() } else finish() } })
-        render()
+        body = ScreenList(this); val scroll=body; root.addView(body, LinearLayout.LayoutParams(-1, 0, 1f)); root.addView(PlaybackMiniBar(this))
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() { if (selected != null) { selected = null; page = listPage; query=listQuery; render(); body.restore(listScroll) } else finish() } })
+        render(); scroll.restore(state?.getParcelable("scroll"))
     }
-    override fun onSaveInstanceState(out: Bundle) { out.putString("screen", screen); out.putString("selected", selected); out.putString("query", query); out.putString("sort", sort); out.putInt("page", page); super.onSaveInstanceState(out) }
+    override fun onSaveInstanceState(out: Bundle) { out.putString("screen", screen); out.putString("selected", selected); out.putString("query", query); out.putString("sort", sort); out.putInt("page", page); out.putParcelable("scroll",body.state()); super.onSaveInstanceState(out) }
     override fun onStart() { super.onStart(); handler.post(poll) }
     override fun onStop() { handler.removeCallbacks(poll); super.onStop() }
     override fun onDestroy() { work.shutdownNow(); super.onDestroy() }
@@ -59,7 +66,7 @@ class CollectionActivity : AppCompatActivity() {
     private fun text(s: String, size: Int = 14, bold: Boolean = false) = TextView(this).apply { text = s; textSize = size.toFloat(); setTextColor(getColor(R.color.otr_ink)); setPadding(dp(4), dp(7), dp(4), dp(7)); if (bold) setTypeface(typeface, 1) }
     private fun button(s: String, action: () -> Unit) = androidx.appcompat.widget.AppCompatButton(this).apply {
         text = s; isAllCaps = false; textSize = 13f; minHeight = dp(48); setPadding(dp(12), dp(5), dp(12), dp(5))
-        setBackgroundResource(R.drawable.glass_panel); supportBackgroundTintList = null; setTextColor(getColor(R.color.otr_brown))
+        setBackgroundColor(android.graphics.Color.TRANSPARENT); supportBackgroundTintList = null; setTextColor(getColor(R.color.otr_brown))
         layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(dp(3), dp(4), dp(3), dp(4)) }; setOnClickListener { action() }
     }
     private fun card() = column().apply { setBackgroundResource(R.drawable.glass_panel); layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, dp(6), 0, dp(6)) } }
@@ -71,18 +78,19 @@ class CollectionActivity : AppCompatActivity() {
     private fun confirm(title: String, action: () -> Unit) { AlertDialog.Builder(this).setTitle(title).setPositiveButton("Confirm") { _, _ -> action() }.setNegativeButton("Cancel", null).show() }
     private fun open(url: String) { if (EpisodeCatalogue.validUrl(url)) runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))) }.onFailure { toast("No browser available") } }
     private fun play(e: Episode, position: Long? = null) {
-        val i = Intent(this, LibraryActivity::class.java).putExtra("episode_id", e.id).putExtra("player", true).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        position?.let { i.putExtra("episode_position", it) }; startActivity(i); finish()
+        val i = Intent(this, LibraryActivity::class.java).putExtra("episode_id", e.id).putExtra("player", true).putExtra("from_collection",true)
+        position?.let { i.putExtra("episode_position", it) }; startActivity(i)
     }
     private fun render() {
         if (isDestroyed) return
-        labels.clear(); body.removeAllViews(); body.addView(text(selected ?: screen, 25, true))
-        if (message.isNotBlank()) body.addView(text(message))
-        when(screen) { "Programmes" -> programmes(); "Playlists" -> playlists(); "Bookmarks" -> bookmarks(); "Downloads" -> downloads(); "History" -> history(); else -> sources() }
+        if(lastSelected==null && selected!=null) { listScroll=body.state(); listQuery=lastQuery; listPage=lastPage }; lastSelected=selected
+        labels.clear(); body.clearRows(); pageHeading=text(selected ?: screen,25,true); body.add(pageHeading)
+        if (message.isNotBlank()) body.add(text(message))
+        when(screen) { "Programmes" -> programmes(); "Playlists" -> playlists(); "Bookmarks" -> bookmarks(); "Downloads" -> downloads(); "History" -> history(); else -> sources() }; lastQuery=query; lastPage=page
     }
     private fun search() {
         val r = row(); val input = EditText(this).apply { hint = "Filter this collection"; setText(query); setSingleLine() }
-        r.addView(input, LinearLayout.LayoutParams(0, -2, 1f)); r.addView(button("Find") { query = input.text.toString().trim(); page = 0; render() }); body.addView(r)
+        r.addView(input, LinearLayout.LayoutParams(0, -2, 1f)); r.addView(button("Find") { query = input.text.toString().trim(); page = 0; render() }); body.add(r)
     }
     private fun selector(options: List<String>, value: String, action: (String) -> Unit) = Spinner(this).apply {
         adapter = ArrayAdapter(this@CollectionActivity, android.R.layout.simple_spinner_dropdown_item, options); setSelection(options.indexOf(value).coerceAtLeast(0)); minimumHeight = dp(48)
@@ -91,10 +99,10 @@ class CollectionActivity : AppCompatActivity() {
     private fun episodes(list: List<Episode>, playlist: String? = null) {
         val filtered = list.filter { "${it.title} ${it.series}".contains(query, true) }
         page = page.coerceAtMost((filtered.size - 1).coerceAtLeast(0) / 20)
-        body.addView(text("${filtered.size} episodes"))
-        filtered.drop(page * 20).take(20).forEach { e ->
+        body.add(text("${filtered.size} episodes"))
+        filtered.drop(page * 20).take(20).forEach { e -> body.addLazy {
             val c = card(); val head = row()
-            head.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation())); scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(56), dp(68)))
+            head.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation(this@CollectionActivity))); FeedArtwork.load(applicationContext,this,e.image); scaleType = ImageView.ScaleType.FIT_CENTER; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(56), dp(68)))
             head.addView(text(e.title, 17, true), LinearLayout.LayoutParams(0, -2, 1f)); c.addView(head)
             c.addView(text("${e.series} • ${collections.sources().find { it.id == e.source }?.title ?: e.source}", 12))
             c.addView(text(if (library.completed(e.id)) "✓ Played" else if (library.progress(e.id) > 0) "Resume at ${clock(library.progress(e.id))}" else if (e.duration > 0) "Duration ${clock(e.duration)}" else "Duration not supplied", 12))
@@ -107,14 +115,14 @@ class CollectionActivity : AppCompatActivity() {
                 }.apply { contentDescription = if (delta < 0) "Move episode up" else "Move episode down"; isEnabled = index + delta in ids.indices })
                 controls.addView(button("Remove") { collections.editPlaylist(playlist, episodes = ids - e.id); render() }); c.addView(controls)
             }
-            body.addView(c)
-        }
-        if (filtered.size > 20) { val r = row(); r.addView(button("‹ Previous") { if (page > 0) { page--; render() } }); r.addView(text("${page + 1}/${(filtered.size + 19) / 20}")); r.addView(button("Next ›") { if ((page + 1) * 20 < filtered.size) { page++; render() } }); body.addView(r) }
+            c
+        } }
+        if (filtered.size > 20) { val r = row(); r.addView(button("‹ Previous") { if (page > 0) { page--; render() } }); r.addView(text("${page + 1}/${(filtered.size + 19) / 20}")); r.addView(button("Next ›") { if ((page + 1) * 20 < filtered.size) { page++; render() } }); body.add(r) }
     }
     private fun programmes() {
         search()
         val catalogue = library.episodes()
-        body.addView(selector(listOf("All programmes", "Something funny", "A mystery tonight", "Science-fiction adventures", "A short listen"), mood) { mood = it; page = 0; selected = null; render() })
+        body.add(selector(listOf("All programmes", "Something funny", "A mystery tonight", "Science-fiction adventures", "A short listen"), mood) { mood = it; page = 0; selected = null; render() })
         val all = catalogue.filter { e -> val genre = collections.sources().find { it.id == e.source }?.genre.orEmpty(); when(mood) {
             "Something funny" -> genre.equals("Comedy", true)
             "A mystery tonight" -> genre.contains("Detective", true) || genre.contains("Mystery", true)
@@ -123,21 +131,35 @@ class CollectionActivity : AppCompatActivity() {
             else -> true
         } }; val name = selected
         if (name == null) {
-            body.addView(text("Programme names are matched from explicit titles or source labels. Mixed podcast recordings remain complete; no chapter times are guessed.", 12))
+            body.add(text("Programme names are matched from explicit titles or source labels. Mixed podcast recordings remain complete; no chapter times are guessed.", 12))
             val followed = collections.followedProgrammes()
-            all.flatMap { ProgrammeIndex.names(it) }.distinct().filter { it.contains(query, true) }.sortedWith(compareBy<String> { it !in followed }.thenBy { it }).forEach { p ->
+            (all.flatMap { ProgrammeIndex.names(it) } + ProgrammeDirectory.entries.map { it.name }).distinct().filter { it.contains(query, true) }.sortedWith(compareBy<String> { it !in followed }.thenBy { it }).forEach { p ->
                 val count = all.count { p in ProgrammeIndex.names(it) }
-                body.addView(button("${if(p in followed) "♥ " else ""}$p · $count") { selected = p; query = ""; page = 0; render() })
+                body.add(button("${if(p in followed) "♥ " else ""}$p · $count") { selected = p; query = ""; page = 0; render() })
             }
-            body.addView(text("Daily listening picks", 21, true)); body.addView(text(if (followed.isEmpty()) "App selections from the catalogue; not newly released recordings." else "App selections based on your programme follows.", 12))
+            body.add(text("Daily listening picks", 21, true)); body.add(text(if (followed.isEmpty()) "App selections from the catalogue; not newly released recordings." else "App selections based on your programme follows.", 12))
             episodes(ProgrammeIndex.daily(all, followed))
         } else {
-            body.addView(button(if (name in collections.followedProgrammes()) "♥ Following programme" else "Follow programme") { collections.followProgramme(name); render() })
-            val list = all.filter { name in ProgrammeIndex.names(it) }
-            list.firstOrNull()?.let { e -> body.addView(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation())); scaleType = ImageView.ScaleType.FIT_CENTER }, LinearLayout.LayoutParams(-1, dp(160))) }
-            body.addView(text("${list.count { library.completed(it.id) }} of ${list.size} recordings played • illustrative cover", 12))
-            body.addView(selector(listOf("Title", "Publication date", "Duration", "Unplayed first"), sort) { sort = it; page = 0; render() })
-            body.addView(button("Possible alternative recordings") {
+            val mapped=ProgrammeDirectory.entries.find { it.name==name }
+            val sourceDirectory=SourceDirectory.load(this)
+            val related=sourceDirectory.filter { it.id in mapped?.directoryIds.orEmpty() }
+            val sourceIds=mapped?.sourceIds.orEmpty() + related.mapNotNull { it.episodeSource()?.id }
+            val recordings=all.filter { it.source in sourceIds || name in ProgrammeIndex.names(it) }
+            recordings.firstOrNull()?.let { first -> body.add(button(if(library.progress(first.id)>0) "▶ Resume" else "▶ Play") { play(first) }) }
+            if(mapped!=null) {
+                body.add(text("Listening sources",18,true))
+                collections.sources().filter { it.id in mapped.sourceIds }.forEach { source -> body.add(button("${source.title} • Browse episodes") { startActivity(Intent(this,LibraryActivity::class.java).putExtra("source_id",source.id).putExtra("from_collection",true)) }) }
+                related.forEach { d -> val source=d.episodeSource(); body.add(button("${d.title} • ${if(source!=null) "Browse episodes" else "Opens website"}") {
+                    if(source==null) open(d.page) else { if(collections.sources().none { it.kind==source.kind && it.url==source.url }) collections.addSource(source); startActivity(Intent(this,LibraryActivity::class.java).putExtra("source_id",source.id).putExtra("from_collection",true)) }
+                }) }
+                StationRepository.load(this).filter { it.id in mapped.stationIds }.forEach { station -> body.add(button("${station.name} • Play in app") { startActivity(Intent(this,LibraryActivity::class.java).putExtra("station_id",station.id).putExtra("from_collection",true)) }) }
+            }
+            body.add(button(if (name in collections.followedProgrammes()) "♥ Following programme" else "Follow programme") { collections.followProgramme(name); render() })
+            val list = recordings
+            list.firstOrNull()?.let { e -> body.add(ImageView(this).apply { setImageDrawable(StationArt.drawable(this@CollectionActivity, e.artStation(this@CollectionActivity))); FeedArtwork.load(applicationContext,this,e.image); scaleType = ImageView.ScaleType.FIT_CENTER }, LinearLayout.LayoutParams(-1, dp(72))) }
+            body.add(text("${list.count { library.completed(it.id) }} of ${list.size} recordings played • illustrative cover", 12))
+            body.add(selector(listOf("Title", "Publication date", "Duration", "Unplayed first"), sort) { sort = it; page = 0; render() })
+            body.add(button("Possible alternative recordings") {
                 val groups = list.groupBy { ProgrammeIndex.duplicateKey(it) }.values.filter { it.size > 1 }
                 AlertDialog.Builder(this).setTitle("Conservative title matches").setMessage(if (groups.isEmpty()) "No exact title-and-series matches found. This does not prove all recordings are unique." else groups.joinToString("\n\n") { g -> g.first().title + "\n" + g.joinToString("\n") { it.source } }.take(12000)).setPositiveButton("Close", null).show()
             })
@@ -148,44 +170,44 @@ class CollectionActivity : AppCompatActivity() {
     private fun playlists() {
         val id = selected
         if (id == null) {
-            body.addView(button("+ New playlist") { ask("Playlist name") { collections.createPlaylist(it); render() } })
-            body.addView(text("Add episodes through Options → Add to playlist. Playlists are saved independently of the playback queue."))
-            collections.playlists().forEach { p -> body.addView(button("${p.getString("name")} · ${p.getJSONArray("episodes").length()}") { selected = p.getString("id"); render() }) }
+            body.add(button("+ New playlist") { ask("Playlist name") { collections.createPlaylist(it); render() } })
+            body.add(text("Add episodes through Options → Add to playlist. Playlists are saved independently of the playback queue."))
+            collections.playlists().forEach { p -> body.add(button("${p.getString("name")} · ${p.getJSONArray("episodes").length()}") { selected = p.getString("id"); render() }) }
         } else {
             val p = collections.playlists().find { it.getString("id") == id } ?: return
-            body.getChildAt(0).let { (it as TextView).text = p.getString("name") }
+            pageHeading.text = p.getString("name")
             val items = collections.playlistIds(id).mapNotNull { library.find(it) }
-            body.addView(button("▶ Play playlist") { if (items.isNotEmpty()) { library.setQueue(items.map { it.id }); play(items.first()) } })
-            body.addView(button("Rename") { ask("Playlist name", p.getString("name")) { collections.editPlaylist(id, name = it); render() } })
-            body.addView(button("Delete playlist") { confirm("Delete this playlist? Episodes will remain available.") { collections.removePlaylist(id); selected = null; render() } })
+            body.add(button("▶ Play playlist") { if (items.isNotEmpty()) { library.setQueue(items.map { it.id }); play(items.first()) } })
+            body.add(button("Rename") { ask("Playlist name", p.getString("name")) { collections.editPlaylist(id, name = it); render() } })
+            body.add(button("Delete playlist") { confirm("Delete this playlist? Episodes will remain available.") { collections.removePlaylist(id); selected = null; render() } })
             search(); episodes(items, id)
         }
     }
     private fun bookmarks() {
-        body.addView(text("Save a listening moment using Bookmark in the episode player."))
+        body.add(text("Save a listening moment using Bookmark in the episode player."))
         collections.bookmarks().reversed().forEach { b ->
             val e = library.find(b.getString("episode")) ?: return@forEach
             val c = card(); c.addView(text(e.title, 17, true)); c.addView(text("${clock(b.getLong("position"))} · ${b.getString("note")}"))
-            c.addView(button("▶ Play from bookmark") { play(e, b.getLong("position")) }); c.addView(button("Remove bookmark") { collections.removeBookmark(b.getString("id")); render() }); body.addView(c)
+            c.addView(button("▶ Play from bookmark") { play(e, b.getLong("position")) }); c.addView(button("Remove bookmark") { collections.removeBookmark(b.getString("id")); render() }); body.add(c)
         }
     }
     private fun history() {
-        body.addView(button("Clear listening history") { confirm("Clear last-listened dates? Saved positions and played status remain.") { library.clearHistory(); render() } })
+        body.add(button("Clear listening history") { confirm("Clear last-listened dates? Saved positions and played status remain.") { library.clearHistory(); render() } })
         search(); episodes(library.episodes().filter { library.played(it.id) > 0 }.sortedByDescending { library.played(it.id) })
     }
     private fun downloads() {
-        body.addView(text("Audio stored: ${"%.1f".format(offline.usedBytes() / 1048576.0)} MB"))
-        body.addView(Switch(this).apply { text = "Wi-Fi only for new downloads"; isChecked = offline.wifiOnly(); setTextColor(getColor(R.color.otr_ink)); setOnCheckedChangeListener { _, b -> offline.wifiOnly(b) } })
-        body.addView(text("Applies when a download is added. Cancel and retry an existing download to change its network setting. Audio files are not included in library backups.", 12))
-        body.addView(button("Refresh downloads") { render() })
+        body.add(text("Audio stored: ${"%.1f".format(offline.usedBytes() / 1048576.0)} MB"))
+        body.add(Switch(this).apply { text = "Wi-Fi only for new downloads"; isChecked = offline.wifiOnly(); setTextColor(getColor(R.color.otr_ink)); setOnCheckedChangeListener { _, b -> offline.wifiOnly(b) } })
+        body.add(text("Applies when a download is added. Cancel and retry an existing download to change its network setting. Audio files are not included in library backups.", 12))
+        body.add(button("Refresh downloads") { render() })
         val entries = offline.entries()
-        if(entries.isEmpty()) body.addView(text("Use an episode’s Options → Download audio to keep it for offline listening."))
+        if(entries.isEmpty()) body.add(text("Use an episode’s Options → Download audio to keep it for offline listening."))
         entries.forEach { entry ->
             val e = library.find(entry.id) ?: return@forEach
             val c = card(); c.addView(text(e.title, 17, true)); val label = text(offline.status(entry)); labels[e.id] = label; c.addView(label)
             if (offline.local(e.id) != null) c.addView(button("▶ Play offline") { play(e) })
             if (entry.state == android.app.DownloadManager.STATUS_FAILED) c.addView(button("Retry download") { runCatching { offline.start(e); render() }.onFailure { toast(it.message.orEmpty()) } })
-            c.addView(button("Cancel / remove download") { confirm("Remove this audio download?") { offline.remove(e.id); render() } }); body.addView(c)
+            c.addView(button("Cancel / remove download") { confirm("Remove this audio download?") { offline.remove(e.id); render() } }); body.add(c)
         }
     }
     private fun options(e: Episode) {
@@ -204,11 +226,11 @@ class CollectionActivity : AppCompatActivity() {
         }.show()
     }
     private fun sources() {
-        body.addView(text("Native sources support catalogue browsing and playback. Website sources open in your browser and are not included in app search.", 13))
-        body.addView(button("+ Add podcast RSS feed") { importSource("rss") }.apply { isEnabled = !busy })
-        body.addView(button("+ Add Internet Archive item") { importSource("archive") }.apply { isEnabled = !busy })
-        body.addView(Switch(this).apply { text = "Daily followed-podcast update digest"; isChecked = FeedUpdates.enabled(this@CollectionActivity); setTextColor(getColor(R.color.otr_ink)); setOnCheckedChangeListener { _, b -> FeedUpdates.setEnabled(this@CollectionActivity, b) } })
-        body.addView(text("Optional background refresh on an unmetered connection, approximately daily. Android controls timing; notification permission is required for alerts.", 12))
+        body.add(text("Native sources support catalogue browsing and playback. Website sources open in your browser and are not included in app search.", 13))
+        body.add(button("+ Add podcast RSS feed") { importSource("rss") }.apply { isEnabled = !busy })
+        body.add(button("+ Add Internet Archive item") { importSource("archive") }.apply { isEnabled = !busy })
+        body.add(Switch(this).apply { text = "Daily followed-podcast update digest"; isChecked = FeedUpdates.enabled(this@CollectionActivity); setTextColor(getColor(R.color.otr_ink)); setOnCheckedChangeListener { _, b -> FeedUpdates.setEnabled(this@CollectionActivity, b) } })
+        body.add(text("Optional background refresh on an unmetered connection, approximately daily. Android controls timing; notification permission is required for alerts.", 12))
         collections.sources().forEach { s ->
             val c = card(); c.addView(text(s.title, 18, true)); c.addView(text("${if(s.kind == "rss") "Podcast RSS" else "Archive audio item"} • ${s.genre}", 12))
             val updated = library.updated(s.id)
@@ -218,13 +240,13 @@ class CollectionActivity : AppCompatActivity() {
             c.addView(button("Browse episodes") { startActivity(Intent(this, LibraryActivity::class.java).putExtra("source_id", s.id).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)); finish() })
             c.addView(button("Original website ↗") { open(s.page) })
             if(s.id.startsWith("custom-")) c.addView(button("Remove source subscription") { confirm("Remove this source? Existing episode entries will be retained.") { collections.removeSource(s.id); if(s.id in library.follows()) library.toggle("follows", s.id); render() } })
-            body.addView(c)
+            body.add(c)
         }
-        body.addView(text("Website sources", 22, true))
-        body.addView(text("OTRCAT • Today, Yesterday and 2 Days Ago are offered on its website. Availability is controlled by OTRCAT."))
-        body.addView(button("OTRCAT daily selection ↗") { open("https://www.otrcat.com/") })
-        body.addView(button("RadioEchoes catalogue ↗") { open("https://www.radioechoes.com/") })
-        body.addView(text("These links do not provide native playback, background audio or automatic imports. YouTube is not integrated.", 12))
+        body.add(text("Website sources", 22, true))
+        body.add(text("OTRCAT • Today, Yesterday and 2 Days Ago are offered on its website. Availability is controlled by OTRCAT."))
+        body.add(button("OTRCAT daily selection ↗") { open("https://www.otrcat.com/") })
+        body.add(button("RadioEchoes catalogue ↗") { open("https://www.radioechoes.com/") })
+        body.add(text("These links do not provide native playback, background audio or automatic imports. YouTube is not integrated.", 12))
     }
     private fun refresh(s: EpisodeSource) {
         if(busy) return; busy = true; message = "Refreshing ${s.title}…"; render()

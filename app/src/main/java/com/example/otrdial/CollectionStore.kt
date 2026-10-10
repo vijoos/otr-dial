@@ -47,9 +47,8 @@ class CollectionStore(context: Context) {
     fun export() = JSONObject().put("sources", array("sources")).put("playlists", array("playlists"))
         .put("bookmarks", array("bookmarks")).put("programmes", JSONArray(followedProgrammes().toList()))
     fun validate(j: JSONObject) {
-        for (key in listOf("sources", "playlists", "bookmarks", "programmes")) require(j.getJSONArray(key).length() <= 10000)
         objects(j.getJSONArray("sources")).forEach { val s = source(it); require(s.id.startsWith("custom-") && s.kind in listOf("rss", "archive")); require(EpisodeCatalogue.validUrl(s.page)); require(if (s.kind == "rss") EpisodeCatalogue.validUrl(s.url) else s.url.matches(Regex("[A-Za-z0-9_.-]+"))) }
-        objects(j.getJSONArray("playlists")).forEach { require(it.getString("id").isNotBlank() && it.getString("name").isNotBlank()); require(it.getJSONArray("episodes").length() <= 10000); strings(it.getJSONArray("episodes")).forEach { id -> require(id.startsWith("episode:")) } }
+        objects(j.getJSONArray("playlists")).forEach { require(it.getString("id").isNotBlank() && it.getString("name").isNotBlank()); strings(it.getJSONArray("episodes")).forEach { id -> require(id.startsWith("episode:")) } }
         objects(j.getJSONArray("bookmarks")).forEach { require(it.getString("id").isNotBlank()); require(it.getString("episode").startsWith("episode:") && it.getLong("position") >= 0); require(it.getString("note").length <= 2000) }
         strings(j.getJSONArray("programmes"))
     }

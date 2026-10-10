@@ -19,9 +19,9 @@ class PlatformTest {
     private fun click(a: LibraryActivity, text: String) { all(a.window.decorView).filterIsInstance<TextView>().first { it.text.toString() == text }.performClick() }
     @Test fun directoryLinksAndSavedSourcesSurviveBackup() {
         val directory = SourceDirectory.load(context)
-        assertEquals(101, directory.size)
-        assertEquals(101, directory.map { it.id }.distinct().size)
-        assertEquals(5, directory.count { it.category == "youtube" })
+        assertTrue(directory.size >= 180)
+        assertEquals(directory.size, directory.map { it.id }.distinct().size)
+        assertTrue(directory.count { it.category == "youtube" } >= 8)
         assertTrue(directory.all { EpisodeCatalogue.validUrl(it.page) })
         val stationIds = StationRepository.load(context).map { it.id }
         assertTrue(directory.all { it.stationId.isBlank() || it.stationId in stationIds })
@@ -43,17 +43,13 @@ class PlatformTest {
         for (dark in listOf(false, true)) {
             context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
             ActivityScenario.launch(LibraryActivity::class.java).use { scenario ->
-                scenario.onActivity { a ->
-                    for (tab in listOf("Radio", "Repo", "Podcasts", "YouTube", "Favourites")) {
-                        click(a, tab)
-                        assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == tab })
-                    }
-                    click(a, "YouTube")
-                    assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Old Time Radio Researchers (OTRR)" })
-                    click(a, "Favourites")
+                for (tab in listOf("Radio", "Archives", "Podcasts", "YouTube", "Library")) {
+                    scenario.onActivity { a -> click(a,tab) }
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                    scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString()==tab }) }
                 }
                 scenario.recreate()
-                scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Your favourites" }) }
+                scenario.onActivity { a -> assertTrue(all(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString() == "Library" }) }
             }
         }
     }

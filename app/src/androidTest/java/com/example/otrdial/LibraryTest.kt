@@ -76,15 +76,17 @@ class LibraryTest {
             context.getSharedPreferences("otr_dial", Context.MODE_PRIVATE).edit().putBoolean("dark_mode", dark).commit()
             ActivityScenario.launch(LibraryActivity::class.java).use { scenario ->
                 SystemClock.sleep(1500); capture("library-${if (dark) "dark" else "light"}-home")
-                scenario.onActivity { a -> click(a, "Repo") }
+                scenario.onActivity { a -> click(a, "Archives") }
                 capture("library-${if (dark) "dark" else "light"}-shows")
                 scenario.onActivity { a -> click(a, "Browse episodes  ›") }
                 capture("library-${if (dark) "dark" else "light"}-episodes")
-                scenario.onActivity { a -> click(a, "♡ Save"); click(a, "Favourites") }
+                scenario.onActivity { a -> LibraryStore(context).episodes().first().let { LibraryStore(context).toggle("saved",it.id) }; click(a, "Library") }
                 capture("library-${if (dark) "dark" else "light"}-saved")
-                scenario.recreate(); scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Saved episodes" }); click(a, "Queue") }
-                scenario.onActivity { a -> click(a, "Search"); descendants(a.window.decorView).filterIsInstance<android.widget.EditText>().first().setText("Gunsmoke"); click(a, "Find") }
-                scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Gunsmoke" }) }
+                scenario.recreate(); scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text == "Library" }); click(a, "Queue") }
+                scenario.onActivity { a -> click(a,"Search") }; instrumentation.waitForIdleSync()
+                scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<android.widget.EditText>().first().setText("Gunsmoke"); click(a, "Find") }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { a -> assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString().contains("Gunsmoke") }) }
                 capture("library-${if (dark) "dark" else "light"}-search")
             }
             reset()

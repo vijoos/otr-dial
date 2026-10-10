@@ -1,0 +1,178 @@
+[
+  {
+    "id": "adrn-otr-british",
+    "name": "Old Time Radio - British",
+    "network": "Australian Digital Radio Network",
+    "genre": "British variety",
+    "streamUrl": "http://abm21.com.au:8000/CONTAINER7",
+    "homepage": "http://www.australiandigitalradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "adrn-otr-channel-1-crime-detective",
+    "name": "Old Time Radio Channel 1 - Crime, Detective",
+    "network": "Australian Digital Radio Network",
+    "genre": "Mystery / crime",
+    "streamUrl": "http://abm21.com.au:8000/CONTAINER2",
+    "homepage": "http://www.australiandigitalradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "adrn-otr-channel-2-drama-thriller",
+    "name": "Old Time Radio Channel 2 - Drama, Thriller",
+    "network": "Australian Digital Radio Network",
+    "genre": "Drama / suspense",
+    "streamUrl": "http://abm21.com.au:8000/CONTAINER3",
+    "homepage": "http://www.australiandigitalradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "adrn-otr-channel-3-non-fiction-comedy-western-history",
+    "name": "Old Time Radio Channel 3 - Non Fiction, Comedy, Western, History",
+    "network": "Australian Digital Radio Network",
+    "genre": "Comedy / western",
+    "streamUrl": "http://abm21.com.au:8000/CONTAINER4",
+    "homepage": "http://www.australiandigitalradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "adrn-otr-channel-4-films-horror-sci-fi-adventure",
+    "name": "Old Time Radio Channel 4 - Films, Horror, Sci Fi, Adventure",
+    "network": "Australian Digital Radio Network",
+    "genre": "Science fiction / horror",
+    "streamUrl": "http://abm21.com.au:8000/CONTAINER5",
+    "homepage": "http://www.australiandigitalradio.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "radio-1920s-network",
+    "name": "The 1920s Radio Network",
+    "network": "The 1920s Radio Network",
+    "genre": "Variety",
+    "streamUrl": "http://65.108.105.26:8516/stream",
+    "homepage": "https://the1920snetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "bygoneradio",
+    "name": "BygoneRadio",
+    "network": "BygoneRadio",
+    "genre": "Mixed",
+    "streamUrl": "https://davidgmedia.us:8010/radio.mp3",
+    "homepage": "https://radio.bygonelife.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 206 audio/mpeg sample."
+  },
+  {
+    "id": "dry-gulch-old-time-radio-westerns",
+    "name": "Dry Gulch: Old-Time Radio Westerns",
+    "network": "Stupid Potato",
+    "genre": "Western",
+    "streamUrl": "https://stupidpotato.com/dry-gulch/live",
+    "homepage": "https://stupidpotato.com/dry-gulch/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "fort-laramie-radio",
+    "name": "Fort Laramie (radio)",
+    "network": "Stupid Potato",
+    "genre": "Western / adventure",
+    "streamUrl": "https://stupidpotato.com/fort-laramie/live",
+    "homepage": "https://stupidpotato.com/fort-laramie/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "frontier-gentleman-radio",
+    "name": "Frontier Gentleman (radio)",
+    "network": "Stupid Potato",
+    "genre": "Western / adventure",
+    "streamUrl": "https://stupidpotato.com/frontier-gentleman/live",
+    "homepage": "https://stupidpotato.com/frontier-gentleman/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "gunsmoke-radio-every-episode",
+    "name": "Gunsmoke (radio, every episode)",
+    "network": "Stupid Potato",
+    "genre": "Western",
+    "streamUrl": "https://stupidpotato.com/gunsmoke/live",
+    "homepage": "https://stupidpotato.com/gunsmoke/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "have-gun-will-travel-radio",
+    "name": "Have Gun, Will Travel (radio)",
+    "network": "Stupid Potato",
+    "genre": "Western",
+    "streamUrl": "https://stupidpotato.com/have-gun-will-travel/live",
+    "homepage": "https://stupidpotato.com/have-gun-will-travel/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "radio-mystery-theater-usa",
+    "name": "Radio Mystery Theater USA",
+    "network": "Radio Mystery Theater USA",
+    "genre": "Mystery / suspense",
+    "streamUrl": "https://ais-sa3.cdnstream1.com/2800_128.mp3",
+    "homepage": "https://www.wotrradionetwork.com/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "radio-oncemore",
+    "name": "Radio OnceMore",
+    "network": "Radio OnceMore",
+    "genre": "Mixed",
+    "streamUrl": "https://ice66.securenetsystems.net/ROM",
+    "homepage": "http://radiooncemore.com/index.html",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/aacp sample."
+  },
+  {
+    "id": "tales-of-the-texas-rangers-radio",
+    "name": "Tales of the Texas Rangers (radio)",
+    "network": "Stupid Potato",
+    "genre": "Western / adventure",
+    "streamUrl": "https://stupidpotato.com/texas-rangers/live",
+    "homepage": "https://stupidpotato.com/texas-rangers/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  },
+  {
+    "id": "the-six-shooter-radio",
+    "name": "The Six Shooter (radio)",
+    "network": "Stupid Potato",
+    "genre": "Western",
+    "streamUrl": "https://stupidpotato.com/six-shooter/live",
+    "homepage": "https://stupidpotato.com/six-shooter/",
+    "scheduleUrl": "",
+    "recordable": true,
+    "verification": "Audio response verified 2026-10-09: HTTP 200 audio/mpeg sample."
+  }
+]
