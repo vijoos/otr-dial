@@ -25,7 +25,7 @@ class Release28Test {
             val migration = android.os.SystemClock.elapsedRealtime()-start
             assertEquals(25000, store.count()); assertEquals(42000L, store.progress(values.first().id)); assertTrue(values.first().id in store.saved())
             start = android.os.SystemClock.elapsedRealtime(); val page = store.page(query="Gunsmoke recording 24999", limit=25); val search = android.os.SystemClock.elapsedRealtime()-start
-            assertEquals(1, page.size); assertEquals(values.last().id, page.first().id)
+            assertEquals("FTS multi-term search; exact=${store.find(values.last().id)?.title}, single=${store.page(query="Gunsmoke",limit=2).map { it.title }}, numeric=${store.page(query="24999",limit=2).map { it.title }}", 1, page.size); assertEquals(values.last().id, page.first().id)
             start = android.os.SystemClock.elapsedRealtime(); val backup = store.export(); val export = android.os.SystemClock.elapsedRealtime()-start
             assertTrue(backup.toByteArray().size > 12*1024*1024)
             CatalogueDatabase.resetForTest(context); prefs.edit().clear().putString("catalogue", "[]").commit()
