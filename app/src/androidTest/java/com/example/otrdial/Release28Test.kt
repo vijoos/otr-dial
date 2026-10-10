@@ -51,7 +51,9 @@ class Release28Test {
     }
     @Test fun replacementFailurePreservesOfflineCopy() {
         val audio=OfflineAudio(context); val e=fixture(1); val file=audio.file(e.id)
-        val old="existing-offline-fixture".toByteArray(); file.writeBytes(old)
+        val old=java.nio.ByteBuffer.allocate(16044).order(java.nio.ByteOrder.LITTLE_ENDIAN).apply {
+            put("RIFF".toByteArray()); putInt(16036); put("WAVEfmt ".toByteArray()); putInt(16); putShort(1); putShort(1); putInt(8000); putInt(16000); putShort(2); putShort(16); put("data".toByteArray()); putInt(16000)
+        }.array(); file.writeBytes(old)
         val prefs=context.getSharedPreferences("offline24",Context.MODE_PRIVATE); prefs.edit().putBoolean("ready:${e.id}",true).commit()
         fun network(command:String) { InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command).use { java.io.FileInputStream(it.fileDescriptor).readBytes() } }
         try {

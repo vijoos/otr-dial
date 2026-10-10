@@ -36,7 +36,7 @@ class CatalogueDatabase private constructor(private val app: Context) : SQLiteOp
         val conditions = mutableListOf<String>(); val args = mutableListOf<String>()
         if (source != null) { conditions += "source=?"; args += source }
         val terms = query.lowercase(java.util.Locale.ROOT).split(Regex("[^\\p{L}\\p{N}]+")).filter { it.isNotEmpty() }
-        if (terms.isNotEmpty()) { conditions += "id IN (SELECT id FROM episode_search WHERE episode_search MATCH ?)"; args += terms.joinToString(" AND ") { "\"$it\"*" } }
+        if (terms.isNotEmpty()) { conditions += "id IN (SELECT id FROM episode_search WHERE episode_search MATCH ?)"; args += terms.joinToString(" AND ") { "\"$it*\"" } }
         args += limit.toString(); args += offset.toString()
         return select("SELECT payload FROM episodes" + if(conditions.isEmpty()) " ORDER BY rowid LIMIT ? OFFSET ?" else " WHERE ${conditions.joinToString(" AND ")} ORDER BY rowid LIMIT ? OFFSET ?", args.toTypedArray())
     }
